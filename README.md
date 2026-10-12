@@ -1,6 +1,6 @@
 # Unicorn Dash 🦄
 
-A rainbow running game for the browser, made for older elementary kids, with **no reading needed**. Your unicorn gallops across a sky world on her own. You only decide when to **jump** and when to **dash** on a rainbow, and try to make it to the castle.
+A rainbow running game for the browser. Your unicorn gallops across a sky world on her own. You only decide when to **jump** and when to **dash** on a rainbow, and try to make it to the castle.
 
 **[▶ Play Unicorn Dash](https://jessicasogge.github.io/unicorn-dash/)**: works on computers, phones and tablets.
 
