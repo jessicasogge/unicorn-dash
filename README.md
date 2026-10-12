@@ -67,4 +67,4 @@ Unicorn Dash is released under the [MIT License](LICENSE). It uses the [Fredoka]
 
 ## Credits
 
-Made by Jessica Sogge. Sister game to [PetriPals](https://jessicasogge.github.io/petripals/) and [FunGals](https://jessicasogge.github.io/fungals/).
+Made by Jessica Sogge. 
