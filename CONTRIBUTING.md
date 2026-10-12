@@ -1,0 +1,45 @@
+# Contributing to Unicorn Dash
+
+Thanks for your interest in Unicorn Dash! Bug reports, ideas for new worlds or unicorns, and fixes are all welcome.
+
+Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Reporting a bug or suggesting an idea
+
+[Open an issue](https://github.com/jessicasogge/unicorn-dash/issues) and tell us:
+
+- **For a bug:** what you did, what you expected, and what happened instead. Say which browser and device you were on (for example, Chrome on a laptop, or Safari on an iPhone). A screenshot helps a lot.
+- **For an idea:** what you'd like to see and why.
+
+## Making a change
+
+1. Fork the repo and create a branch for your change.
+2. Install and start the game:
+
+   ```sh
+   npm install
+   npm run dev
+   ```
+
+   Then open http://localhost:3000.
+
+3. Make your change. The game is plain HTML, CSS and JavaScript in `public/`, with no build step. See the [README](README.md#project-layout) for where things live.
+4. Add or update tests for what you changed, and make sure they all pass and still cover the game:
+
+   ```sh
+   npm run test:coverage
+   ```
+
+5. Open a pull request saying what you changed and why. For anything you can see, include a screenshot.
+
+## Style
+
+- **Keep pull requests small and focused.** One fix or feature per pull request is easiest to review.
+- **Write comments in plain English** that explain why, not just what, like the existing code does.
+- **No reading needed.** Players may not read yet, or not easily. Show things with pictures, colors, shapes, numbers and sound, never words they have to read. Give every icon-only button an `aria-label` for screen readers.
+- **Never by color alone.** Anything told apart by color (like the mane colors) gets a shape too, for colorblind players.
+- **Check it on a phone as well as a computer.** The game works with the keyboard and with touch.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).

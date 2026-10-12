@@ -1,0 +1,286 @@
+/* The title and button font: Fredoka, under the SIL Open Font License
+   (public/fonts/Fredoka-OFL.txt), with Nunito for the small print. They're
+   kept here rather than loaded from Google Fonts, so the page doesn't wait
+   on, or tell, another site. Until they load, the page uses its usual font. */
+@font-face {
+  font-family: Fredoka;
+  font-weight: 600;
+  font-display: swap;
+  src: url(./fonts/fredoka-600.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: Fredoka;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./fonts/fredoka-700.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: Nunito;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./fonts/nunito-700.woff2) format('woff2');
+}
+
+:root {
+  --ink: #2b2350; /* every outline, and the text */
+  --sky: #a8e0ff;
+  --pink: #ff5fa2;
+  --yellow: #ffc21a;
+  --grass: #5bbe3f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--grass); /* under the start screen, the hill carries on */
+  color: var(--ink);
+  font-family: Nunito, system-ui, sans-serif;
+  text-align: center;
+}
+
+/* ---- The start screen: one full screen, the sky behind it ---- */
+
+.start {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh; /* on phones, the screen without the address bar */
+  overflow: hidden;
+  background: var(--sky);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 3vh, 1.75rem);
+  padding: 2rem 1rem 3rem;
+}
+
+/* Fills the screen and is cropped at the sides on a narrow one, so the
+   rainbow stays centered with the hills along the bottom. */
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.start > :not(.scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.logo span {
+  -webkit-text-stroke: 0.1em var(--ink);
+  paint-order: stroke fill; /* the outline goes behind the letters */
+}
+
+.logo-unicorn {
+  font-size: clamp(3.5rem, 13vw, 7.75rem);
+  color: var(--pink);
+  letter-spacing: 0.02em;
+}
+
+.logo-dash {
+  font-size: clamp(4rem, 15vw, 8.75rem);
+  color: var(--yellow);
+  letter-spacing: 0.04em;
+  transform: rotate(-4deg);
+}
+
+/* ---- The unicorn and her rainbow trail ---- */
+
+.stage {
+  width: min(88vw, 30rem);
+  aspect-ratio: 30 / 16;
+  transform: rotate(-8deg); /* leaping up and to the right */
+}
+
+.trail {
+  position: absolute;
+  left: 0;
+  width: 62%;
+  top: 46%;
+  height: 22%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 999px 0 0 999px;
+  overflow: hidden;
+  transform-origin: right center;
+}
+
+.trail span {
+  flex: 1;
+}
+
+.trail span:nth-child(1) { background: #ff5a5f; }
+.trail span:nth-child(2) { background: #ff9f1c; }
+.trail span:nth-child(3) { background: #ffd23f; }
+.trail span:nth-child(4) { background: #5bd06b; }
+.trail span:nth-child(5) { background: #3a8dff; }
+.trail span:nth-child(6) { background: #9b6bff; }
+
+.unicorn-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 62%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* no double-tap zoom when tapping twice */
+  animation: bob 1.2s ease-in-out infinite;
+}
+
+.unicorn-btn:focus-visible {
+  outline: 4px dashed var(--ink);
+  outline-offset: 4px;
+  border-radius: 1rem;
+}
+
+.unicorn {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Bobbing along while she waits */
+@keyframes bob {
+  50% { transform: translateY(-4%); }
+}
+
+/* Tapped: a hop (450ms, HOP_MS in script.js) */
+.hopping .unicorn-btn {
+  animation: hop 450ms ease-out;
+}
+
+@keyframes hop {
+  40% { transform: translateY(-38%) rotate(-6deg); }
+  100% { transform: translateY(0); }
+}
+
+/* Play: off the right of the screen (900ms, DASH_MS), the trail
+   stretching out behind her... */
+.dashing .unicorn-btn {
+  animation: dash-off 900ms ease-in forwards;
+}
+
+.dashing .trail {
+  animation: stretch 900ms ease-in forwards;
+}
+
+@keyframes dash-off {
+  20% { transform: translateX(-6%); }
+  100% { transform: translateX(120vw); }
+}
+
+@keyframes stretch {
+  100% { transform: translateX(120vw) scaleX(3); }
+}
+
+/* ...then back in from the left (600ms, RETURN_MS) */
+.returning .unicorn-btn,
+.returning .trail {
+  animation: trot-in 600ms ease-out;
+}
+
+@keyframes trot-in {
+  from { transform: translateX(-120vw); }
+}
+
+/* ---- Play ---- */
+
+.play-btn {
+  width: 10rem;
+  height: 6.5rem;
+  border: 6px solid var(--ink);
+  border-radius: 2.5rem;
+  background: var(--pink);
+  box-shadow: 0 10px 0 var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  touch-action: manipulation;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.play-btn svg {
+  width: 4.5rem;
+  height: 4.5rem;
+  fill: #ffffff;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.play-btn:hover {
+  background: #ff74b0;
+}
+
+/* Pressed down into its shadow */
+.play-btn:active,
+.play-btn:disabled {
+  transform: translateY(8px);
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+.play-btn:disabled {
+  cursor: default;
+}
+
+.play-btn:focus-visible {
+  outline: 4px dashed var(--ink);
+  outline-offset: 6px;
+}
+
+/* ---- Below the start screen: for grown-ups ---- */
+
+.about,
+.sister-games {
+  max-width: 34rem;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+  color: var(--ink); /* white on the green is too faint to read */
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.sister-games a {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.signature {
+  margin: 2rem 0 0;
+  padding: 0 0 1.5rem;
+  color: var(--ink);
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* For players whose devices ask for less motion: she stays put. */
+@media (prefers-reduced-motion: reduce) {
+  .unicorn-btn,
+  .trail {
+    animation: none !important;
+  }
+}

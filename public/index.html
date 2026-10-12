@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unicorn Dash: A Rainbow Running Game</title>
+    <meta name="description" content="A free unicorn game you play in your browser: tap to jump, hold to dash on a rainbow, and gallop to the castle. No reading needed." />
+    <link rel="canonical" href="https://jessicasogge.github.io/unicorn-dash/" />
+    <!-- How the link looks when it's shared (iMessage, Slack, Discord, social media) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unicorn Dash" />
+    <meta property="og:title" content="Unicorn Dash: A Rainbow Running Game" />
+    <meta property="og:description" content="A free unicorn game you play in your browser: tap to jump, hold to dash on a rainbow, and gallop to the castle. No reading needed." />
+    <meta property="og:url" content="https://jessicasogge.github.io/unicorn-dash/" />
+    <meta property="og:image" content="https://jessicasogge.github.io/unicorn-dash/social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Unicorn Dash start screen: a white unicorn with a pink mane leaping on a rainbow trail under the words Unicorn Dash" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="preload" href="./fonts/fredoka-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="start">
+      <!-- The sky behind everything: a big rainbow over the hills -->
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path d="M120 800 A520 520 0 0 1 1160 800" fill="none" stroke="#FF5A5F" stroke-width="24" />
+        <path d="M144 800 A496 496 0 0 1 1136 800" fill="none" stroke="#FF9F1C" stroke-width="24" />
+        <path d="M168 800 A472 472 0 0 1 1112 800" fill="none" stroke="#FFD23F" stroke-width="24" />
+        <path d="M192 800 A448 448 0 0 1 1088 800" fill="none" stroke="#5BD06B" stroke-width="24" />
+        <path d="M216 800 A424 424 0 0 1 1064 800" fill="none" stroke="#3A8DFF" stroke-width="24" />
+        <path d="M240 800 A400 400 0 0 1 1040 800" fill="none" stroke="#9B6BFF" stroke-width="24" />
+        <circle cx="250" cy="1010" r="450" fill="#8EDB6E" stroke="#2B2350" stroke-width="5" />
+        <circle cx="1050" cy="1040" r="450" fill="#5BBE3F" stroke="#2B2350" stroke-width="5" />
+        <g fill="#FFFFFF" stroke="#2B2350" stroke-width="4.5">
+          <path d="M57 631 a37 37 0 0 1 15 -71 a56 56 0 0 1 105 -15 a45 45 0 0 1 82 30 a34 34 0 0 1 22 56 Z" />
+          <path d="M997 631 a37 37 0 0 1 15 -71 a56 56 0 0 1 105 -15 a45 45 0 0 1 82 30 a34 34 0 0 1 22 56 Z" />
+        </g>
+        <g fill="#FFFFFF" opacity="0.85">
+          <path d="M79 148 a19 19 0 0 1 7 -36 a28 28 0 0 1 53 -7 a22 22 0 0 1 41 15 a17 17 0 0 1 11 28 Z" />
+          <path d="M1100 135 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 0 0 1 44 16 a18 18 0 0 1 12 30 Z" />
+        </g>
+        <g fill="#FFFFFF" stroke="#2B2350" stroke-width="1.5" stroke-linejoin="round">
+          <path d="M194 300 l3 11 l11 3 l-11 3 l-3 11 l-3 -11 l-11 -3 l11 -3 Z" />
+          <path d="M1025 255 l3.5 12 l12 3.5 l-12 3.5 l-3.5 12 l-3.5 -12 l-12 -3.5 l12 -3.5 Z" />
+          <path d="M1098 370 l2.5 8 l8 2.5 l-8 2.5 l-2.5 8 l-2.5 -8 l-8 -2.5 l8 -2.5 Z" />
+          <path d="M160 430 l2 7 l7 2 l-7 2 l-2 7 l-2 -7 l-7 -2 l7 -2 Z" />
+          <path d="M955 170 l2 7 l7 2 l-7 2 l-2 7 l-2 -7 l-7 -2 l7 -2 Z" />
+        </g>
+      </svg>
+
+      <h1 class="logo">
+        <span class="logo-unicorn">Unicorn</span>
+        <span class="logo-dash">Dash</span>
+      </h1>
+
+      <!-- Tap her for a new mane color. She's drawn by script.js. -->
+      <div class="stage">
+        <div class="trail" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <button class="unicorn-btn" type="button" aria-label="Change her mane color"></button>
+      </div>
+
+      <button class="play-btn" type="button" aria-label="Play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L20 12 L7 20 Z" /></svg>
+      </button>
+    </main>
+
+    <p class="about">
+      A unicorn runs on her own across a sky world. Tap to jump, hold to
+      dash on a rainbow, and gallop to the castle. No reading needed.
+    </p>
+    <p class="sister-games">
+      More games:
+      <a href="https://jessicasogge.github.io/petripals/">PetriPals</a> and
+      <a href="https://jessicasogge.github.io/fungals/">FunGals</a>.
+    </p>
+    <footer class="signature">jsogge 2026</footer>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
