@@ -281,8 +281,8 @@ body {
 
 .map {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  height: 100vh;
+  height: 100svh; /* exactly one screen, no scrolling */
   overflow: hidden;
   background: var(--sky);
   display: flex;
@@ -329,8 +329,10 @@ body {
 }
 
 .worlds {
+  /* The circles' size, to fit the screen's width and height */
+  --island: clamp(5rem, min(14vw, 19vh), 10rem);
   list-style: none;
-  margin: auto 0;
+  margin: clamp(0.5rem, 5vh, 3.5rem) 0 auto; /* in the upper part of the sky */
   padding: 0;
   max-width: 70rem;
   display: flex;
@@ -349,8 +351,8 @@ body {
 
 /* Where she stands, above her world */
 .perch {
-  width: 8.5rem;
-  height: 6.8rem;
+  width: calc(var(--island) * 0.85);
+  height: calc(var(--island) * 0.68);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -368,7 +370,7 @@ body {
 
 .island {
   position: relative;
-  width: clamp(6.5rem, 14vw, 10rem);
+  width: var(--island);
   aspect-ratio: 1;
   border: 5px solid var(--ink);
   border-radius: 50%;
@@ -405,8 +407,25 @@ body {
    stepping stones */
 @media (min-width: 900px) {
   .world:nth-child(even) {
-    transform: translateY(-3.5rem);
+    transform: translateY(calc(var(--island) * -0.35));
   }
+}
+
+/* On a phone, bigger circles in rows of two */
+@media (max-width: 600px) {
+  .worlds {
+    --island: clamp(5rem, min(30vw, 15vh), 8rem);
+  }
+}
+
+/* The signature sits on the hill, so the map is still one screen */
+.map .signature {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.75rem;
+  margin: 0;
+  padding: 0;
 }
 
 /* For players whose devices ask for less motion: she stays put. */
