@@ -1,20 +1,24 @@
 // The start screen: the unicorn on her rainbow, and the Play button.
 // Nothing here needs reading: tap her and she hops into a new mane color,
-// press Play and she dashes off.
-import { MANES, drawUnicorn, nextMane, setMane } from './game/unicorn.js';
+// press Play and she dashes off to the world map.
+import { HOP_MS, drawUnicorn, maneFromAddress, nextMane, setMane } from './game/unicorn.js';
 
 // How long each move takes, in milliseconds. styles.css uses the same
 // lengths for the animations, so keep the two in step.
-export const HOP_MS = 450;
+export { HOP_MS }; // a hop, the same on every screen
 export const DASH_MS = 900; // galloping off the right of the screen
-export const RETURN_MS = 600; // and trotting back in from the left
+export const RETURN_MS = 600; // trotting back in, when you come back to it
+
+// Where Play goes. She takes her mane color with her.
+export const NEXT_PAGE = './world-map.html';
 
 const stage = document.querySelector('.stage');
 const tapTarget = document.querySelector('.unicorn-btn');
 const playButton = document.querySelector('.play-btn');
 
 if (stage && tapTarget && playButton) {
-  let mane = MANES[0];
+  // Back from the map, she still has the mane she left with.
+  let mane = maneFromAddress(location.search);
   const unicorn = drawUnicorn(mane);
   tapTarget.append(unicorn);
 
@@ -24,22 +28,30 @@ if (stage && tapTarget && playButton) {
     if (stage.classList.contains('hopping') || stage.classList.contains('dashing')) return;
     mane = nextMane(mane);
     setMane(unicorn, mane);
+    // Put it in this page's address too, so the Back button from the map
+    // brings her back with it.
+    history.replaceState(null, '', `?mane=${mane.name}`);
     stage.classList.add('hopping');
     setTimeout(() => stage.classList.remove('hopping'), HOP_MS);
   });
 
-  // Play: she gallops off, then comes back. (The world map will open here
-  // once it's built; for now the start screen is the whole game.)
+  // Play: she gallops off the screen, and the map opens once she's gone.
   playButton.addEventListener('click', () => {
     playButton.disabled = true;
-    stage.classList.remove('hopping');
+    stage.classList.remove('hopping', 'returning');
     stage.classList.add('dashing');
     setTimeout(() => {
-      stage.classList.replace('dashing', 'returning');
-      setTimeout(() => {
-        stage.classList.remove('returning');
-        playButton.disabled = false;
-      }, RETURN_MS);
+      location.href = `${NEXT_PAGE}?mane=${mane.name}`;
     }, DASH_MS);
+  });
+
+  // When you come back with the browser's Back button, the browser may show
+  // this page exactly as it was left: her gone and Play pressed. Trot her
+  // back in and make Play work again.
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    playButton.disabled = false;
+    stage.classList.replace('dashing', 'returning');
+    setTimeout(() => stage.classList.remove('returning'), RETURN_MS);
   });
 }

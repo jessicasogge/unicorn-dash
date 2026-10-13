@@ -8,12 +8,13 @@ A rainbow running game for the browser. Your unicorn gallops across a sky world 
 
 ## What's here so far
 
-Just the **start screen**:
+The **start screen** and the **world map**:
 
 - **Tap the unicorn** and she hops into a new mane color: pink, then blue, then yellow, then pink again. In the game, gates only let a matching mane through.
-- **Press Play** and she dashes off on her rainbow, then trots back in. (The world map will open here once it's built.)
+- **Press Play** and she dashes off on her rainbow to the **world map**, keeping her mane color.
+- **On the map**, she stands on the Meadow, the first of five worlds. The other four are locked for now, and so are levels 2 to 5. The levels themselves aren't built yet, so tapping level 1 just gets a hop from her. The house button takes you back to the start.
 
-Everything on it is pictures, not words. Each button has a name for screen readers, and if a device asks for less motion, she stays still.
+Everything is pictures and numbers, not words. Each button has a name for screen readers, and if a device asks for less motion, she stays still.
 
 ## The plan
 
@@ -31,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3006.
 
 ## Tests
 
@@ -48,8 +49,10 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 |---|---|
 | `public/index.html` | The start screen |
 | `public/script.js` | The start screen's taps: a new mane color, and Play |
+| `public/world-map.html` | The world map: the five worlds and the Meadow's levels |
+| `public/game/world-map.js` | Puts her on the map, with the mane she came with |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |
-| `public/styles.css` | How it all looks, and the hop and dash animations |
+| `public/styles.css` | How every screen looks, and the hop and dash animations |
 | `test/` | Tests |
 | `src/index.ts` | Small Express server for local development |
 

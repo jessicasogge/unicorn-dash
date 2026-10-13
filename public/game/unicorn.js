@@ -12,6 +12,10 @@ export const INK = '#2B2350'; // her outline, the same deep purple as the page
 export const COAT = '#FFFFFF';
 export const HORN = '#FFC93C';
 
+// How long a hop takes, in milliseconds: the .hopping animation in
+// styles.css, on any screen.
+export const HOP_MS = 450;
+
 export const MANES = [
   { name: 'pink', shape: 'heart', color: '#FF5FA2' },
   { name: 'blue', shape: 'star', color: '#3A8DFF' },
@@ -98,4 +102,12 @@ export function setMane(svg, mane) {
 // The mane after `mane`, back to the first after the last.
 export function nextMane(mane) {
   return MANES[(MANES.indexOf(mane) + 1) % MANES.length];
+}
+
+// The mane named in a page's address (like ?mane=blue), so she keeps her
+// color from one screen to the next. Pink if there's none, or it's not one
+// of hers.
+export function maneFromAddress(search) {
+  const name = new URLSearchParams(search).get('mane');
+  return MANES.find((mane) => mane.name === name) ?? MANES[0];
 }

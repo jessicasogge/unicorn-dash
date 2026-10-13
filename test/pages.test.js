@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html'];
+const PAGES = ['index.html', 'world-map.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -51,7 +51,7 @@ describe('the start screen', () => {
   });
 
   it('keeps her still for players whose devices ask for less motion', () => {
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail \{\s*animation: none !important;/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail,\s*\.perch \{\s*animation: none !important;/);
   });
 
   it('has every font file the stylesheet uses, each with its license', () => {
@@ -65,6 +65,20 @@ describe('the start screen', () => {
   it('preloads the title font, so the name shows up in it quickly', () => {
     const [, preloaded] = html.match(/<link rel="preload" href="\.\/([^"]+)" as="font"/);
     expect(css).toContain(`url(./${preloaded})`);
+  });
+});
+
+describe('the world map', () => {
+  const html = readFileSync(file('world-map.html'), 'utf8');
+  const map = html.slice(html.indexOf('<main class="map">'), html.indexOf('</main>'));
+
+  it('needs no reading: only numbers on its buttons, and names for screen readers', () => {
+    const controls = [...map.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
+    expect(controls.length).toBeGreaterThan(0);
+    for (const [, , attrs, inside] of controls) {
+      expect(attrs).toMatch(/aria-label="[^"]+"/);
+      expect(inside.replace(/<[^>]*>/g, '').trim()).toMatch(/^\d*$/);
+    }
   });
 });
 

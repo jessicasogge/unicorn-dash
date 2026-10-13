@@ -277,10 +277,272 @@ body {
   font-size: 0.9rem;
 }
 
+/* ---- The world map ---- */
+
+.map {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--sky);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 2rem;
+  font-family: Fredoka, system-ui, sans-serif;
+}
+
+.map > :not(.scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.map-bar {
+  width: 100%;
+  max-width: 70rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon-btn {
+  width: 4rem;
+  height: 4rem;
+  border: 5px solid var(--ink);
+  border-radius: 1.25rem;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn svg {
+  width: 2.1rem;
+  height: 2.1rem;
+  fill: var(--ink);
+}
+
+.icon-btn:focus-visible,
+.island:focus-visible,
+.level:focus-visible {
+  outline: 4px dashed var(--ink);
+  outline-offset: 5px;
+}
+
+.pill {
+  height: 4rem;
+  border: 5px solid var(--ink);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 0 1.25rem 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.star {
+  width: 2.2rem;
+  height: 2.2rem;
+  fill: var(--yellow);
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.worlds {
+  list-style: none;
+  margin: auto 0;
+  padding: 0;
+  max-width: 70rem;
+  display: flex;
+  flex-wrap: wrap; /* on a phone, three worlds and then two */
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1.5rem 2.5rem;
+}
+
+.world {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Where she stands, above her world */
+.perch {
+  width: 8.5rem;
+  height: 6.8rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Only the world she's in has one; the rest sit lower, with no gap */
+.locked .perch {
+  display: none;
+}
+
+.perch .unicorn {
+  width: 100%;
+  height: auto;
+}
+
+.island {
+  position: relative;
+  width: clamp(6.5rem, 14vw, 10rem);
+  aspect-ratio: 1;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.island > svg {
+  width: 55%;
+  height: 55%;
+}
+
+.world[data-world='meadow'] .island { background: #8edb6e; }
+.world[data-world='candy'] .island { background: #ffb3d6; }
+.world[data-world='cloud'] .island { background: #e8f4ff; }
+.world[data-world='crystal'] .island { background: #9ee6e0; }
+.world[data-world='night'] .island { background: #3c3470; }
+
+/* The world she's in: a white ring, outlined */
+.island[aria-pressed='true'] {
+  box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
+}
+
+.locked .island {
+  background: #d9d5e6 !important;
+  cursor: default;
+}
+
+.locked .island > svg {
+  opacity: 0.35;
+}
+
+.padlock {
+  position: absolute;
+  right: -0.4rem;
+  bottom: -0.4rem;
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.padlock svg {
+  width: 1.4rem;
+  height: 1.5rem;
+}
+
+.world-stars {
+  height: 2.75rem;
+  border-width: 4px;
+  padding: 0 0.9rem 0 0.6rem;
+  font-size: 1.4rem;
+}
+
+.world-stars .star {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.locked .world-stars .star {
+  fill: #e6e0f5;
+}
+
+/* A tapped level gets a hop from her (450ms, HOP_MS in game/unicorn.js) */
+.world.hopping .perch {
+  animation: hop 450ms ease-out;
+}
+
+.levels {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  border: 5px solid var(--ink);
+  border-radius: 2.5rem;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.level {
+  width: 3.75rem;
+  height: 3.75rem;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* The one to play next */
+.level.next {
+  width: 4.5rem;
+  height: 4.5rem;
+  background: var(--pink);
+  font-size: 2.1rem;
+}
+
+.level:disabled {
+  background: #e6e0f5;
+  border-color: #a39cbe;
+  color: #8c84a8;
+  cursor: default;
+}
+
+/* Side by side on a big screen, every other world a little higher, like
+   stepping stones */
+@media (min-width: 900px) {
+  .world:nth-child(even) {
+    transform: translateY(-3.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .levels {
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .level {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .level.next {
+    width: 3.9rem;
+    height: 3.9rem;
+  }
+}
+
 /* For players whose devices ask for less motion: she stays put. */
 @media (prefers-reduced-motion: reduce) {
   .unicorn-btn,
-  .trail {
+  .trail,
+  .perch {
     animation: none !important;
   }
 }

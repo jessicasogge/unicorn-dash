@@ -21,7 +21,7 @@ Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT
    npm run dev
    ```
 
-   Then open http://localhost:3000.
+   Then open http://localhost:3006.
 
 3. Make your change. The game is plain HTML, CSS and JavaScript in `public/`, with no build step. See the [README](README.md#project-layout) for where things live.
 4. Add or update tests for what you changed, and make sure they all pass and still cover the game:
