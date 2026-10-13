@@ -12,7 +12,7 @@ The **start screen** and the **world map**:
 
 - **Tap the unicorn** and she hops into a new mane color: pink, then blue, then yellow, then pink again. In the game, gates only let a matching mane through.
 - **Press Play** and she dashes off on her rainbow to the **world map**, keeping her mane color.
-- **On the map**, she stands on the Meadow, the first of five worlds. Every world and level is open: tap a world and she goes there. The levels themselves aren't built yet, so tapping one just gets a hop from her. The house button takes you back to the start.
+- **On the map**, she stands on the Meadow, the first of five worlds. Every world and level is open: tap a world and she goes there. There are no stars or scores, and nothing is saved; she always starts on the Meadow. The levels themselves aren't built yet, so tapping one just gets a hop from her. The house button takes you back to the start.
 
 Everything is pictures and numbers, not words. Each button has a name for screen readers, and if a device asks for less motion, she stays still.
 
@@ -21,7 +21,7 @@ Everything is pictures and numbers, not words. Each button has a name for screen
 - **One button, two moves.** Tap (or space or the up arrow) to jump, tap again in the air to double jump. Hold to **rainbow dash**: it bridges gaps and smashes crystal walls, but uses up the **sparkle meter**. Sparkle gems fill it back up.
 - **Mane magic.** Paint pots change her mane to pink ♥, blue ★ or yellow ☾. Gates only let a matching mane through. Every color has its own shape, so colorblind players can play too.
 - **Five worlds**, each adding one new idea: Meadow, Candy Canyon (bouncy gumdrops), Cloud Kingdom (color gates), Crystal Caves (dash-only walls) and Night Sky (everything, plus shooting stars).
-- **No game over.** A fall puts her back at the last checkpoint flag. Three hidden golden horseshoes per level earn up to three stars, and stars unlock new unicorns in the **stable**, just for looks.
+- **No game over, and nothing to unlock.** A fall puts her back at the last checkpoint flag. Every world, level and unicorn in the **stable** is open from the start, and there are no stars or scores: nothing is saved.
 
 ## Running it locally
 

@@ -6,10 +6,8 @@ import { HOP_MS, drawUnicorn, maneFromAddress } from './unicorn.js';
 const mane = maneFromAddress(location.search);
 const worlds = [...document.querySelectorAll('.world')];
 
-// The world named in the address (like ?world=candy), so the Back button
-// brings you back to the one you were in. The Meadow if there's none.
-const named = new URLSearchParams(location.search).get('world');
-let here = worlds.find((w) => w.dataset.world === named) ?? worlds[0];
+// She starts on the Meadow, every time: nothing is saved.
+let here = worlds[0];
 
 // She stands on the world she's in, with the mane she had on the start
 // screen.
@@ -30,7 +28,6 @@ for (const world of worlds) {
   world.querySelector('.island').addEventListener('click', () => {
     if (world === here) return;
     goTo(world);
-    history.replaceState(null, '', `?mane=${mane.name}&world=${world.dataset.world}`);
   });
 }
 

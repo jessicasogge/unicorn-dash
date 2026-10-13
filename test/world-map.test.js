@@ -16,7 +16,6 @@ const html = (name) => {
 // Open the map at `search` (like '?mane=blue') and run its script.
 async function open(search = '', body = html('world-map.html')) {
   vi.stubGlobal('location', { href: `http://localhost/world-map.html${search}`, search });
-  vi.spyOn(history, 'replaceState').mockImplementation(() => {});
   document.body.outerHTML = body;
   vi.resetModules();
   await import('../public/game/world-map.js');
@@ -73,27 +72,16 @@ describe('the unicorn', () => {
     expect(island('meadow').getAttribute('aria-pressed')).toBe('false');
   });
 
-  it('puts the world in the address, so Back returns to it', async () => {
-    await open('?mane=blue');
-    island('night').click();
-    expect(history.replaceState).toHaveBeenLastCalledWith(null, '', '?mane=blue&world=night');
-  });
-
-  it('starts on the world in the address', async () => {
-    await open('?mane=pink&world=candy');
-    expect(hers()).toBe('candy');
-  });
-
-  it('starts on the Meadow if the address names no real world', async () => {
-    await open('?world=moon');
-    expect(hers()).toBe('meadow');
-  });
-
   it('stays put when her own world is tapped', async () => {
     await open();
     island('meadow').click();
     expect(hers()).toBe('meadow');
-    expect(history.replaceState).not.toHaveBeenCalled();
+    expect(island('meadow').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('starts on the Meadow every time, whatever the address says', async () => {
+    await open('?world=candy');
+    expect(hers()).toBe('meadow');
   });
 
   it('keeps the mane she had on the start screen', async () => {
@@ -104,6 +92,13 @@ describe('the unicorn', () => {
   it('is pink if she came without one', async () => {
     await open();
     expect(document.querySelector('svg.unicorn').dataset.mane).toBe('pink');
+  });
+});
+
+describe('nothing saved', () => {
+  it('shows no stars or scores', async () => {
+    await open();
+    expect(document.querySelector('.star, .pill, .star-total, .world-stars')).toBeNull();
   });
 });
 

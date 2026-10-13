@@ -302,7 +302,6 @@ body {
   width: 100%;
   max-width: 70rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
@@ -328,29 +327,6 @@ body {
 .level:focus-visible {
   outline: 4px dashed var(--ink);
   outline-offset: 5px;
-}
-
-.pill {
-  height: 4rem;
-  border: 5px solid var(--ink);
-  border-radius: 999px;
-  background: #ffffff;
-  padding: 0 1.25rem 0 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.star {
-  width: 2.2rem;
-  height: 2.2rem;
-  fill: var(--yellow);
-  stroke: var(--ink);
-  stroke-width: 1.8;
-  stroke-linejoin: round;
 }
 
 .worlds {
@@ -419,18 +395,6 @@ body {
 /* The world she's in: a white ring, outlined */
 .island[aria-pressed='true'] {
   box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
-}
-
-.world-stars {
-  height: 2.75rem;
-  border-width: 4px;
-  padding: 0 0.9rem 0 0.6rem;
-  font-size: 1.4rem;
-}
-
-.world-stars .star {
-  width: 1.5rem;
-  height: 1.5rem;
 }
 
 /* A tapped level gets a hop from her (450ms, HOP_MS in game/unicorn.js) */
