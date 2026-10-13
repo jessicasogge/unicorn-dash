@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-// The world map: the unicorn on the world she's in, the way home, and the
-// levels. These tests load the real map page into jsdom, a simulated
-// browser page.
+// The world map: every world and level open, the unicorn on the world
+// she's in, and the way home. These tests load the real map page into
+// jsdom, a simulated browser page.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,17 +16,22 @@ const html = (name) => {
 // Open the map at `search` (like '?mane=blue') and run its script.
 async function open(search = '', body = html('world-map.html')) {
   vi.stubGlobal('location', { href: `http://localhost/world-map.html${search}`, search });
+  vi.spyOn(history, 'replaceState').mockImplementation(() => {});
   document.body.outerHTML = body;
   vi.resetModules();
   await import('../public/game/world-map.js');
 }
 
-const meadow = () => document.querySelector('[data-world="meadow"]');
+const world = (name) => document.querySelector(`[data-world="${name}"]`);
+const island = (name) => world(name).querySelector('.island');
+// The world she's standing on
+const hers = () => document.querySelector('svg.unicorn').closest('.world').dataset.world;
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe('the worlds', () => {
@@ -36,30 +41,59 @@ describe('the worlds', () => {
     expect(worlds).toEqual(['meadow', 'candy', 'cloud', 'crystal', 'night']);
   });
 
-  it('start with only the Meadow open', async () => {
+  it('are all open: nothing locked', async () => {
     await open();
-    expect(meadow().classList.contains('locked')).toBe(false);
-    expect(meadow().querySelector('.island').disabled).toBe(false);
-    for (const world of document.querySelectorAll('.world:not([data-world="meadow"])')) {
-      expect(world.classList.contains('locked')).toBe(true);
-      expect(world.querySelector('.island').disabled).toBe(true);
-      expect(world.querySelector('.padlock')).not.toBeNull();
-    }
+    for (const button of document.querySelectorAll('.island')) expect(button.disabled).toBe(false);
+    expect(document.querySelector('.locked, .padlock, [disabled]')).toBeNull();
   });
 
-  it('tell screen readers which are locked, and which one she\'s in', async () => {
+  it('have names for screen readers', async () => {
     await open();
     const labels = [...document.querySelectorAll('.island')].map((i) => i.getAttribute('aria-label'));
-    expect(labels).toEqual(['Meadow', 'Candy Canyon, locked', 'Cloud Kingdom, locked', 'Crystal Caves, locked', 'Night Sky, locked']);
-    expect(meadow().querySelector('.island').getAttribute('aria-pressed')).toBe('true');
+    expect(labels).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Night Sky']);
   });
 });
 
 describe('the unicorn', () => {
-  it('stands on the Meadow, and nowhere else', async () => {
+  it('starts on the Meadow, and only there', async () => {
     await open();
     expect(document.querySelectorAll('svg.unicorn')).toHaveLength(1);
-    expect(meadow().querySelector('.perch svg.unicorn')).not.toBeNull();
+    expect(hers()).toBe('meadow');
+    expect(island('meadow').getAttribute('aria-pressed')).toBe('true');
+    expect(document.querySelectorAll('.world.here')).toHaveLength(1);
+  });
+
+  it('goes to whichever world is tapped', async () => {
+    await open();
+    island('crystal').click();
+    expect(hers()).toBe('crystal');
+    expect(world('crystal').classList.contains('here')).toBe(true);
+    expect(world('meadow').classList.contains('here')).toBe(false);
+    expect(island('crystal').getAttribute('aria-pressed')).toBe('true');
+    expect(island('meadow').getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('puts the world in the address, so Back returns to it', async () => {
+    await open('?mane=blue');
+    island('night').click();
+    expect(history.replaceState).toHaveBeenLastCalledWith(null, '', '?mane=blue&world=night');
+  });
+
+  it('starts on the world in the address', async () => {
+    await open('?mane=pink&world=candy');
+    expect(hers()).toBe('candy');
+  });
+
+  it('starts on the Meadow if the address names no real world', async () => {
+    await open('?world=moon');
+    expect(hers()).toBe('meadow');
+  });
+
+  it('stays put when her own world is tapped', async () => {
+    await open();
+    island('meadow').click();
+    expect(hers()).toBe('meadow');
+    expect(history.replaceState).not.toHaveBeenCalled();
   });
 
   it('keeps the mane she had on the start screen', async () => {
@@ -83,34 +117,47 @@ describe('the Home button', () => {
 });
 
 describe('the levels', () => {
-  it('are five, with only the first open', async () => {
+  it('are five, all open', async () => {
     await open();
     const levels = [...document.querySelectorAll('.level')];
     expect(levels.map((l) => l.textContent)).toEqual(['1', '2', '3', '4', '5']);
-    expect(levels.map((l) => l.disabled)).toEqual([false, true, true, true, true]);
-    expect(levels[0].classList.contains('next')).toBe(true);
+    expect(levels.every((l) => !l.disabled)).toBe(true);
   });
 
-  it('get a hop from her when the open one is tapped', async () => {
+  it('get a hop from her when one is tapped', async () => {
     await open();
-    document.querySelector('.level.next').click();
-    expect(meadow().classList.contains('hopping')).toBe(true);
+    document.querySelectorAll('.level')[3].click();
+    expect(world('meadow').classList.contains('hopping')).toBe(true);
     vi.advanceTimersByTime(HOP_MS);
-    expect(meadow().classList.contains('hopping')).toBe(false);
+    expect(world('meadow').classList.contains('hopping')).toBe(false);
+  });
+
+  it('get the hop on the world she\'s moved to', async () => {
+    await open();
+    island('cloud').click();
+    document.querySelector('.level').click();
+    expect(world('cloud').classList.contains('hopping')).toBe(true);
   });
 
   it('ignore taps mid-hop, so a later hop isn\'t cut short', async () => {
     await open();
-    const level = document.querySelector('.level.next');
+    const level = document.querySelector('.level');
     level.click();
     vi.advanceTimersByTime(HOP_MS - 1);
     level.click(); // mid-hop: ignored
     vi.advanceTimersByTime(1);
     level.click(); // a new hop
     vi.advanceTimersByTime(HOP_MS - 1);
-    expect(meadow().classList.contains('hopping')).toBe(true); // still going
+    expect(world('meadow').classList.contains('hopping')).toBe(true); // still going
     vi.advanceTimersByTime(1);
-    expect(meadow().classList.contains('hopping')).toBe(false);
+    expect(world('meadow').classList.contains('hopping')).toBe(false);
+  });
+
+  it('stop a hop when she moves to another world', async () => {
+    await open();
+    document.querySelector('.level').click();
+    island('candy').click();
+    expect(world('meadow').classList.contains('hopping')).toBe(false);
   });
 });
 

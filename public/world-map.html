@@ -44,10 +44,9 @@
         </div>
       </nav>
 
-      <!-- The five worlds. Only the Meadow is open to start with; each one
-           finished opens the next. -->
+      <!-- The five worlds, all open: tap one and she goes there. -->
       <ol class="worlds">
-        <li class="world" data-world="meadow">
+        <li class="world here" data-world="meadow">
           <div class="perch"></div>
           <button class="island" type="button" aria-label="Meadow" aria-pressed="true">
             <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -57,31 +56,29 @@
           </button>
           <div class="pill world-stars" role="img" aria-label="0 of 15 stars"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z" /></svg><span>0/15</span></div>
         </li>
-        <li class="world locked" data-world="candy">
+        <li class="world" data-world="candy">
           <div class="perch"></div>
-          <button class="island" type="button" aria-label="Candy Canyon, locked" disabled>
+          <button class="island" type="button" aria-label="Candy Canyon" aria-pressed="false">
             <svg viewBox="0 0 48 48" aria-hidden="true">
               <rect x="22" y="26" width="4" height="20" rx="2" fill="#FFFFFF" stroke="#2B2350" stroke-width="2" />
               <circle cx="24" cy="18" r="15" fill="#FFFFFF" stroke="#2B2350" stroke-width="2.5" />
               <path d="M24 16 a2 2 0 0 1 2 2 a4 4 0 0 1 -4 4 a6 6 0 0 1 -6 -6 a8 8 0 0 1 8 -8 a10 10 0 0 1 10 10" fill="none" stroke="#FF5FA2" stroke-width="3.5" stroke-linecap="round" />
             </svg>
-            <span class="padlock" aria-hidden="true"><svg viewBox="0 0 24 26"><path d="M7 11 V7.5 a5 5 0 0 1 10 0 V11" fill="none" stroke="#2B2350" stroke-width="3" /><rect x="3" y="11" width="18" height="13" rx="3.5" fill="#2B2350" /></svg></span>
           </button>
           <div class="pill world-stars" role="img" aria-label="0 of 15 stars"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z" /></svg><span>0/15</span></div>
         </li>
-        <li class="world locked" data-world="cloud">
+        <li class="world" data-world="cloud">
           <div class="perch"></div>
-          <button class="island" type="button" aria-label="Cloud Kingdom, locked" disabled>
+          <button class="island" type="button" aria-label="Cloud Kingdom" aria-pressed="false">
             <svg viewBox="0 0 48 44" aria-hidden="true">
               <path d="M8 36 a7 7 0 0 1 2 -13.5 a10 10 0 0 1 19 -5 a8 8 0 0 1 12 6.5 a6.5 6.5 0 0 1 0 12 Z" fill="#FFFFFF" stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round" />
             </svg>
-            <span class="padlock" aria-hidden="true"><svg viewBox="0 0 24 26"><path d="M7 11 V7.5 a5 5 0 0 1 10 0 V11" fill="none" stroke="#2B2350" stroke-width="3" /><rect x="3" y="11" width="18" height="13" rx="3.5" fill="#2B2350" /></svg></span>
           </button>
           <div class="pill world-stars" role="img" aria-label="0 of 15 stars"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z" /></svg><span>0/15</span></div>
         </li>
-        <li class="world locked" data-world="crystal">
+        <li class="world" data-world="crystal">
           <div class="perch"></div>
-          <button class="island" type="button" aria-label="Crystal Caves, locked" disabled>
+          <button class="island" type="button" aria-label="Crystal Caves" aria-pressed="false">
             <svg viewBox="0 0 48 48" aria-hidden="true">
               <g stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round">
                 <path d="M24 4 L34 16 L24 44 L14 16 Z" fill="#7FE3FF" />
@@ -89,30 +86,28 @@
                 <path d="M38 22 L42 30 L36 42 L32 28 Z" fill="#B9F1FF" />
               </g>
             </svg>
-            <span class="padlock" aria-hidden="true"><svg viewBox="0 0 24 26"><path d="M7 11 V7.5 a5 5 0 0 1 10 0 V11" fill="none" stroke="#2B2350" stroke-width="3" /><rect x="3" y="11" width="18" height="13" rx="3.5" fill="#2B2350" /></svg></span>
           </button>
           <div class="pill world-stars" role="img" aria-label="0 of 15 stars"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z" /></svg><span>0/15</span></div>
         </li>
-        <li class="world locked" data-world="night">
+        <li class="world" data-world="night">
           <div class="perch"></div>
-          <button class="island" type="button" aria-label="Night Sky, locked" disabled>
+          <button class="island" type="button" aria-label="Night Sky" aria-pressed="false">
             <svg viewBox="0 0 48 48" aria-hidden="true">
               <path d="M30 6 a17 17 0 1 0 12 28 a14 14 0 0 1 -12 -28 Z" fill="#FFE58A" stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round" />
               <path d="M36 8 L37.5 12 L41.5 13.5 L37.5 15 L36 19 L34.5 15 L30.5 13.5 L34.5 12 Z" fill="#FFFFFF" />
             </svg>
-            <span class="padlock" aria-hidden="true"><svg viewBox="0 0 24 26"><path d="M7 11 V7.5 a5 5 0 0 1 10 0 V11" fill="none" stroke="#2B2350" stroke-width="3" /><rect x="3" y="11" width="18" height="13" rx="3.5" fill="#2B2350" /></svg></span>
           </button>
           <div class="pill world-stars" role="img" aria-label="0 of 15 stars"><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z" /></svg><span>0/15</span></div>
         </li>
       </ol>
 
-      <!-- The Meadow's five levels: the first is open, the rest unlock in turn -->
+      <!-- The five levels in the world she's in, all open -->
       <ol class="levels">
-        <li><button class="level next" type="button" aria-label="Level 1">1</button></li>
-        <li><button class="level" type="button" aria-label="Level 2, locked" disabled>2</button></li>
-        <li><button class="level" type="button" aria-label="Level 3, locked" disabled>3</button></li>
-        <li><button class="level" type="button" aria-label="Level 4, locked" disabled>4</button></li>
-        <li><button class="level" type="button" aria-label="Level 5, locked" disabled>5</button></li>
+        <li><button class="level" type="button" aria-label="Level 1">1</button></li>
+        <li><button class="level" type="button" aria-label="Level 2">2</button></li>
+        <li><button class="level" type="button" aria-label="Level 3">3</button></li>
+        <li><button class="level" type="button" aria-label="Level 4">4</button></li>
+        <li><button class="level" type="button" aria-label="Level 5">5</button></li>
       </ol>
     </main>
     <footer class="signature">jsogge 2026</footer>

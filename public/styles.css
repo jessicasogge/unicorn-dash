@@ -382,7 +382,7 @@ body {
 }
 
 /* Only the world she's in has one; the rest sit lower, with no gap */
-.locked .perch {
+.world:not(.here) .perch {
   display: none;
 }
 
@@ -421,34 +421,6 @@ body {
   box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
 }
 
-.locked .island {
-  background: #d9d5e6 !important;
-  cursor: default;
-}
-
-.locked .island > svg {
-  opacity: 0.35;
-}
-
-.padlock {
-  position: absolute;
-  right: -0.4rem;
-  bottom: -0.4rem;
-  width: 3rem;
-  height: 3rem;
-  border: 4px solid var(--ink);
-  border-radius: 50%;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.padlock svg {
-  width: 1.4rem;
-  height: 1.5rem;
-}
-
 .world-stars {
   height: 2.75rem;
   border-width: 4px;
@@ -459,10 +431,6 @@ body {
 .world-stars .star {
   width: 1.5rem;
   height: 1.5rem;
-}
-
-.locked .world-stars .star {
-  fill: #e6e0f5;
 }
 
 /* A tapped level gets a hop from her (450ms, HOP_MS in game/unicorn.js) */
@@ -498,21 +466,6 @@ body {
   touch-action: manipulation;
 }
 
-/* The one to play next */
-.level.next {
-  width: 4.5rem;
-  height: 4.5rem;
-  background: var(--pink);
-  font-size: 2.1rem;
-}
-
-.level:disabled {
-  background: #e6e0f5;
-  border-color: #a39cbe;
-  color: #8c84a8;
-  cursor: default;
-}
-
 /* Side by side on a big screen, every other world a little higher, like
    stepping stones */
 @media (min-width: 900px) {
@@ -530,11 +483,6 @@ body {
   .level {
     width: 3.25rem;
     height: 3.25rem;
-  }
-
-  .level.next {
-    width: 3.9rem;
-    height: 3.9rem;
   }
 }
 
