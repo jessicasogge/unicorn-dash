@@ -332,7 +332,7 @@ body {
   /* The circles' size, to fit the screen's width and height */
   --island: clamp(5rem, min(14vw, 19vh), 10rem);
   list-style: none;
-  margin: clamp(0.5rem, 5vh, 3.5rem) 0 auto; /* in the upper part of the sky */
+  margin: clamp(1rem, 14vh, 9rem) 0 auto; /* a bit above the middle of the sky */
   padding: 0;
   max-width: 70rem;
   display: flex;
