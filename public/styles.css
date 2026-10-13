@@ -323,8 +323,7 @@ body {
 }
 
 .icon-btn:focus-visible,
-.island:focus-visible,
-.level:focus-visible {
+.island:focus-visible {
   outline: 4px dashed var(--ink);
   outline-offset: 5px;
 }
@@ -397,37 +396,9 @@ body {
   box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
 }
 
-/* A tapped level gets a hop from her (450ms, HOP_MS in game/unicorn.js) */
+/* Tap her world again and she hops (450ms, HOP_MS in game/unicorn.js) */
 .world.hopping .perch {
   animation: hop 450ms ease-out;
-}
-
-.levels {
-  list-style: none;
-  margin: 0;
-  padding: 0.75rem 1.25rem;
-  border: 5px solid var(--ink);
-  border-radius: 2.5rem;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.level {
-  width: 3.75rem;
-  height: 3.75rem;
-  border: 5px solid var(--ink);
-  border-radius: 50%;
-  background: #ffffff;
-  color: var(--ink);
-  font-family: Fredoka, system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 1.75rem;
-  line-height: 1;
-  padding: 0;
-  cursor: pointer;
-  touch-action: manipulation;
 }
 
 /* Side by side on a big screen, every other world a little higher, like
@@ -435,18 +406,6 @@ body {
 @media (min-width: 900px) {
   .world:nth-child(even) {
     transform: translateY(-3.5rem);
-  }
-}
-
-@media (max-width: 480px) {
-  .levels {
-    gap: 0.5rem;
-    padding: 0.6rem 0.8rem;
-  }
-
-  .level {
-    width: 3.25rem;
-    height: 3.25rem;
   }
 }
 

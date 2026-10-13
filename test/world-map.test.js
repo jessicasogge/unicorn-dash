@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-// The world map: every world and level open, the unicorn on the world
-// she's in, and the way home. These tests load the real map page into
+// The world map: every world open, the unicorn on the world she's in, and
+// the way home. These tests load the real map page into
 // jsdom, a simulated browser page.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -75,6 +75,7 @@ describe('the unicorn', () => {
   it('stays put when her own world is tapped', async () => {
     await open();
     island('meadow').click();
+    vi.advanceTimersByTime(HOP_MS);
     expect(hers()).toBe('meadow');
     expect(island('meadow').getAttribute('aria-pressed')).toBe('true');
   });
@@ -111,55 +112,56 @@ describe('the Home button', () => {
   });
 });
 
-describe('the levels', () => {
-  it('are five, all open', async () => {
+describe('tapping the world she\'s on', () => {
+  it('makes her hop, just for as long as the hop takes', async () => {
     await open();
-    const levels = [...document.querySelectorAll('.level')];
-    expect(levels.map((l) => l.textContent)).toEqual(['1', '2', '3', '4', '5']);
-    expect(levels.every((l) => !l.disabled)).toBe(true);
-  });
-
-  it('get a hop from her when one is tapped', async () => {
-    await open();
-    document.querySelectorAll('.level')[3].click();
+    island('meadow').click();
     expect(world('meadow').classList.contains('hopping')).toBe(true);
-    vi.advanceTimersByTime(HOP_MS);
+    vi.advanceTimersByTime(HOP_MS - 1);
+    expect(world('meadow').classList.contains('hopping')).toBe(true);
+    vi.advanceTimersByTime(1);
     expect(world('meadow').classList.contains('hopping')).toBe(false);
   });
 
-  it('get the hop on the world she\'s moved to', async () => {
+  it('works on whichever world she\'s moved to', async () => {
     await open();
     island('cloud').click();
-    document.querySelector('.level').click();
+    expect(world('cloud').classList.contains('hopping')).toBe(false); // moving isn't a hop
+    island('cloud').click();
     expect(world('cloud').classList.contains('hopping')).toBe(true);
   });
 
-  it('ignore taps mid-hop, so a later hop isn\'t cut short', async () => {
+  it('ignores taps mid-hop, so a later hop isn\'t cut short', async () => {
     await open();
-    const level = document.querySelector('.level');
-    level.click();
+    island('meadow').click();
     vi.advanceTimersByTime(HOP_MS - 1);
-    level.click(); // mid-hop: ignored
+    island('meadow').click(); // mid-hop: ignored
     vi.advanceTimersByTime(1);
-    level.click(); // a new hop
+    island('meadow').click(); // a new hop
     vi.advanceTimersByTime(HOP_MS - 1);
     expect(world('meadow').classList.contains('hopping')).toBe(true); // still going
     vi.advanceTimersByTime(1);
     expect(world('meadow').classList.contains('hopping')).toBe(false);
   });
 
-  it('stop a hop when she moves to another world', async () => {
+  it('stops when she moves to another world mid-hop', async () => {
     await open();
-    document.querySelector('.level').click();
+    island('meadow').click();
     island('candy').click();
     expect(world('meadow').classList.contains('hopping')).toBe(false);
   });
 });
 
+describe('no levels on the map', () => {
+  it('has no level numbers at the bottom', async () => {
+    await open();
+    expect(document.querySelector('.levels, .level')).toBeNull();
+  });
+});
+
 describe('a page without the map', () => {
   it('is left alone', async () => {
-    await open('', '<body><button class="level">1</button></body>');
-    document.querySelector('.level').click();
+    await open('', '<body><p>Nothing here</p></body>');
     expect(document.querySelector('svg')).toBeNull();
   });
 });

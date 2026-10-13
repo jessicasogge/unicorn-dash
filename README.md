@@ -12,7 +12,7 @@ The **start screen** and the **world map**:
 
 - **Tap the unicorn** and she hops into a new mane color: pink, then blue, then yellow, then pink again. In the game, gates only let a matching mane through.
 - **Press Play** and she dashes off on her rainbow to the **world map**, keeping her mane color.
-- **On the map**, she stands on the Meadow, the first of five worlds. Every world and level is open: tap a world and she goes there. There are no stars or scores, and nothing is saved; she always starts on the Meadow. The levels themselves aren't built yet, so tapping one just gets a hop from her. The house button takes you back to the start.
+- **On the map**, she stands on the Meadow, the first of five worlds. Every world is open: tap one and she goes there. There are no stars or scores, and nothing is saved; she always starts on the Meadow. The worlds themselves aren't built yet, so tapping the one she's on just gets a hop from her. The house button takes you back to the start.
 
 Everything is pictures and numbers, not words. Each button has a name for screen readers, and if a device asks for less motion, she stays still.
 
@@ -49,7 +49,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 |---|---|
 | `public/index.html` | The start screen |
 | `public/script.js` | The start screen's taps: a new mane color, and Play |
-| `public/world-map.html` | The world map: the five worlds and their levels |
+| `public/world-map.html` | The world map: the five worlds |
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |
 | `public/styles.css` | How every screen looks, and the hop and dash animations |

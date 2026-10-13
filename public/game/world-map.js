@@ -1,6 +1,5 @@
 // The world map: the five worlds, with the unicorn standing on the one
-// she's in, and that world's levels below. Every world and level is open:
-// tap a world and she goes there.
+// she's in. Every world is open: tap one and she goes there.
 import { HOP_MS, drawUnicorn, maneFromAddress } from './unicorn.js';
 
 const mane = maneFromAddress(location.search);
@@ -26,8 +25,8 @@ if (here) goTo(here);
 
 for (const world of worlds) {
   world.querySelector('.island').addEventListener('click', () => {
-    if (world === here) return;
-    goTo(world);
+    if (world === here) hop();
+    else goTo(world);
   });
 }
 
@@ -35,13 +34,11 @@ for (const world of worlds) {
 const home = document.querySelector('.home-btn');
 if (home) home.href = `./index.html?mane=${mane.name}`;
 
-// The levels themselves aren't built yet, so for now a tap on one gets a
-// hop from her, to show it heard.
-for (const level of document.querySelectorAll('.level')) {
-  level.addEventListener('click', () => {
-    if (!here || here.classList.contains('hopping')) return;
-    const world = here;
-    world.classList.add('hopping');
-    setTimeout(() => world.classList.remove('hopping'), HOP_MS);
-  });
+// Tap the world she's already on and she hops. (The worlds themselves
+// aren't built yet; this is where one will open.) A tap mid-hop is ignored.
+function hop() {
+  if (here.classList.contains('hopping')) return;
+  const world = here;
+  world.classList.add('hopping');
+  setTimeout(() => world.classList.remove('hopping'), HOP_MS);
 }
