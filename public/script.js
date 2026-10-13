@@ -1,15 +1,8 @@
-// The start screen: the unicorn on her rainbow, and the Play button.
-// Nothing here needs reading: tap her and she hops into a new mane color,
-// press Play and she dashes off to the world map.
 import { HOP_MS, drawUnicorn, maneFromAddress, nextMane, setMane } from './game/unicorn.js';
 
-// How long each move takes, in milliseconds. styles.css uses the same
-// lengths for the animations, so keep the two in step.
 export { HOP_MS }; // a hop, the same on every screen
 export const DASH_MS = 900; // galloping off the right of the screen
 export const RETURN_MS = 600; // trotting back in, when you come back to it
-
-// Where Play goes. She takes her mane color with her.
 export const NEXT_PAGE = './world-map.html';
 
 const stage = document.querySelector('.stage');
@@ -45,9 +38,7 @@ if (stage && tapTarget && playButton) {
     }, DASH_MS);
   });
 
-  // When you come back with the browser's Back button, the browser may show
-  // this page exactly as it was left: her gone and Play pressed. Trot her
-  // back in and make Play work again.
+  // On Back, reset the unicorn and Play button if the page was cached.
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     playButton.disabled = false;
