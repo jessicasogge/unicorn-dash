@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // The unicorn's drawing, and her three mane colors.
 import { describe, expect, it } from 'vitest';
-import { MANES, drawUnicorn, nextMane, setMane } from '../public/game/unicorn.js';
+import { MANES, drawUnicorn, maneFromAddress, nextMane, setMane } from '../public/game/unicorn.js';
 
 const maneFills = (svg) => [...svg.querySelectorAll('.mane')].map((part) => part.getAttribute('fill'));
 
@@ -59,5 +59,17 @@ describe('changing her mane', () => {
     expect(new Set(maneFills(svg))).toEqual(new Set([MANES[2].color]));
     expect(svg.dataset.mane).toBe('yellow');
     expect(svg.getAttribute('aria-label')).toBe('A unicorn with a yellow mane');
+  });
+});
+
+describe('her mane in a page\'s address', () => {
+  it('is read from ?mane=', () => {
+    expect(maneFromAddress('?mane=blue')).toBe(MANES[1]);
+    expect(maneFromAddress('?other=1&mane=yellow')).toBe(MANES[2]);
+  });
+
+  it('is pink when there\'s none, or it isn\'t one of hers', () => {
+    expect(maneFromAddress('')).toBe(MANES[0]);
+    expect(maneFromAddress('?mane=green')).toBe(MANES[0]);
   });
 });

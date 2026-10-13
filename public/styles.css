@@ -277,10 +277,162 @@ body {
   font-size: 0.9rem;
 }
 
+/* ---- The world map ---- */
+
+.map {
+  position: relative;
+  height: 100vh;
+  height: 100svh; /* exactly one screen, no scrolling */
+  overflow: hidden;
+  background: var(--sky);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 2rem;
+  font-family: Fredoka, system-ui, sans-serif;
+}
+
+.map > :not(.scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.map-bar {
+  width: 100%;
+  max-width: 70rem;
+  display: flex;
+  align-items: center;
+}
+
+.icon-btn {
+  width: 4rem;
+  height: 4rem;
+  border: 5px solid var(--ink);
+  border-radius: 1.25rem;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn svg {
+  width: 2.1rem;
+  height: 2.1rem;
+  fill: var(--ink);
+}
+
+.icon-btn:focus-visible,
+.island:focus-visible {
+  outline: 4px dashed var(--ink);
+  outline-offset: 5px;
+}
+
+.worlds {
+  /* The circles' size, to fit the screen's width and height */
+  --island: clamp(5rem, min(14vw, 19vh), 10rem);
+  list-style: none;
+  margin: clamp(1rem, 14vh, 9rem) 0 auto; /* a bit above the middle of the sky */
+  padding: 0;
+  max-width: 70rem;
+  display: flex;
+  flex-wrap: wrap; /* on a phone, three worlds and then two */
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1.5rem 2.5rem;
+}
+
+.world {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Where she stands, above her world */
+.perch {
+  width: calc(var(--island) * 0.85);
+  height: calc(var(--island) * 0.68);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Only the world she's in has one; the rest sit lower, with no gap */
+.world:not(.here) .perch {
+  display: none;
+}
+
+.perch .unicorn {
+  width: 100%;
+  height: auto;
+}
+
+.island {
+  position: relative;
+  width: var(--island);
+  aspect-ratio: 1;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.island > svg {
+  width: 55%;
+  height: 55%;
+}
+
+.world[data-world='meadow'] .island { background: #8edb6e; }
+.world[data-world='candy'] .island { background: #ffb3d6; }
+.world[data-world='cloud'] .island { background: #e8f4ff; }
+.world[data-world='crystal'] .island { background: #9ee6e0; }
+.world[data-world='night'] .island { background: #3c3470; }
+
+/* The world she's in: a white ring, outlined */
+.island[aria-pressed='true'] {
+  box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
+}
+
+/* Tap her world again and she hops (450ms, HOP_MS in game/unicorn.js) */
+.world.hopping .perch {
+  animation: hop 450ms ease-out;
+}
+
+/* Side by side on a big screen, every other world a little higher, like
+   stepping stones */
+@media (min-width: 900px) {
+  .world:nth-child(even) {
+    transform: translateY(calc(var(--island) * -0.35));
+  }
+}
+
+/* On a phone, bigger circles in rows of two */
+@media (max-width: 600px) {
+  .worlds {
+    --island: clamp(5rem, min(30vw, 15vh), 8rem);
+  }
+}
+
+/* The signature sits on the hill, so the map is still one screen */
+.map .signature {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
 /* For players whose devices ask for less motion: she stays put. */
 @media (prefers-reduced-motion: reduce) {
   .unicorn-btn,
-  .trail {
+  .trail,
+  .perch {
     animation: none !important;
   }
 }

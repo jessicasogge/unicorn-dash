@@ -21,7 +21,7 @@ Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT
    npm run dev
    ```
 
-   Then open http://localhost:3000.
+   Then open http://localhost:3006.
 
 3. Make your change. The game is plain HTML, CSS and JavaScript in `public/`, with no build step. See the [README](README.md#project-layout) for where things live.
 4. Add or update tests for what you changed, and make sure they all pass and still cover the game:
@@ -37,6 +37,7 @@ Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT
 - **Keep pull requests small and focused.** One fix or feature per pull request is easiest to review.
 - **Write comments in plain English** that explain why, not just what, like the existing code does.
 - **No reading needed.** Players may not read yet, or not easily. Show things with pictures, colors, shapes, numbers and sound, never words they have to read. Give every icon-only button an `aria-label` for screen readers.
+- **Nothing locked, nothing saved.** Every world, level and unicorn is open from the start. No stars, scores or progress, and nothing stored on the player's device.
 - **Never by color alone.** Anything told apart by color (like the mane colors) gets a shape too, for colorblind players.
 - **Check it on a phone as well as a computer.** The game works with the keyboard and with touch.
 

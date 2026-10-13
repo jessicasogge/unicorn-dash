@@ -1,16 +1,14 @@
-// The unicorn, drawn as an SVG: a white cartoon pony, side on and facing
-// right, with a golden horn and a colored mane, tail and hooves.
-//
-// Her mane comes in three colors, and each has a shape too (a heart, a star
-// or a moon), so a player who can't tell the colors apart can still match
-// them. In the game, gates only let a matching mane through; on the start
-// screen, tapping her just tries on the next one.
+// SVG unicorn: white pony facing right, golden horn, colored mane/tail/hooves.
+// Each mane color has a matching shape (heart, star, moon) for accessibility.
+// Gates require a matching mane; tapping on the start screen cycles manes.
 
 const SVG = 'http://www.w3.org/2000/svg';
 
 export const INK = '#2B2350'; // her outline, the same deep purple as the page
 export const COAT = '#FFFFFF';
 export const HORN = '#FFC93C';
+
+export const HOP_MS = 450;
 
 export const MANES = [
   { name: 'pink', shape: 'heart', color: '#FF5FA2' },
@@ -98,4 +96,12 @@ export function setMane(svg, mane) {
 // The mane after `mane`, back to the first after the last.
 export function nextMane(mane) {
   return MANES[(MANES.indexOf(mane) + 1) % MANES.length];
+}
+
+// The mane named in a page's address (like ?mane=blue), so she keeps her
+// color from one screen to the next. Pink if there's none, or it's not one
+// of hers.
+export function maneFromAddress(search) {
+  const name = new URLSearchParams(search).get('mane');
+  return MANES.find((mane) => mane.name === name) ?? MANES[0];
 }
