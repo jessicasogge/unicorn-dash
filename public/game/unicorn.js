@@ -1,10 +1,6 @@
-// The unicorn, drawn as an SVG: a white cartoon pony, side on and facing
-// right, with a golden horn and a colored mane, tail and hooves.
-//
-// Her mane comes in three colors, and each has a shape too (a heart, a star
-// or a moon), so a player who can't tell the colors apart can still match
-// them. In the game, gates only let a matching mane through; on the start
-// screen, tapping her just tries on the next one.
+// SVG unicorn: white pony facing right, golden horn, colored mane/tail/hooves.
+// Each mane color has a matching shape (heart, star, moon) for accessibility.
+// Gates require a matching mane; tapping on the start screen cycles manes.
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -12,8 +8,6 @@ export const INK = '#2B2350'; // her outline, the same deep purple as the page
 export const COAT = '#FFFFFF';
 export const HORN = '#FFC93C';
 
-// How long a hop takes, in milliseconds: the .hopping animation in
-// styles.css, on any screen.
 export const HOP_MS = 450;
 
 export const MANES = [
