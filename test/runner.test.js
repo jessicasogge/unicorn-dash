@@ -13,7 +13,7 @@ const HOLD = { pressed: false, held: true };
 
 // A flat course: ground everywhere, unless changed.
 const course = (more = {}) => ({
-  ground: [[-1000, 100000]], clouds: [], gems: [], checkpoints: [0], hints: [], castle: 100000, ...more,
+  ground: [[-1000, 100000]], clouds: [], gems: [], start: 0, hints: [], castle: 100000, ...more,
 });
 
 // Runs `seconds` with the same input (a tap only on the first step).
@@ -33,8 +33,8 @@ function runUntil(state, event) {
 }
 
 describe('running', () => {
-  it('starts at the first flag, on the ground, with some sparkle', () => {
-    const state = createRunner(course({ checkpoints: [50] }));
+  it('starts at the start, on the ground, with some sparkle', () => {
+    const state = createRunner(course({ start: 50 }));
     expect(state).toMatchObject({ x: 50, y: 0, grounded: true, sparkle: SPARKLE_START, finished: false });
   });
 
@@ -139,41 +139,37 @@ describe('dashing', () => {
   });
 
   it('carries her over a gap too wide to jump', () => {
-    const gap = course({ ground: [[-100, 100], [700, 5000]], checkpoints: [0] });
+    const gap = course({ ground: [[-100, 100], [700, 5000]] });
     const state = createRunner(gap);
     run(state, 90 / RUN);
     step(state, DT, TAP);
     const events = run(state, 3, HOLD);
-    expect(events).not.toContain('respawn');
+    expect(events).not.toContain('fall');
     expect(state.x).toBeGreaterThan(700);
   });
 });
 
 describe('falling', () => {
-  it('puts her back at the last flag she passed, with sparkle to try again', () => {
-    const gap = course({ ground: [[-100, 300], [400, 600]], checkpoints: [0, 400] });
-    const state = createRunner(gap);
-    state.sparkle = 0;
-    expect(runUntil(state, 'respawn')).toBe(true);
-    expect(state).toMatchObject({ x: 0, y: 0, grounded: true, sparkle: SPARKLE_START });
+  it('into a gap is game over', () => {
+    const state = createRunner(course({ ground: [[-100, 300]] }));
+    expect(runUntil(state, 'fall')).toBe(true);
+    expect(state).toMatchObject({ fallen: true, dashing: false });
   });
 
-  it('counts a flag once she\'s stood past it', () => {
-    const gaps = course({ ground: [[-100, 300], [350, 700]], checkpoints: [0, 350] });
-    const state = createRunner(gaps);
-    run(state, 250 / RUN);
+  it('stops everything after: no more running or jumping', () => {
+    const state = createRunner(course({ ground: [[-100, 300]] }));
+    runUntil(state, 'fall');
+    const { x, y } = state;
+    expect(run(state, 1, TAP)).toEqual([]);
+    expect(state).toMatchObject({ x, y });
+  });
+
+  it('can happen mid-dash when the sparkle runs out over a gap', () => {
+    const state = createRunner(course({ ground: [[-100, 100], [3000, 5000]] }));
+    state.sparkle = 0.5;
     step(state, DT, TAP);
-    run(state, 1.5);
-    expect(state.checkpoint).toBe(350);
-    expect(runUntil(state, 'respawn')).toBe(true);
-    expect(state.x).toBe(350);
-  });
-
-  it('keeps any extra sparkle she had', () => {
-    const state = createRunner(course({ ground: [[-100, 100]] }));
-    state.sparkle = SPARKLE_MAX;
-    run(state, 3);
-    expect(state.sparkle).toBe(SPARKLE_MAX);
+    run(state, 1, HOLD);
+    expect(runUntil(state, 'fall')).toBe(true);
   });
 });
 

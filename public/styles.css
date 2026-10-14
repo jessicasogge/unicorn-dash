@@ -496,11 +496,6 @@ body {
   transform: translateY(-30px) scale(1.4);
 }
 
-.flag {
-  width: 64px;
-  height: 100px;
-}
-
 .hint-tap,
 .hint-hold {
   width: 92px;
@@ -540,15 +535,6 @@ body {
 
 .runner.dashing .trail {
   opacity: 1;
-}
-
-/* Back at a flag after a fall: a quick blink */
-.runner.respawned {
-  animation: blink 0.3s steps(2) 3;
-}
-
-@keyframes blink {
-  50% { opacity: 0.25; }
 }
 
 .meadow-bar {
@@ -604,8 +590,59 @@ body {
   padding-top: 18vh;
 }
 
-.finish[hidden] {
+.finish[hidden],
+.game-over[hidden] {
   display: none;
+}
+
+/* Fell in a gap: darker, with her dizzy in a circle above the buttons */
+.game-over {
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 35, 80, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.game-over-title {
+  margin: 0;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--yellow);
+  -webkit-text-stroke: 0.1em var(--ink);
+  paint-order: stroke fill;
+}
+
+.oops {
+  position: relative;
+  width: min(14rem, 50vw);
+  aspect-ratio: 1;
+  border: 6px solid var(--ink);
+  border-radius: 50%;
+  background: var(--sky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oops .unicorn {
+  width: 78%;
+  transform: rotate(12deg);
+}
+
+.oops svg:last-child {
+  position: absolute;
+  top: 8%;
+  width: 55%;
+  animation: dizzy 1.6s linear infinite;
+}
+
+@keyframes dizzy {
+  50% { transform: translateY(-6%) rotate(-6deg); }
 }
 
 .finish-buttons {
@@ -613,19 +650,22 @@ body {
   gap: 1.25rem;
 }
 
-.finish .icon-btn {
+.finish .icon-btn,
+.game-over .icon-btn {
   width: 5.5rem;
   height: 5.5rem;
   border-radius: 1.75rem;
   cursor: pointer;
 }
 
-.finish .icon-btn svg {
+.finish .icon-btn svg,
+.game-over .icon-btn svg {
   width: 2.8rem;
   height: 2.8rem;
 }
 
-.replay-btn svg {
+.replay-btn svg,
+.retry-btn svg {
   stroke: var(--ink);
 }
 

@@ -9,6 +9,7 @@ export const VIEW_WIDTH = 700; // at least this much course across, so she sees 
 export const BASE = 140; // the ground's top, up from the bottom of the screen
 export const LEAD = 0.3; // she runs this far across the screen
 export const FINISH_DELAY_MS = 700; // a moment at the castle before the buttons
+export const GAME_OVER_DELAY_MS = 500; // a moment to see her fall
 
 const SVG = 'http://www.w3.org/2000/svg';
 const mane = maneFromAddress(location.search);
@@ -17,8 +18,9 @@ const view = document.querySelector('.view');
 const course = document.querySelector('.course');
 const segments = [...document.querySelectorAll('.sparkle-meter .seg')];
 const finish = document.querySelector('.finish');
+const gameOver = document.querySelector('.game-over');
 
-for (const link of document.querySelectorAll('.map-btn, .finish-map-btn')) {
+for (const link of document.querySelectorAll('.map-btn, .finish-map-btn, .over-map-btn')) {
   link.href = `./world-map.html?mane=${mane.name}`;
 }
 
@@ -40,7 +42,6 @@ function place(node, className, x, y, width) {
 }
 
 const GEM = '<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="#7FE3FF" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>';
-const FLAG = '<path d="M4 2 V96" stroke="#2B2350" stroke-width="7" stroke-linecap="round"/><path d="M8 6 L60 20 L8 40 Z" fill="#2EC4A6" stroke="#2B2350" stroke-width="4" stroke-linejoin="round"/>';
 const HAND = '<rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4"/><rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4"/>';
 const HINTS = {
   tap: `<circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5"/><circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5"/>${HAND}`,
@@ -57,7 +58,6 @@ function build(course) {
   for (const cloud of course.clouds) {
     place(document.createElement('div'), 'cloud-platform', cloud.from, cloud.top - 40, cloud.to - cloud.from);
   }
-  for (const cp of course.checkpoints.slice(1)) place(svg('0 0 64 100', FLAG), 'flag', cp, 0);
   for (const hint of course.hints) place(svg('0 0 92 92', HINTS[hint.kind]), `hint-${hint.kind}`, hint.x - 46, 150);
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   return course.gems.map(([x, y]) => place(svg('0 0 32 38', GEM), 'gem', x - 16, y - 19));
@@ -98,14 +98,13 @@ function frame(time) {
   last = time;
   const events = step(state, dt, { pressed, held });
   pressed = false;
-  if (events.includes('respawn')) {
-    runnerEl.classList.remove('respawned');
-    void runnerEl.offsetWidth; // restart the blink
-    runnerEl.classList.add('respawned');
-  }
   render();
   if (events.includes('finish')) {
     setTimeout(() => { finish.hidden = false; }, FINISH_DELAY_MS);
+    return;
+  }
+  if (events.includes('fall')) {
+    setTimeout(() => { gameOver.hidden = false; }, GAME_OVER_DELAY_MS);
     return;
   }
   requestAnimationFrame(frame);
@@ -137,16 +136,27 @@ window.addEventListener('keyup', (event) => {
   if (KEYS.includes(event.key)) release();
 });
 
-// Play again: back to the start, every gem back in place.
-document.querySelector('.replay-btn').addEventListener('click', () => {
+// The game over picture: her, dizzy, with swirls going round.
+const SWIRL = 'a2 2 0 0 1 2 2 a4 4 0 0 1 -4 4 a6 6 0 0 1 -6 -6 a8 8 0 0 1 8 -8';
+document.querySelector('.oops').append(
+  drawUnicorn(mane),
+  svg('0 0 120 40', `<g fill="none" stroke="#9B6BFF" stroke-width="3" stroke-linecap="round"><path d="M20 18 ${SWIRL}"/><path d="M60 14 ${SWIRL}"/><path d="M100 18 ${SWIRL}"/></g>`),
+);
+
+// Play again, after the castle or a fall: back to the start, every gem
+// back in place.
+function restart() {
   state = createRunner(MEADOW);
   pressed = false;
   held = false;
   last = null;
   finish.hidden = true;
+  gameOver.hidden = true;
   render();
   requestAnimationFrame(frame);
-});
+}
+
+for (const button of document.querySelectorAll('.replay-btn, .retry-btn')) button.addEventListener('click', restart);
 
 render();
 requestAnimationFrame(frame);

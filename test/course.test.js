@@ -16,7 +16,6 @@ const long = gaps.filter((g) => g.width >= 200);
 function tryGap({ from, to }, press, { hold = 0, double = false } = {}) {
   const state = createRunner(MEADOW);
   state.x = from - 400;
-  state.checkpoint = state.x;
   state.sparkle = SPARKLE_START;
   let pressedAt = null;
   let doubled = false;
@@ -32,7 +31,7 @@ function tryGap({ from, to }, press, { hold = 0, double = false } = {}) {
       input = { pressed: true, held: false };
     }
     const events = step(state, DT, input);
-    if (events.includes('respawn')) return false;
+    if (events.includes('fall')) return false;
     if (state.grounded && state.x > to + 50) return true;
   }
   return false;
@@ -91,10 +90,10 @@ describe('the course', () => {
     expect(tap.x).toBeGreaterThan(gaps[0].from - 600);
   });
 
-  it('has every flag on solid ground', () => {
-    for (const cp of MEADOW.checkpoints) {
-      expect(MEADOW.ground.some(([from, to]) => cp >= from && cp + 100 <= to), `flag at ${cp}`).toBe(true);
-    }
+  it('starts her on solid ground, with a run-up before the first gap', () => {
+    const [from, to] = MEADOW.ground[0];
+    expect(MEADOW.start).toBeGreaterThanOrEqual(from);
+    expect(to - MEADOW.start).toBeGreaterThan(600);
   });
 
   it('has the castle on the last stretch of ground', () => {
@@ -114,7 +113,7 @@ describe('the course', () => {
         input = { pressed: true, held: next.width >= 200 };
         if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
       }
-      expect(step(state, DT, input)).not.toContain('respawn');
+      expect(step(state, DT, input)).not.toContain('fall');
     }
     expect(state.finished).toBe(true);
     expect(t).toBeLessThan(40); // a short, sweet run

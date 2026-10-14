@@ -49,6 +49,20 @@
         </div>
       </div>
 
+      <!-- Fell in a gap: try again, or back to the map -->
+      <div class="game-over" hidden>
+        <h2 class="game-over-title">Game Over</h2>
+        <div class="oops" aria-hidden="true"></div>
+        <div class="finish-buttons">
+          <button class="icon-btn retry-btn" type="button" aria-label="Try the Meadow again">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12 a7 7 0 1 1 -2.1 -5" fill="none" stroke-width="3" stroke-linecap="round" /><path d="M18.5 2.5 V7.5 H13.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <a class="icon-btn over-map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+        </div>
+      </div>
+
       <footer class="signature">jsogge 2026</footer>
     </main>
     <script type="module" src="./game/meadow.js"></script>

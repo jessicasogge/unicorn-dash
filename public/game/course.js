@@ -25,8 +25,7 @@ export const MEADOW = {
     [4360, 240], [4410, 240], [4460, 240],
     [4900, 60], [5000, 90],
   ],
-  // Flags: fall in a gap and she's back at the last one she passed.
-  checkpoints: [0, 1920, 3220, 5240],
+  start: 0,
   // Pictures showing what to do, just before she needs to: tap to jump,
   // hold to dash.
   hints: [

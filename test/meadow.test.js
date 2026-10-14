@@ -58,7 +58,7 @@ describe('the course', () => {
     expect($$('.course .ground')).toHaveLength(MEADOW.ground.length);
     expect($$('.course .cloud-platform')).toHaveLength(MEADOW.clouds.length);
     expect($$('.course .gem')).toHaveLength(MEADOW.gems.length);
-    expect($$('.course .flag')).toHaveLength(MEADOW.checkpoints.length - 1); // none at the start
+    expect($$('.course .flag')).toHaveLength(0); // no flags: a fall is game over
     expect($$('.course .hint-tap')).toHaveLength(1);
     expect($$('.course .hint-hold')).toHaveLength(1);
     expect($$('.course .castle')).toHaveLength(1);
@@ -80,7 +80,7 @@ describe('the course', () => {
 
   it('starts her at the beginning, on the ground', async () => {
     await open();
-    expect(x()).toBe(MEADOW.checkpoints[0]);
+    expect(x()).toBe(MEADOW.start);
     expect(height()).toBe(0);
   });
 
@@ -90,7 +90,7 @@ describe('the course', () => {
     Object.defineProperty(view, 'clientHeight', { value: 900 });
     Object.defineProperty(view, 'clientWidth', { value: 1600 });
     meadow.render();
-    const camera = MEADOW.checkpoints[0] - (1600 / 1.5) * meadow.LEAD;
+    const camera = MEADOW.start - (1600 / 1.5) * meadow.LEAD;
     expect($('.course').style.transform).toBe(`scale(1.5) translateX(${-camera}px)`);
   });
 
@@ -108,7 +108,7 @@ describe('the course', () => {
     await open();
     const before = $('.course').style.transform;
     tick(30);
-    expect(x()).toBeGreaterThan(MEADOW.checkpoints[0]);
+    expect(x()).toBeGreaterThan(MEADOW.start);
     expect($('.course').style.transform).not.toBe(before);
   });
 });
@@ -230,15 +230,54 @@ describe('gems', () => {
 });
 
 describe('falling', () => {
-  it('puts her back at the start with a blink', async () => {
-    await open();
-    let blinked = false;
-    for (let i = 0; i < 400 && !blinked; i++) {
+  // Runs with no taps until she drops into the first gap.
+  function fall() {
+    for (let i = 0; i < 600 && frames.length; i++) {
       tick();
-      blinked = runner().classList.contains('respawned');
+      vi.advanceTimersByTime(1000 / 60);
     }
-    expect(blinked).toBe(true);
-    expect(x()).toBeLessThan(MEADOW.ground[0][1]);
+  }
+
+  it('in a gap stops the run, and shows game over after a moment', async () => {
+    await open();
+    for (let i = 0; i < 600 && frames.length; i++) tick();
+    expect(frames).toHaveLength(0); // stopped
+    expect(x()).toBeGreaterThan(MEADOW.ground[0][1]); // past the edge
+    expect($('.game-over').hidden).toBe(true);
+    vi.advanceTimersByTime(meadow.GAME_OVER_DELAY_MS - 1);
+    expect($('.game-over').hidden).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect($('.game-over').hidden).toBe(false);
+  });
+
+  it('shows her dizzy, with the mane she came with', async () => {
+    await open('?mane=yellow');
+    expect($('.oops svg.unicorn').dataset.mane).toBe('yellow');
+  });
+
+  it('leaves the castle buttons hidden', async () => {
+    await open();
+    fall();
+    expect($('.finish').hidden).toBe(true);
+  });
+
+  it('can be tried again from the start, with every gem back', async () => {
+    await open();
+    fall();
+    expect($$('.course .gem.got').length).toBeGreaterThan(0);
+    $('.retry-btn').click();
+    expect($('.game-over').hidden).toBe(true);
+    expect(x()).toBe(MEADOW.start);
+    expect(height()).toBe(0);
+    expect($$('.course .gem.got')).toHaveLength(0);
+    tick(10);
+    expect(x()).toBeGreaterThan(MEADOW.start); // running again
+  });
+
+  it('can go back to the map, with her mane', async () => {
+    await open('?mane=blue');
+    expect($('.over-map-btn').getAttribute('href')).toBe('./world-map.html?mane=blue');
+    expect($('.retry-btn').getAttribute('aria-label')).toBe('Try the Meadow again');
   });
 });
 
@@ -290,9 +329,9 @@ describe('the castle', () => {
     playToTheEnd();
     $('.replay-btn').click();
     expect($('.finish').hidden).toBe(true);
-    expect(x()).toBe(MEADOW.checkpoints[0]);
+    expect(x()).toBe(MEADOW.start);
     expect($$('.course .gem.got')).toHaveLength(0);
     tick(10);
-    expect(x()).toBeGreaterThan(MEADOW.checkpoints[0]); // running again
+    expect(x()).toBeGreaterThan(MEADOW.start); // running again
   });
 });

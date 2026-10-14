@@ -3,8 +3,8 @@
 //
 // She runs right on her own. A press jumps (a second press in the air
 // jumps again). Holding on for a moment starts a rainbow dash: faster,
-// flying level, using up sparkle. Gems refill it. Falling into a gap puts
-// her back at the last flag she passed.
+// flying level, using up sparkle. Gems refill it. Falling into a gap ends
+// the run: game over.
 
 export const RUN = 280; // speed, world units a second
 export const DASH = 560;
@@ -22,7 +22,7 @@ export const GEM_REACH = 50;
 export function createRunner(course) {
   return {
     course,
-    x: course.checkpoints[0],
+    x: course.start,
     y: 0,
     vy: 0,
     grounded: true,
@@ -31,9 +31,9 @@ export function createRunner(course) {
     held: 0, // seconds the button's been held
     dashing: false,
     sparkle: SPARKLE_START,
-    checkpoint: course.checkpoints[0],
     collected: new Set(),
-    finished: false,
+    finished: false, // at the castle
+    fallen: false, // in a gap: game over
   };
 }
 
@@ -46,10 +46,10 @@ function surfacesAt(course, x) {
 
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
-// and sparkles: 'jump', 'dash', 'gem', 'land', 'respawn', 'finish'.
+// and sparkles: 'jump', 'dash', 'gem', 'land', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
-  if (state.finished) return events;
+  if (state.finished || state.fallen) return events;
 
   state.coyote = Math.max(0, state.coyote - dt);
   if (input.pressed) {
@@ -95,10 +95,6 @@ export function step(state, dt, input) {
     state.coyote = COYOTE;
   }
 
-  for (const cp of state.course.checkpoints) {
-    if (state.grounded && state.x >= cp && cp > state.checkpoint) state.checkpoint = cp;
-  }
-
   state.course.gems.forEach(([gx, gy], i) => {
     if (state.collected.has(i)) return;
     if (Math.abs(gx - state.x) < GEM_REACH && Math.abs(gy - (state.y + 50)) < GEM_REACH + 10) {
@@ -109,12 +105,10 @@ export function step(state, dt, input) {
   });
 
   if (state.y < FALL_LIMIT) {
-    Object.assign(state, {
-      x: state.checkpoint, y: 0, vy: 0, grounded: true, coyote: 0, airJumps: 0, dashing: false,
-      // A fall is never a dead end: enough sparkle to try the dash again.
-      sparkle: Math.max(state.sparkle, SPARKLE_START),
-    });
-    events.push('respawn');
+    state.fallen = true;
+    state.dashing = false;
+    events.push('fall');
+    return events;
   }
 
   if (state.x >= state.course.castle) {
