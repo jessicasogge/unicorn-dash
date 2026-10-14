@@ -26,11 +26,5 @@ export const MEADOW = {
     [4900, 60], [5000, 90],
   ],
   start: 0,
-  // Pictures showing what to do, just before she needs to: tap to jump,
-  // hold to dash.
-  hints: [
-    { x: 760, kind: 'tap' },
-    { x: 2560, kind: 'hold' },
-  ],
   castle: 6300,
 };

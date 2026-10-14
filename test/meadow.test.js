@@ -59,8 +59,7 @@ describe('the course', () => {
     expect($$('.course .cloud-platform')).toHaveLength(MEADOW.clouds.length);
     expect($$('.course .gem')).toHaveLength(MEADOW.gems.length);
     expect($$('.course .flag')).toHaveLength(0); // no flags: a fall is game over
-    expect($$('.course .hint-tap')).toHaveLength(1);
-    expect($$('.course .hint-hold')).toHaveLength(1);
+    expect($$('.course [class^="hint"]')).toHaveLength(0); // no finger pictures
     expect($$('.course .castle')).toHaveLength(1);
   });
 

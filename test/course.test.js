@@ -76,20 +76,9 @@ describe('the long gaps', () => {
     }
   });
 
-  it('come after a picture showing to hold, the first time', () => {
-    const hold = MEADOW.hints.find((h) => h.kind === 'hold');
-    expect(hold.x).toBeLessThan(long[0].from);
-    expect(hold.x).toBeGreaterThan(long[0].from - 600);
-  });
 });
 
 describe('the course', () => {
-  it('shows a picture of tapping before the first gap', () => {
-    const tap = MEADOW.hints.find((h) => h.kind === 'tap');
-    expect(tap.x).toBeLessThan(gaps[0].from);
-    expect(tap.x).toBeGreaterThan(gaps[0].from - 600);
-  });
-
   it('starts her on solid ground, with a run-up before the first gap', () => {
     const [from, to] = MEADOW.ground[0];
     expect(MEADOW.start).toBeGreaterThanOrEqual(from);

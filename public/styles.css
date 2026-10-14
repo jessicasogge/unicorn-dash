@@ -496,15 +496,6 @@ body {
   transform: translateY(-30px) scale(1.4);
 }
 
-.hint-tap,
-.hint-hold {
-  width: 92px;
-  height: 92px;
-  border: 4px solid var(--ink);
-  border-radius: 28px;
-  background: #ffffff;
-}
-
 .castle {
   width: 340px;
   height: 300px;

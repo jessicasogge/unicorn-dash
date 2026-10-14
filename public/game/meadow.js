@@ -42,11 +42,6 @@ function place(node, className, x, y, width) {
 }
 
 const GEM = '<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="#7FE3FF" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>';
-const HAND = '<rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4"/><rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4"/>';
-const HINTS = {
-  tap: `<circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5"/><circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5"/>${HAND}`,
-  hold: `<circle cx="46" cy="22" r="20" fill="none" stroke="#E6E0F5" stroke-width="7"/><circle cx="46" cy="22" r="20" fill="none" stroke="#9B6BFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="84 126" transform="rotate(-90 46 22)"/>${HAND}`,
-};
 const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><rect x="70" y="120" width="200" height="176" fill="#FFD6EC"/><rect x="20" y="90" width="70" height="206" fill="#FFB3D6"/><rect x="250" y="90" width="70" height="206" fill="#FFB3D6"/><path d="M14 92 L55 24 L96 92 Z" fill="#9B6BFF"/><path d="M244 92 L285 24 L326 92 Z" fill="#9B6BFF"/><rect x="135" y="70" width="70" height="60" fill="#FFB3D6"/><path d="M128 72 L170 6 L212 72 Z" fill="#3A8DFF"/></g><path d="M140 296 V230 a30 30 0 0 1 60 0 V296" fill="#2B2350"/>';
 
 // The course, drawn once.
@@ -58,7 +53,6 @@ function build(course) {
   for (const cloud of course.clouds) {
     place(document.createElement('div'), 'cloud-platform', cloud.from, cloud.top - 40, cloud.to - cloud.from);
   }
-  for (const hint of course.hints) place(svg('0 0 92 92', HINTS[hint.kind]), `hint-${hint.kind}`, hint.x - 46, 150);
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   return course.gems.map(([x, y]) => place(svg('0 0 32 38', GEM), 'gem', x - 16, y - 19));
 }

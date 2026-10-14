@@ -13,7 +13,7 @@ const HOLD = { pressed: false, held: true };
 
 // A flat course: ground everywhere, unless changed.
 const course = (more = {}) => ({
-  ground: [[-1000, 100000]], clouds: [], gems: [], start: 0, hints: [], castle: 100000, ...more,
+  ground: [[-1000, 100000]], clouds: [], gems: [], start: 0, castle: 100000, ...more,
 });
 
 // Runs `seconds` with the same input (a tap only on the first step).
