@@ -428,6 +428,217 @@ body {
   padding: 0;
 }
 
+/* ---- The Meadow: a level ---- */
+
+.meadow {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--sky);
+  font-family: Fredoka, system-ui, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The play area: tap or hold anywhere. Far hills along the bottom drift
+   by slower than the ground (game/meadow.js moves them). */
+.view {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  background-image: radial-gradient(circle at 50% 100%, #c6f0ae 0 45%, transparent 45.5%);
+  background-size: 640px 360px;
+  background-repeat: repeat-x;
+  background-position-y: 100%;
+}
+
+/* Everything on the course, in world units; meadow.js scales it to the
+   screen and slides it along under her. */
+.course {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 600px;
+  transform-origin: 0 100%;
+}
+
+.course > * {
+  position: absolute;
+}
+
+.ground {
+  border: 5px solid var(--ink);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(var(--grass) 0 28px, var(--ink) 28px 33px, #edae76 33px);
+}
+
+.cloud-platform {
+  height: 40px;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.gem {
+  width: 32px;
+  height: 38px;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+/* Caught: it pops up and fades */
+.gem.got {
+  opacity: 0;
+  transform: translateY(-30px) scale(1.4);
+}
+
+.flag {
+  width: 64px;
+  height: 100px;
+}
+
+.hint-tap,
+.hint-hold {
+  width: 92px;
+  height: 92px;
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  background: #ffffff;
+}
+
+.castle {
+  width: 340px;
+  height: 300px;
+}
+
+.runner {
+  width: 140px;
+}
+
+.runner .unicorn {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Her rainbow, behind her while she dashes */
+.runner .trail {
+  left: auto;
+  right: 55%;
+  top: 40%;
+  width: 260px;
+  height: 26%;
+  opacity: 0;
+  transition: opacity 0.15s;
+  animation: none !important;
+}
+
+.runner.dashing .trail {
+  opacity: 1;
+}
+
+/* Back at a flag after a fall: a quick blink */
+.runner.respawned {
+  animation: blink 0.3s steps(2) 3;
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+.meadow-bar {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none; /* taps between the buttons still reach the course */
+}
+
+.meadow-bar > * {
+  pointer-events: auto;
+}
+
+.sparkle-meter {
+  height: 4rem;
+  border: 5px solid var(--ink);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 0 1rem 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.gem-icon {
+  width: 1.8rem;
+  height: 2.1rem;
+  fill: #9b6bff;
+  stroke: var(--ink);
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+}
+
+/* Each part fills from the left as sparkle comes in (--fill, 0 to 1) */
+.seg {
+  width: 1.8rem;
+  height: 1.3rem;
+  border-radius: 0.45rem;
+  background: linear-gradient(90deg, #9b6bff calc(var(--fill, 0) * 100%), #e6e0f5 0);
+}
+
+.finish {
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 35, 80, 0.25);
+  display: flex;
+  align-items: flex-start; /* up in the sky, clear of the castle */
+  justify-content: center;
+  padding-top: 18vh;
+}
+
+.finish[hidden] {
+  display: none;
+}
+
+.finish-buttons {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.finish .icon-btn {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 1.75rem;
+  cursor: pointer;
+}
+
+.finish .icon-btn svg {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+.replay-btn svg {
+  stroke: var(--ink);
+}
+
+.meadow .signature {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.4rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
 /* For players whose devices ask for less motion: she stays put. */
 @media (prefers-reduced-motion: reduce) {
   .unicorn-btn,

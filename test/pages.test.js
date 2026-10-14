@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html', 'world-map.html'];
+const PAGES = ['index.html', 'world-map.html', 'meadow.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -79,6 +79,24 @@ describe('the world map', () => {
       expect(attrs).toMatch(/aria-label="[^"]+"/);
       expect(inside.replace(/<[^>]*>/g, '').trim()).toMatch(/^\d*$/);
     }
+  });
+});
+
+describe('the Meadow', () => {
+  const html = readFileSync(file('meadow.html'), 'utf8');
+  const level = html.slice(html.indexOf('<main class="meadow">'), html.indexOf('</main>'));
+
+  it('needs no reading: its buttons are pictures, named for screen readers', () => {
+    const controls = [...level.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
+    expect(controls.length).toBe(3); // map, play again, map
+    for (const [, , attrs, inside] of controls) {
+      expect(attrs).toMatch(/aria-label="[^"]+"/);
+      expect(inside.replace(/<[^>]*>/g, '').trim()).toBe('');
+    }
+  });
+
+  it('keeps the castle buttons hidden until she gets there', () => {
+    expect(level).toContain('<div class="finish" hidden>');
   });
 });
 
