@@ -1,6 +1,5 @@
-// The Meadow's course, in world units: x runs right from the start, y up
-// from the ground. Short gaps take a jump, long ones a rainbow dash, and
-// gems before each long gap fill the sparkle meter for it.
+// Meadow course in world units (x right, y up): short gaps jump, long gaps
+// need a rainbow dash, fueled by gems just before them.
 
 export const MEADOW = {
   // Ground, as [from, to] along x. The spaces between are gaps.

@@ -1,10 +1,6 @@
-// The unicorn's running, jumping and dashing, step by step. No drawing
-// here: meadow.js shows what this works out.
-//
-// She runs right on her own. A press jumps (a second press in the air
-// jumps again). Holding on for a moment starts a rainbow dash: faster,
-// flying level, using up sparkle. Gems refill it. Falling into a gap ends
-// the run: game over.
+// Meadow movement: auto-run right; tap to jump (double jump), hold to dash.
+// Dash is faster, level flight, and spends sparkle refilled by gems.
+// Falling in a gap is game over. No drawing; meadow.js renders it.
 
 export const RUN = 280; // speed, world units a second
 export const DASH = 560;
