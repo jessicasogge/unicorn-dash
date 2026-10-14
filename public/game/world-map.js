@@ -23,19 +23,34 @@ function goTo(world) {
 
 if (here) goTo(here);
 
+// The worlds that are built so far, and where each one opens.
+export const WORLD_PAGES = { meadow: './meadow.html' };
+
 for (const world of worlds) {
   world.querySelector('.island').addEventListener('click', () => {
-    if (world === here) hop();
+    const page = WORLD_PAGES[world.dataset.world];
+    if (page) open(world, page);
+    else if (world === here) hop();
     else goTo(world);
   });
+}
+
+// She goes to the world and hops in, then it opens.
+function open(world, page) {
+  if (world.classList.contains('hopping')) return;
+  goTo(world);
+  hop();
+  setTimeout(() => {
+    location.href = `${page}?mane=${mane.name}`;
+  }, HOP_MS);
 }
 
 // Home keeps her mane, too.
 const home = document.querySelector('.home-btn');
 if (home) home.href = `./index.html?mane=${mane.name}`;
 
-// Tap the world she's already on and she hops. (The worlds themselves
-// aren't built yet; this is where one will open.) A tap mid-hop is ignored.
+// Tap a world that isn't built yet, while she's on it, and she hops. A tap
+// mid-hop is ignored.
 function hop() {
   if (here.classList.contains('hopping')) return;
   const world = here;

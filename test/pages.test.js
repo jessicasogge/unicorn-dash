@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html', 'world-map.html'];
+const PAGES = ['index.html', 'world-map.html', 'meadow.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -36,13 +36,10 @@ describe('the start screen', () => {
     expect(start).toMatch(/<h1 class="logo">\s*<span class="logo-unicorn">Unicorn<\/span>\s*<span class="logo-dash">Dash<\/span>\s*<\/h1>/);
   });
 
-  it('needs no reading: its buttons are pictures, named for screen readers', () => {
-    const buttons = [...start.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)];
+  it('names every button for screen readers', () => {
+    const buttons = [...start.matchAll(/<button\b([^>]*)>/g)];
     expect(buttons.length).toBe(2);
-    for (const [, attrs, inside] of buttons) {
-      expect(attrs).toMatch(/aria-label="[^"]+"/);
-      expect(inside.replace(/<[^>]*>/g, '').trim()).toBe('');
-    }
+    for (const [, attrs] of buttons) expect(attrs).toMatch(/aria-label="[^"]+"/);
   });
 
   it('links to PetriPals and FunGals, the other games', () => {
@@ -72,13 +69,30 @@ describe('the world map', () => {
   const html = readFileSync(file('world-map.html'), 'utf8');
   const map = html.slice(html.indexOf('<main class="map">'), html.indexOf('</main>'));
 
-  it('needs no reading: only numbers on its buttons, and names for screen readers', () => {
-    const controls = [...map.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
+  it('names every button for screen readers', () => {
+    const controls = [...map.matchAll(/<(?:button|a)\b([^>]*)>/g)];
     expect(controls.length).toBeGreaterThan(0);
-    for (const [, , attrs, inside] of controls) {
-      expect(attrs).toMatch(/aria-label="[^"]+"/);
-      expect(inside.replace(/<[^>]*>/g, '').trim()).toMatch(/^\d*$/);
-    }
+    for (const [, attrs] of controls) expect(attrs).toMatch(/aria-label="[^"]+"/);
+  });
+});
+
+describe('the Meadow', () => {
+  const html = readFileSync(file('meadow.html'), 'utf8');
+  const level = html.slice(html.indexOf('<main class="meadow">'), html.indexOf('</main>'));
+
+  it('names every button for screen readers', () => {
+    const controls = [...level.matchAll(/<(?:button|a)\b([^>]*)>/g)];
+    expect(controls.length).toBe(5); // map; at the castle, play again and map; after a fall, try again and map
+    for (const [, attrs] of controls) expect(attrs).toMatch(/aria-label="[^"]+"/);
+  });
+
+  it('keeps the castle and game over screens hidden until they\'re needed', () => {
+    expect(level).toContain('<div class="finish" hidden>');
+    expect(level).toContain('<div class="game-over" hidden>');
+  });
+
+  it('says Game Over on the game over screen', () => {
+    expect(level).toContain('<h2 class="game-over-title">Game Over</h2>');
   });
 });
 

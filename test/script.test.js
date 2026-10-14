@@ -55,7 +55,7 @@ describe('the start screen', () => {
     expect(unicorn.querySelector('svg').dataset.mane).toBe('yellow');
   });
 
-  it('has a Play button screen readers can name, with no words to read', async () => {
+  it('has a Play button screen readers can name', async () => {
     const { play } = await open();
     expect(play.getAttribute('aria-label')).toBe('Play');
     expect(play.textContent.trim()).toBe('');
