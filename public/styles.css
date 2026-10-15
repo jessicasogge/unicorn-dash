@@ -610,9 +610,29 @@ body {
   position: absolute;
   inset: 0; /* no dimming, so the fireworks show bright */
   display: flex;
-  align-items: flex-end; /* down on the ground, clear of the castle and fireworks */
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 4vh;
+  gap: 1.5rem;
+  /* in the open sky to the right of the castle and its fireworks */
+  padding: 0 4vw 12vh 50vw;
+}
+
+.finish-title,
+.game-over-title {
+  margin: 0;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--yellow);
+  -webkit-text-stroke: 0.1em var(--ink);
+  paint-order: stroke fill;
+  text-align: center;
+}
+
+.finish-title {
+  color: var(--pink);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .finish[hidden],
@@ -729,16 +749,6 @@ body {
   gap: 1.5rem;
 }
 
-.game-over-title {
-  margin: 0;
-  font-size: clamp(3rem, 10vw, 5.5rem);
-  font-weight: 700;
-  line-height: 1;
-  color: var(--yellow);
-  -webkit-text-stroke: 0.1em var(--ink);
-  paint-order: stroke fill;
-}
-
 .oops {
   position: relative;
   width: min(14rem, 50vw);
@@ -805,8 +815,12 @@ body {
    castle buttons, above the fireworks */
 @media (max-aspect-ratio: 1/1) {
   .finish {
-    align-items: center;
-    padding-bottom: 20vh;
+    justify-content: flex-start;
+    padding: 18vh 1rem 0;
+  }
+
+  .finish-title {
+    font-size: clamp(2.5rem, 12vw, 4rem);
   }
 }
 

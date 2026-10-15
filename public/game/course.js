@@ -9,7 +9,7 @@ export const MEADOW = {
     [1920, 2700], // short gap
     [3220, 3880], // long gap before: a dash
     [4000, 4700], // short gap, with a run-up to the cloud
-    [5240, 6700], // long gap
+    [5240, 9500], // long gap; runs on well past the castle, so no empty sky
   ],
   // Floating clouds to land on, for the gems up high.
   clouds: [
