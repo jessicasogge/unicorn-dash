@@ -18,7 +18,7 @@ There are no stars or scores, and nothing is saved. There are a few words, like 
 
 ## The plan
 
-- **One button, two moves.** Tap (or space or the up arrow) to jump, tap again in the air to double jump. Hold to **rainbow dash**: it bridges gaps and smashes crystal walls, but uses up the **sparkle meter**. Sparkle gems fill it back up.
+- **One button, two moves.** Tap (or space or the up arrow) to jump, tap again in the air to double jump. Hold to **rainbow dash**: it bridges gaps and smashes crystal walls, but uses up sparkle. Diamonds fill it back up.
 - **Mane magic.** Paint pots change her mane to pink ♥, blue ★ or yellow ☾. Gates only let a matching mane through. Every color has its own shape, so colorblind players can play too.
 - **Five worlds**, each adding one new idea: Meadow, Candy Canyon (bouncy gumdrops), Cloud Kingdom (color gates), Crystal Caves (dash-only walls) and Night Sky (everything, plus shooting stars).
 - **Nothing to unlock.** Every world, level and unicorn in the **stable** is open from the start, and there are no stars or scores: nothing is saved. A fall into a gap is game over, and you try the level again from the start.
