@@ -264,25 +264,6 @@ describe('dashing', () => {
     expect(runner().classList.contains('dashing')).toBe(false);
   });
 
-  it('drains the sparkle meter as it goes', async () => {
-    await open();
-    const fills = () => $$('.sparkle-meter .seg').map((s) => Number(s.style.getPropertyValue('--fill')));
-    expect(fills()).toEqual([1, 1, 1, 0, 0]);
-    tick();
-    pointer('pointerdown');
-    tick(30);
-    expect(fills()[2]).toBeLessThan(1);
-  });
-});
-
-describe('gems', () => {
-  it('pop when she catches one', async () => {
-    await open();
-    tick(120); // runs along the ground through the first gems
-    expect($$('.course .gem')[0].classList.contains('got')).toBe(true);
-    expect($$('.course .gem').at(-1).classList.contains('got')).toBe(false);
-  });
-
   it('come in every color, round the rainbow', async () => {
     await open();
     const fills = $$('.course .gem').map((g) => g.querySelector('path').getAttribute('fill'));
@@ -290,9 +271,10 @@ describe('gems', () => {
     expect(new Set(fills).size).toBe(meadow.GEM_COLORS.length);
   });
 
-  it('are counted up at the top left as she catches them', async () => {
+  it('are counted up at the top right as she catches them', async () => {
     await open();
-    const count = $('.meadow-bar .bar-left .gem-count');
+    const count = $('.meadow-bar > .gem-count');
+    expect(count.previousElementSibling.classList.contains('map-btn')).toBe(true); // map left, count right
     expect(count.querySelector('.count').textContent).toBe('0');
     tick(120);
     const caught = $$('.course .gem.got').length;
@@ -449,6 +431,15 @@ describe('the castle', () => {
     // behind the castle: drawn before it
     const castle = $('.course .castle');
     expect(fireworks.every((f) => f.compareDocumentPosition(castle) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+  });
+
+  it('has six fireworks, each bursting once, one after another', async () => {
+    await open();
+    const fireworks = $$('.course .firework');
+    expect(fireworks).toHaveLength(6);
+    const delays = fireworks.map((f) => parseFloat(f.style.animationDelay));
+    expect(delays).toEqual([...delays].sort((a, b) => a - b));
+    expect(new Set(delays).size).toBe(6);
   });
 
   it('stops the fireworks when playing again', async () => {

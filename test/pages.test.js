@@ -89,8 +89,17 @@ describe('the Meadow', () => {
     }
   });
 
-  it('counts diamonds at the top left, next to the map button', () => {
-    expect(level).toMatch(/<div class="bar-left">\s*<a class="icon-btn map-btn"[\s\S]*?<div class="gem-count"/);
+  it('has the map button on the left and the diamond count on the right, with no sparkle meter', () => {
+    const bar = level.slice(level.indexOf('<nav class="meadow-bar">'), level.indexOf('</nav>'));
+    expect(bar).toMatch(/^<nav class="meadow-bar">\s*<a class="icon-btn map-btn"[\s\S]*<div class="gem-count"/);
+    expect(bar).not.toContain('sparkle-meter');
+  });
+
+  it('bursts each firework once, not over and over', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    const rule = css.match(/\.firework span \{([^}]*)\}/)[1];
+    expect(rule).toMatch(/animation: burst [\d.]+s ease-out both;/);
+    expect(rule).not.toContain('infinite');
   });
 
   it('starts with the directions showing', () => {

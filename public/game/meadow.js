@@ -16,7 +16,6 @@ const mane = maneFromAddress(location.search);
 
 const view = document.querySelector('.view');
 const course = document.querySelector('.course');
-const segments = [...document.querySelectorAll('.sparkle-meter .seg')];
 const finish = document.querySelector('.finish');
 const gameOver = document.querySelector('.game-over');
 
@@ -73,7 +72,8 @@ function build(course) {
   for (const cloud of course.clouds) {
     place(document.createElement('div'), 'cloud-platform', cloud.from, cloud.top - 40, cloud.to - cloud.from);
   }
-  const fireworks = [[-130, 250, 0], [60, 300, 0.5], [220, 240, 1], [-40, 320, 1.5], [150, 280, 2]]
+  // Six bursts, one after another, then done
+  const fireworks = [[-130, 250, 0], [60, 300, 0.5], [220, 240, 1], [-40, 320, 1.5], [150, 280, 2], [-110, 300, 2.5]]
     .map(([dx, y, delay], i) => firework(course.castle + dx, y, GEM_COLORS[(i * 2) % GEM_COLORS.length], delay));
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
@@ -109,7 +109,6 @@ export function render() {
   runnerEl.style.left = `${state.x - 70}px`;
   runnerEl.style.bottom = `${BASE + state.y - 13}px`;
   runnerEl.classList.toggle('dashing', state.dashing);
-  segments.forEach((seg, i) => seg.style.setProperty('--fill', Math.min(1, Math.max(0, state.sparkle - i))));
   gems.forEach((gem, i) => gem.classList.toggle('got', state.collected.has(i)));
   countNumber.textContent = state.collected.size;
   count.setAttribute('aria-label', `${state.collected.size} diamonds`);
