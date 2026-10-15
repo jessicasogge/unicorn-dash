@@ -18,7 +18,8 @@ let frames;
 let now;
 let meadow;
 
-async function open(search = '?mane=blue') {
+// Opens the page, and presses Go unless told not to.
+async function open(search = '?mane=blue', { go = true } = {}) {
   frames = [];
   now = 0;
   vi.stubGlobal('location', { href: `http://localhost/meadow.html${search}`, search });
@@ -26,6 +27,7 @@ async function open(search = '?mane=blue') {
   document.body.outerHTML = html('meadow.html');
   vi.resetModules();
   meadow = await import('../public/game/meadow.js');
+  if (go) document.querySelector('.go-btn').click();
 }
 
 // Runs `count` animation frames, `ms` apart.
@@ -60,6 +62,7 @@ describe('the course', () => {
     expect($$('.course .gem')).toHaveLength(MEADOW.gems.length);
     expect($$('.course .flag')).toHaveLength(0); // no flags: a fall is game over
     expect($$('.course [class^="hint"]')).toHaveLength(0); // no finger pictures
+    expect($$('.course .sky-cloud')).toHaveLength(MEADOW.sky.length);
     expect($$('.course .castle')).toHaveLength(1);
   });
 
@@ -109,6 +112,59 @@ describe('the course', () => {
     tick(30);
     expect(x()).toBeGreaterThan(MEADOW.start);
     expect($('.course').style.transform).not.toBe(before);
+  });
+});
+
+describe('the directions', () => {
+  it('show first, explaining a quick tap and a long tap', async () => {
+    await open('?mane=blue', { go: false });
+    const directions = $('.directions');
+    expect(directions.hidden).toBe(false);
+    expect(directions.textContent).toMatch(/Quick tap\s*to jump/);
+    expect(directions.textContent).toMatch(/Long tap\s*\(hold\) to rainbow dash/);
+    expect(directions.textContent).toMatch(/space bar or the up arrow/);
+  });
+
+  it('keep her still until Go', async () => {
+    await open('?mane=blue', { go: false });
+    tick(60);
+    expect(frames).toHaveLength(0);
+    expect(x()).toBe(MEADOW.start);
+  });
+
+  it('ignore taps on the course behind them', async () => {
+    await open('?mane=blue', { go: false });
+    pointer('pointerdown');
+    $('.go-btn').click();
+    tick(10);
+    expect(height()).toBe(0); // no jump saved up from before Go
+  });
+
+  it('go away on Go, and she starts running', async () => {
+    await open('?mane=blue', { go: false });
+    $('.go-btn').click();
+    expect($('.directions').hidden).toBe(true);
+    tick(30);
+    expect(x()).toBeGreaterThan(MEADOW.start);
+  });
+
+  it('can be closed with the space bar too, without a jump', async () => {
+    await open('?mane=blue', { go: false });
+    key('keydown', ' ');
+    expect($('.directions').hidden).toBe(true);
+    tick(10);
+    expect(height()).toBe(0);
+    expect(x()).toBeGreaterThan(MEADOW.start);
+  });
+
+  it('don\'t come back when playing again', async () => {
+    await open();
+    for (let i = 0; i < 600 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect($('.directions').hidden).toBe(true);
   });
 });
 

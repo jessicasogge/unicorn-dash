@@ -12,7 +12,7 @@ The **start screen**, the **world map**, and the first world, the **Meadow**:
 
 - **Tap the unicorn** on the start screen and she hops into a new mane color: pink, then blue, then yellow, then pink again. **Press Play** and she dashes off to the map, keeping her color.
 - **On the map**, tap a world and she goes there. Tap the flower world, the **Meadow**, and it opens. The other four worlds aren't built yet, so tapping the one she's on just gets a hop from her. The house button goes back to the start.
-- **In the Meadow** she runs on her own. **Tap** (or press space or the up arrow) to jump, and tap again in the air to jump higher, up to the gems on the clouds. **Hold** to rainbow dash across the long gaps, which uses up the sparkle meter; gems fill it back up. Fall into a gap and it's **game over**: try again from the start, or go back to the map. Reach the castle to finish, then play again or go back to the map.
+- **In the Meadow**, a "How to play" card comes first: a **quick tap** jumps, a **long tap** (hold) dashes. Press **Go!** (or the space bar) and she runs on her own. **Tap** (or press space or the up arrow) to jump, and tap again in the air to jump higher, up to the gems on the clouds. **Hold** to rainbow dash across the long gaps, which uses up the sparkle meter; gems fill it back up. Fall into a gap and it's **game over**: try again from the start, or go back to the map. Reach the castle to finish, then play again or go back to the map.
 
 There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 

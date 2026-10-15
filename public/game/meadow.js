@@ -44,8 +44,11 @@ function place(node, className, x, y, width) {
 const GEM = '<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="#7FE3FF" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>';
 const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><rect x="70" y="120" width="200" height="176" fill="#FFD6EC"/><rect x="20" y="90" width="70" height="206" fill="#FFB3D6"/><rect x="250" y="90" width="70" height="206" fill="#FFB3D6"/><path d="M14 92 L55 24 L96 92 Z" fill="#9B6BFF"/><path d="M244 92 L285 24 L326 92 Z" fill="#9B6BFF"/><rect x="135" y="70" width="70" height="60" fill="#FFB3D6"/><path d="M128 72 L170 6 L212 72 Z" fill="#3A8DFF"/></g><path d="M140 296 V230 a30 30 0 0 1 60 0 V296" fill="#2B2350"/>';
 
+const SKY_CLOUD = '<path d="M20 62 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 0 0 1 44 16 a18 18 0 0 1 12 30 Z" fill="#fff"/>';
+
 // The course, drawn once.
 function build(course) {
+  for (const [x, y, size] of course.sky) place(svg('0 0 160 70', SKY_CLOUD), 'sky-cloud', x, y, 160 * size);
   for (const [from, to] of course.ground) {
     const ground = place(document.createElement('div'), 'ground', from, -BASE, to - from);
     ground.style.height = `${BASE}px`;
@@ -66,6 +69,7 @@ runnerEl.append(drawUnicorn(mane));
 course.append(runnerEl);
 
 let state = createRunner(MEADOW);
+let started = false; // not until Go, after the directions
 let pressed = false;
 let held = false;
 let last = null;
@@ -105,6 +109,7 @@ function frame(time) {
 }
 
 function press() {
+  if (!started) return;
   if (!held) pressed = true;
   held = true;
 }
@@ -124,7 +129,9 @@ window.addEventListener('keydown', (event) => {
   // Space on a focused button presses the button, not jump
   if (!KEYS.includes(event.key) || event.target.closest?.('button, a')) return;
   event.preventDefault(); // no page scroll on space
-  if (!event.repeat) press();
+  if (event.repeat) return;
+  if (started) press();
+  else go(); // space or up also starts, from the directions
 });
 window.addEventListener('keyup', (event) => {
   if (KEYS.includes(event.key)) release();
@@ -152,6 +159,16 @@ function restart() {
 
 for (const button of document.querySelectorAll('.replay-btn, .retry-btn')) button.addEventListener('click', restart);
 
+// The directions show first; Go starts her running.
+const directions = document.querySelector('.directions');
+const goButton = document.querySelector('.go-btn');
+
+function go() {
+  started = true;
+  directions.hidden = true;
+  requestAnimationFrame(frame);
+}
+
+goButton.addEventListener('click', go);
 render();
-requestAnimationFrame(frame);
 

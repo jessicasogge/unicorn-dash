@@ -85,6 +85,15 @@ describe('the course', () => {
     expect(to - MEADOW.start).toBeGreaterThan(600);
   });
 
+  it('has sky clouds all along it, up in the sky and on screen', () => {
+    expect(MEADOW.sky.length).toBeGreaterThanOrEqual(5);
+    for (const [x, y, size] of MEADOW.sky) {
+      expect(x).toBeLessThan(MEADOW.castle + 300);
+      expect(y).toBeGreaterThan(200); // above her jumps
+      expect(y + 70 * size).toBeLessThan(600 - 140); // under the top of the screen
+    }
+  });
+
   it('has the castle on the last stretch of ground', () => {
     const [from, to] = MEADOW.ground.at(-1);
     expect(MEADOW.castle).toBeGreaterThan(from);
