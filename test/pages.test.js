@@ -80,10 +80,31 @@ describe('the Meadow', () => {
   const html = readFileSync(file('meadow.html'), 'utf8');
   const level = html.slice(html.indexOf('<main class="meadow">'), html.indexOf('</main>'));
 
-  it('names every button for screen readers', () => {
-    const controls = [...level.matchAll(/<(?:button|a)\b([^>]*)>/g)];
-    expect(controls.length).toBe(5); // map; at the castle, play again and map; after a fall, try again and map
-    for (const [, attrs] of controls) expect(attrs).toMatch(/aria-label="[^"]+"/);
+  it('names every button for screen readers, in words or a label', () => {
+    const controls = [...level.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
+    expect(controls.length).toBe(6); // Go; map; at the castle, play again and map; after a fall, try again and map
+    for (const [, , attrs, inside] of controls) {
+      const words = inside.replace(/<[^>]*>/g, '').trim();
+      expect(words || attrs.match(/aria-label="([^"]+)"/)?.[1]).toBeTruthy();
+    }
+  });
+
+  it('has the map button on the left and the diamond count on the right, with no sparkle meter', () => {
+    const bar = level.slice(level.indexOf('<nav class="meadow-bar">'), level.indexOf('</nav>'));
+    expect(bar).toMatch(/^<nav class="meadow-bar">\s*<a class="icon-btn map-btn"[\s\S]*<div class="gem-count"/);
+    expect(bar).not.toContain('sparkle-meter');
+  });
+
+  it('bursts each firework once, not over and over', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    const rule = css.match(/\.firework span \{([^}]*)\}/)[1];
+    expect(rule).toMatch(/animation: burst [\d.]+s ease-out both;/);
+    expect(rule).not.toContain('infinite');
+  });
+
+  it('starts with the directions showing', () => {
+    expect(level).toContain('<div class="directions">');
+    expect(level).toContain('<button class="go-btn" type="button">Go!</button>');
   });
 
   it('keeps the castle and game over screens hidden until they\'re needed', () => {

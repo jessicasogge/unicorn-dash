@@ -18,7 +18,8 @@ let frames;
 let now;
 let meadow;
 
-async function open(search = '?mane=blue') {
+// Opens the page, and presses Go unless told not to.
+async function open(search = '?mane=blue', { go = true } = {}) {
   frames = [];
   now = 0;
   vi.stubGlobal('location', { href: `http://localhost/meadow.html${search}`, search });
@@ -26,6 +27,7 @@ async function open(search = '?mane=blue') {
   document.body.outerHTML = html('meadow.html');
   vi.resetModules();
   meadow = await import('../public/game/meadow.js');
+  if (go) document.querySelector('.go-btn').click();
 }
 
 // Runs `count` animation frames, `ms` apart.
@@ -60,6 +62,7 @@ describe('the course', () => {
     expect($$('.course .gem')).toHaveLength(MEADOW.gems.length);
     expect($$('.course .flag')).toHaveLength(0); // no flags: a fall is game over
     expect($$('.course [class^="hint"]')).toHaveLength(0); // no finger pictures
+    expect($$('.course .sky-cloud')).toHaveLength(MEADOW.sky.length);
     expect($$('.course .castle')).toHaveLength(1);
   });
 
@@ -70,6 +73,13 @@ describe('the course', () => {
     expect(ground.style.left).toBe(`${from}px`);
     expect(ground.style.width).toBe(`${to - from}px`);
     expect(ground.style.bottom).toBe('0px');
+  });
+
+  it('has black windows on the castle', async () => {
+    await open();
+    const windows = $$('.course .castle .windows path');
+    expect(windows.length).toBeGreaterThanOrEqual(3);
+    expect($('.course .castle .windows').getAttribute('fill')).toBe('#2B2350');
   });
 
   it('has her on it, with the mane she came with', async () => {
@@ -109,6 +119,60 @@ describe('the course', () => {
     tick(30);
     expect(x()).toBeGreaterThan(MEADOW.start);
     expect($('.course').style.transform).not.toBe(before);
+  });
+});
+
+describe('the directions', () => {
+  it('show first, explaining a quick tap and a long tap', async () => {
+    await open('?mane=blue', { go: false });
+    const directions = $('.directions');
+    expect(directions.hidden).toBe(false);
+    expect(directions.textContent).toMatch(/Quick tap\s*to jump/);
+    expect(directions.textContent).toMatch(/Long tap\s*\(hold\) to rainbow dash/);
+    expect(directions.textContent).toMatch(/space bar or the up arrow/);
+    expect(directions.textContent).not.toMatch(/sparkle/i); // dashing is unlimited
+  });
+
+  it('keep her still until Go', async () => {
+    await open('?mane=blue', { go: false });
+    tick(60);
+    expect(frames).toHaveLength(0);
+    expect(x()).toBe(MEADOW.start);
+  });
+
+  it('ignore taps on the course behind them', async () => {
+    await open('?mane=blue', { go: false });
+    pointer('pointerdown');
+    $('.go-btn').click();
+    tick(10);
+    expect(height()).toBe(0); // no jump saved up from before Go
+  });
+
+  it('go away on Go, and she starts running', async () => {
+    await open('?mane=blue', { go: false });
+    $('.go-btn').click();
+    expect($('.directions').hidden).toBe(true);
+    tick(30);
+    expect(x()).toBeGreaterThan(MEADOW.start);
+  });
+
+  it('can be closed with the space bar too, without a jump', async () => {
+    await open('?mane=blue', { go: false });
+    key('keydown', ' ');
+    expect($('.directions').hidden).toBe(true);
+    tick(10);
+    expect(height()).toBe(0);
+    expect(x()).toBeGreaterThan(MEADOW.start);
+  });
+
+  it('don\'t come back when playing again', async () => {
+    await open();
+    for (let i = 0; i < 600 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect($('.directions').hidden).toBe(true);
   });
 });
 
@@ -208,23 +272,39 @@ describe('dashing', () => {
     expect(runner().classList.contains('dashing')).toBe(false);
   });
 
-  it('drains the sparkle meter as it goes', async () => {
+  it('come in every color, round the rainbow', async () => {
     await open();
-    const fills = () => $$('.sparkle-meter .seg').map((s) => Number(s.style.getPropertyValue('--fill')));
-    expect(fills()).toEqual([1, 1, 1, 0, 0]);
-    tick();
-    pointer('pointerdown');
-    tick(30);
-    expect(fills()[2]).toBeLessThan(1);
+    const fills = $$('.course .gem').map((g) => g.querySelector('path').getAttribute('fill'));
+    expect(fills.slice(0, meadow.GEM_COLORS.length)).toEqual(meadow.GEM_COLORS);
+    expect(new Set(fills).size).toBe(meadow.GEM_COLORS.length);
   });
-});
 
-describe('gems', () => {
-  it('pop when she catches one', async () => {
+  it('are counted up at the top right as she catches them', async () => {
     await open();
-    tick(120); // runs along the ground through the first gems
-    expect($$('.course .gem')[0].classList.contains('got')).toBe(true);
-    expect($$('.course .gem').at(-1).classList.contains('got')).toBe(false);
+    const count = $('.meadow-bar > .gem-count');
+    expect(count.previousElementSibling.classList.contains('map-btn')).toBe(true); // map left, count right
+    expect(count.querySelector('.count').textContent).toBe('0');
+    tick(120);
+    const caught = $$('.course .gem.got').length;
+    expect(caught).toBeGreaterThan(0);
+    expect(count.querySelector('.count').textContent).toBe(String(caught));
+    expect(count.getAttribute('aria-label')).toBe(`${caught} diamonds`);
+  });
+
+  it('make the counter bounce', async () => {
+    await open();
+    tick(120);
+    expect($('.gem-count').classList.contains('bump')).toBe(true);
+  });
+
+  it('count from zero again on a new try', async () => {
+    await open();
+    for (let i = 0; i < 600 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect($('.gem-count .count').textContent).toBe('0');
   });
 });
 
@@ -282,23 +362,42 @@ describe('falling', () => {
 
 describe('the castle', () => {
   // Plays the whole level: a tap before each short gap, a hold over each
-  // long one. Returns the frames at which she stopped, and the buttons
+  // long one, and (with `clouds`) a double jump up onto each cloud for its
+  // diamonds. Returns the frames at which she stopped, and the buttons
   // showed.
-  function playToTheEnd() {
+  function playToTheEnd({ clouds = false } = {}) {
     const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], width: to - MEADOW.ground[i][1] }));
+    const climbed = new Set();
     let releaseAt = Infinity;
     let stoppedAt = null;
+    let double = false;
+    let before = 0;
     let i = 0;
     for (; i < 60 * 60 && $('.finish').hidden; i++) {
+      const h = height();
+      const grounded = h === 0 || MEADOW.clouds.some((c) => h === c.top);
       const next = gaps.find((g) => g.from > x());
-      if (next && height() === 0 && next.from - x() < 40 && releaseAt === Infinity) {
-        pointer('pointerdown');
-        releaseAt = next.width >= 200 ? i + Math.ceil((HOLD_TO_DASH + next.width / DASH + 0.3) * 60) : i + 1;
+      const cloud = clouds && MEADOW.clouds.find((c) => !climbed.has(c) && x() >= c.from - 240 && x() < c.from);
+      if (releaseAt === Infinity) {
+        if (cloud && grounded) {
+          climbed.add(cloud);
+          double = true;
+          pointer('pointerdown');
+          releaseAt = i + 1;
+        } else if (double && !grounded && h < before) {
+          double = false; // the second jump, at the top of the first
+          pointer('pointerdown');
+          releaseAt = i + 1;
+        } else if (next && h === 0 && next.from - x() < 40) {
+          pointer('pointerdown');
+          releaseAt = next.width >= 200 ? i + Math.ceil((HOLD_TO_DASH + next.width / DASH + 0.3) * 60) : i + 1;
+        }
       }
       if (i >= releaseAt) {
         pointer('pointerup');
         releaseAt = Infinity;
       }
+      before = h;
       tick();
       if (stoppedAt === null && frames.length === 0) stoppedAt = i;
       vi.advanceTimersByTime(1000 / 60);
@@ -321,6 +420,41 @@ describe('the castle', () => {
     const waited = (shownAt - stoppedAt) * (1000 / 60);
     expect(waited).toBeGreaterThanOrEqual(meadow.FINISH_DELAY_MS - 1000 / 60);
     expect(waited).toBeLessThanOrEqual(meadow.FINISH_DELAY_MS + 1000 / 60);
+  });
+
+  it('has no fireworks without every diamond', async () => {
+    await open();
+    playToTheEnd();
+    expect($$('.course .gem.got').length).toBeLessThan(MEADOW.gems.length);
+    expect($$('.course .firework.going')).toHaveLength(0);
+  });
+
+  it('sets off fireworks behind it for catching every diamond', async () => {
+    await open();
+    playToTheEnd({ clouds: true });
+    expect($('.gem-count .count').textContent).toBe(String(MEADOW.gems.length));
+    const fireworks = $$('.course .firework');
+    expect(fireworks.length).toBeGreaterThan(0);
+    expect(fireworks.every((f) => f.classList.contains('going'))).toBe(true);
+    // behind the castle: drawn before it
+    const castle = $('.course .castle');
+    expect(fireworks.every((f) => f.compareDocumentPosition(castle) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+  });
+
+  it('has six fireworks, each bursting once, one after another', async () => {
+    await open();
+    const fireworks = $$('.course .firework');
+    expect(fireworks).toHaveLength(6);
+    const delays = fireworks.map((f) => parseFloat(f.style.animationDelay));
+    expect(delays).toEqual([...delays].sort((a, b) => a - b));
+    expect(new Set(delays).size).toBe(6);
+  });
+
+  it('stops the fireworks when playing again', async () => {
+    await open();
+    playToTheEnd({ clouds: true });
+    $('.replay-btn').click();
+    expect($$('.course .firework.going')).toHaveLength(0);
   });
 
   it('can be played again from the start, with every gem back', async () => {

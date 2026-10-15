@@ -3,7 +3,7 @@
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
 import { MEADOW } from '../public/game/course.js';
-import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, SPARKLE_START, createRunner, step } from '../public/game/runner.js';
+import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
 const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], to, width: to - MEADOW.ground[i][1] }));
@@ -16,7 +16,6 @@ const long = gaps.filter((g) => g.width >= 200);
 function tryGap({ from, to }, press, { hold = 0, double = false } = {}) {
   const state = createRunner(MEADOW);
   state.x = from - 400;
-  state.sparkle = SPARKLE_START;
   let pressedAt = null;
   let doubled = false;
   for (let t = 0; t < 6; t += DT) {
@@ -62,19 +61,13 @@ describe('the long gaps', () => {
     }
   });
 
-  it('can be crossed with a dash, starting with the sparkle she always has', () => {
+  it('can be crossed with a dash', () => {
     for (const gap of long) {
       const hold = HOLD_TO_DASH + gap.width / DASH + 0.3;
       expect(tryGap(gap, gap.from - 60, { hold }), `gap at ${gap.from}`).toBe(true);
     }
   });
 
-  it('each have gems just before them, to fill up the meter', () => {
-    for (const gap of long) {
-      const near = MEADOW.gems.filter(([x]) => x > gap.from - 800 && x < gap.from);
-      expect(near.length, `gap at ${gap.from}`).toBeGreaterThanOrEqual(2);
-    }
-  });
 
 });
 
@@ -83,6 +76,15 @@ describe('the course', () => {
     const [from, to] = MEADOW.ground[0];
     expect(MEADOW.start).toBeGreaterThanOrEqual(from);
     expect(to - MEADOW.start).toBeGreaterThan(600);
+  });
+
+  it('has sky clouds all along it, up in the sky and on screen', () => {
+    expect(MEADOW.sky.length).toBeGreaterThanOrEqual(5);
+    for (const [x, y, size] of MEADOW.sky) {
+      expect(x).toBeLessThan(MEADOW.castle + 300);
+      expect(y).toBeGreaterThan(200); // above her jumps
+      expect(y + 70 * size).toBeLessThan(600 - 140); // under the top of the screen
+    }
   });
 
   it('has the castle on the last stretch of ground', () => {
@@ -106,6 +108,34 @@ describe('the course', () => {
     }
     expect(state.finished).toBe(true);
     expect(t).toBeLessThan(40); // a short, sweet run
+  });
+
+  it('lets every diamond be caught on the way to the castle, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const state = createRunner(MEADOW);
+      const climbed = new Set();
+      let holdUntil = 0;
+      let double = false;
+      for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+        let input = { pressed: false, held: t < holdUntil };
+        const next = gaps.find((g) => g.from > state.x);
+        const cloud = MEADOW.clouds.find((c) => !climbed.has(c) && state.x >= c.from - 240 && state.x < c.from);
+        if (cloud && state.grounded) {
+          climbed.add(cloud);
+          double = true;
+          input = { pressed: true, held: false };
+        } else if (double && state.vy <= 0 && !state.grounded) {
+          double = false;
+          input = { pressed: true, held: false };
+        } else if (next && state.grounded && next.from - state.x < 40) {
+          input = { pressed: true, held: next.width >= 200 };
+          if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+        }
+        step(state, dt, input);
+      }
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.collected.size, `at ${dt}`).toBe(MEADOW.gems.length);
+    }
   });
 
   it('has gems up on the clouds, out of reach of one jump but not of two', () => {

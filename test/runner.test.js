@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, COYOTE, DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, SPARKLE_DRAIN, SPARKLE_MAX, SPARKLE_START,
+  AIR_JUMPS, COYOTE, DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -33,9 +33,9 @@ function runUntil(state, event) {
 }
 
 describe('running', () => {
-  it('starts at the start, on the ground, with some sparkle', () => {
+  it('starts at the start, on the ground', () => {
     const state = createRunner(course({ start: 50 }));
-    expect(state).toMatchObject({ x: 50, y: 0, grounded: true, sparkle: SPARKLE_START, finished: false });
+    expect(state).toMatchObject({ x: 50, y: 0, grounded: true, finished: false });
   });
 
   it('runs right on her own at a steady speed', () => {
@@ -110,15 +110,21 @@ describe('dashing', () => {
     expect(state.dashing).toBe(true);
   });
 
-  it('flies level and fast, using up sparkle', () => {
+  it('flies level and fast', () => {
     const state = createRunner(course());
     step(state, DT, TAP);
     run(state, HOLD_TO_DASH + DT, HOLD);
-    const { x, y, sparkle } = state;
+    const { x, y } = state;
     run(state, 0.2, HOLD);
     expect(state.y).toBe(y);
     expect(state.x - x).toBeCloseTo(DASH * 0.2, -1);
-    expect(sparkle - state.sparkle).toBeCloseTo(SPARKLE_DRAIN * 0.2, 1);
+  });
+
+  it('lasts as long as the button is held', () => {
+    const state = createRunner(course());
+    step(state, DT, TAP);
+    run(state, 10, HOLD);
+    expect(state.dashing).toBe(true);
   });
 
   it('stops when the button\'s let go', () => {
@@ -129,14 +135,6 @@ describe('dashing', () => {
     expect(state.dashing).toBe(false);
   });
 
-  it('stops when the sparkle runs out, and can\'t start without any', () => {
-    const state = createRunner(course());
-    state.sparkle = 0.1;
-    step(state, DT, TAP);
-    run(state, 1, HOLD);
-    expect(state.sparkle).toBe(0);
-    expect(state.dashing).toBe(false);
-  });
 
   it('carries her over a gap too wide to jump', () => {
     const gap = course({ ground: [[-100, 100], [700, 5000]] });
@@ -164,11 +162,10 @@ describe('falling', () => {
     expect(state).toMatchObject({ x, y });
   });
 
-  it('can happen mid-dash when the sparkle runs out over a gap', () => {
+  it('can happen when a dash is let go over a gap', () => {
     const state = createRunner(course({ ground: [[-100, 100], [3000, 5000]] }));
-    state.sparkle = 0.5;
     step(state, DT, TAP);
-    run(state, 1, HOLD);
+    run(state, 0.5, HOLD);
     expect(runUntil(state, 'fall')).toBe(true);
   });
 });
@@ -193,12 +190,11 @@ describe('clouds', () => {
 });
 
 describe('gems', () => {
-  it('are caught when she touches one, adding a sparkle', () => {
+  it('are caught when she touches one', () => {
     const state = createRunner(course({ gems: [[100, 50], [5000, 50]] }));
     const events = run(state, 1);
     expect(events.filter((e) => e === 'gem')).toHaveLength(1);
     expect(state.collected).toEqual(new Set([0]));
-    expect(state.sparkle).toBe(SPARKLE_START + 1);
   });
 
   it('are missed when she jumps right over them', () => {
@@ -209,12 +205,6 @@ describe('gems', () => {
     expect(state.collected.size).toBe(0);
   });
 
-  it('can\'t fill the meter past full', () => {
-    const state = createRunner(course({ gems: [[100, 50], [200, 50], [300, 50]] }));
-    state.sparkle = SPARKLE_MAX - 1;
-    run(state, 2);
-    expect(state.sparkle).toBe(SPARKLE_MAX);
-  });
 });
 
 describe('the castle', () => {

@@ -12,13 +12,13 @@ The **start screen**, the **world map**, and the first world, the **Meadow**:
 
 - **Tap the unicorn** on the start screen and she hops into a new mane color: pink, then blue, then yellow, then pink again. **Press Play** and she dashes off to the map, keeping her color.
 - **On the map**, tap a world and she goes there. Tap the flower world, the **Meadow**, and it opens. The other four worlds aren't built yet, so tapping the one she's on just gets a hop from her. The house button goes back to the start.
-- **In the Meadow** she runs on her own. **Tap** (or press space or the up arrow) to jump, and tap again in the air to jump higher, up to the gems on the clouds. **Hold** to rainbow dash across the long gaps, which uses up the sparkle meter; gems fill it back up. Fall into a gap and it's **game over**: try again from the start, or go back to the map. Reach the castle to finish, then play again or go back to the map.
+- **In the Meadow**, a "How to play" card comes first: a **quick tap** jumps, a **long tap** (hold) dashes. Press **Go!** (or the space bar) and she runs on her own. **Tap** (or press space or the up arrow) to jump, and tap again in the air to jump higher, up to the gems on the clouds. **Hold** to rainbow dash across the long gaps, as long as you like. A counter at the top right counts the rainbow-colored diamonds as she catches them. Catch every diamond and six fireworks go off behind the castle. Fall into a gap and it's **game over**: try again from the start, or go back to the map. Reach the castle to finish, then play again or go back to the map.
 
 There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
 ## The plan
 
-- **One button, two moves.** Tap (or space or the up arrow) to jump, tap again in the air to double jump. Hold to **rainbow dash**: it bridges gaps and smashes crystal walls, but uses up the **sparkle meter**. Sparkle gems fill it back up.
+- **One button, two moves.** Tap (or space or the up arrow) to jump, tap again in the air to double jump. Hold to **rainbow dash**, for as long as you like: it bridges gaps and smashes crystal walls.
 - **Mane magic.** Paint pots change her mane to pink ♥, blue ★ or yellow ☾. Gates only let a matching mane through. Every color has its own shape, so colorblind players can play too.
 - **Five worlds**, each adding one new idea: Meadow, Candy Canyon (bouncy gumdrops), Cloud Kingdom (color gates), Crystal Caves (dash-only walls) and Night Sky (everything, plus shooting stars).
 - **Nothing to unlock.** Every world, level and unicorn in the **stable** is open from the start, and there are no stars or scores: nothing is saved. A fall into a gap is game over, and you try the level again from the start.
@@ -53,7 +53,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
 | `public/meadow.html` | The Meadow, the first world |
 | `public/game/meadow.js` | Draws the Meadow and runs her through it: the controls, the camera, the castle |
-| `public/game/runner.js` | Her running, jumping and dashing, with no drawing: speeds, gravity, sparkle |
+| `public/game/runner.js` | Her running, jumping and dashing, with no drawing: speeds, gravity, diamonds |
 | `public/game/course.js` | The Meadow's course: where the ground, gaps, clouds and gems are |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |
 | `public/styles.css` | How every screen looks, and the hop and dash animations |
