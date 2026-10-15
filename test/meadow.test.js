@@ -75,6 +75,13 @@ describe('the course', () => {
     expect(ground.style.bottom).toBe('0px');
   });
 
+  it('has black windows on the castle', async () => {
+    await open();
+    const windows = $$('.course .castle .windows path');
+    expect(windows.length).toBeGreaterThanOrEqual(3);
+    expect($('.course .castle .windows').getAttribute('fill')).toBe('#2B2350');
+  });
+
   it('has her on it, with the mane she came with', async () => {
     await open('?mane=yellow');
     expect($('.course .runner svg.unicorn').dataset.mane).toBe('yellow');
@@ -123,6 +130,7 @@ describe('the directions', () => {
     expect(directions.textContent).toMatch(/Quick tap\s*to jump/);
     expect(directions.textContent).toMatch(/Long tap\s*\(hold\) to rainbow dash/);
     expect(directions.textContent).toMatch(/space bar or the up arrow/);
+    expect(directions.textContent).not.toMatch(/sparkle/i); // dashing is unlimited
   });
 
   it('keep her still until Go', async () => {

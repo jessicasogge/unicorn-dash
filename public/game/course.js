@@ -1,5 +1,5 @@
 // Meadow course in world units (x right, y up): short gaps jump, long gaps
-// need a rainbow dash, fueled by gems just before them.
+// need a rainbow dash.
 
 export const MEADOW = {
   // Ground, as [from, to] along x. The spaces between are gaps.

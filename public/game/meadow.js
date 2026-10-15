@@ -58,7 +58,7 @@ function firework(x, y, color, delay) {
   }
   return place(burst, 'firework', x, y);
 }
-const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><rect x="70" y="120" width="200" height="176" fill="#FFD6EC"/><rect x="20" y="90" width="70" height="206" fill="#FFB3D6"/><rect x="250" y="90" width="70" height="206" fill="#FFB3D6"/><path d="M14 92 L55 24 L96 92 Z" fill="#9B6BFF"/><path d="M244 92 L285 24 L326 92 Z" fill="#9B6BFF"/><rect x="135" y="70" width="70" height="60" fill="#FFB3D6"/><path d="M128 72 L170 6 L212 72 Z" fill="#3A8DFF"/></g><path d="M140 296 V230 a30 30 0 0 1 60 0 V296" fill="#2B2350"/>';
+const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><rect x="70" y="120" width="200" height="176" fill="#FFD6EC"/><rect x="20" y="90" width="70" height="206" fill="#FFB3D6"/><rect x="250" y="90" width="70" height="206" fill="#FFB3D6"/><path d="M14 92 L55 24 L96 92 Z" fill="#9B6BFF"/><path d="M244 92 L285 24 L326 92 Z" fill="#9B6BFF"/><rect x="135" y="70" width="70" height="60" fill="#FFB3D6"/><path d="M128 72 L170 6 L212 72 Z" fill="#3A8DFF"/></g><path d="M140 296 V230 a30 30 0 0 1 60 0 V296" fill="#2B2350"/><g class="windows" fill="#2B2350"><path d="M46 156 V140 a9 9 0 0 1 18 0 V156 Z"/><path d="M276 156 V140 a9 9 0 0 1 18 0 V156 Z"/><path d="M46 216 V200 a9 9 0 0 1 18 0 V216 Z"/><path d="M276 216 V200 a9 9 0 0 1 18 0 V216 Z"/><path d="M161 106 V90 a9 9 0 0 1 18 0 V106 Z"/><path d="M106 181 V165 a9 9 0 0 1 18 0 V181 Z"/><path d="M216 181 V165 a9 9 0 0 1 18 0 V181 Z"/></g>';
 
 const SKY_CLOUD = '<path d="M20 62 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 0 0 1 44 16 a18 18 0 0 1 12 30 Z" fill="#fff"/>';
 

@@ -1,5 +1,5 @@
 // Meadow movement: auto-run right; tap to jump (double jump), hold to dash.
-// Dash is faster, level flight, and spends sparkle refilled by gems.
+// Dash is faster, level flight, for as long as it's held. Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
 export const RUN = 280; // speed, world units a second
@@ -9,9 +9,6 @@ export const JUMP = 720; // upward speed when she jumps
 export const COYOTE = 0.12; // seconds after running off an edge she can still jump
 export const AIR_JUMPS = 1;
 export const HOLD_TO_DASH = 0.18; // seconds held before a dash starts
-export const SPARKLE_MAX = 5;
-export const SPARKLE_START = 3;
-export const SPARKLE_DRAIN = 3; // a second, while dashing
 export const FALL_LIMIT = -400; // below this, she's fallen
 export const GEM_REACH = 50;
 
@@ -26,7 +23,6 @@ export function createRunner(course) {
     airJumps: 0,
     held: 0, // seconds the button's been held
     dashing: false,
-    sparkle: SPARKLE_START,
     collected: new Set(),
     finished: false, // at the castle
     fallen: false, // in a gap: game over
@@ -42,7 +38,7 @@ function surfacesAt(course, x) {
 
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
-// and sparkles: 'jump', 'dash', 'gem', 'land', 'fall', 'finish'.
+// and effects: 'jump', 'dash', 'gem', 'land', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -62,12 +58,11 @@ export function step(state, dt, input) {
   }
 
   state.held = input.held ? state.held + dt : 0;
-  const wantsDash = state.held >= HOLD_TO_DASH && state.sparkle > 0;
+  const wantsDash = state.held >= HOLD_TO_DASH;
   if (wantsDash && !state.dashing) events.push('dash');
   state.dashing = wantsDash;
 
   if (state.dashing) {
-    state.sparkle = Math.max(0, state.sparkle - SPARKLE_DRAIN * dt);
     state.vy = 0; // flies level
   } else if (!state.grounded) {
     state.vy -= GRAVITY * dt;
@@ -95,7 +90,6 @@ export function step(state, dt, input) {
     if (state.collected.has(i)) return;
     if (Math.abs(gx - state.x) < GEM_REACH && Math.abs(gy - (state.y + 50)) < GEM_REACH + 10) {
       state.collected.add(i);
-      state.sparkle = Math.min(SPARKLE_MAX, state.sparkle + 1);
       events.push('gem');
     }
   });

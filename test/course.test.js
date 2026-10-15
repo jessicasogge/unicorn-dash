@@ -3,7 +3,7 @@
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
 import { MEADOW } from '../public/game/course.js';
-import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, SPARKLE_START, createRunner, step } from '../public/game/runner.js';
+import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
 const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], to, width: to - MEADOW.ground[i][1] }));
@@ -16,7 +16,6 @@ const long = gaps.filter((g) => g.width >= 200);
 function tryGap({ from, to }, press, { hold = 0, double = false } = {}) {
   const state = createRunner(MEADOW);
   state.x = from - 400;
-  state.sparkle = SPARKLE_START;
   let pressedAt = null;
   let doubled = false;
   for (let t = 0; t < 6; t += DT) {
@@ -62,19 +61,13 @@ describe('the long gaps', () => {
     }
   });
 
-  it('can be crossed with a dash, starting with the sparkle she always has', () => {
+  it('can be crossed with a dash', () => {
     for (const gap of long) {
       const hold = HOLD_TO_DASH + gap.width / DASH + 0.3;
       expect(tryGap(gap, gap.from - 60, { hold }), `gap at ${gap.from}`).toBe(true);
     }
   });
 
-  it('each have gems just before them, to fill up the meter', () => {
-    for (const gap of long) {
-      const near = MEADOW.gems.filter(([x]) => x > gap.from - 800 && x < gap.from);
-      expect(near.length, `gap at ${gap.from}`).toBeGreaterThanOrEqual(2);
-    }
-  });
 
 });
 
