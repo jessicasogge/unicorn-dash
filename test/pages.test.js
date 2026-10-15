@@ -112,6 +112,10 @@ describe('the Meadow', () => {
     expect(level).toContain('<div class="game-over" hidden>');
   });
 
+  it('says you beat the level at the castle', () => {
+    expect(level).toMatch(/<div class="finish" hidden>\s*<h2 class="finish-title">You beat the level!<\/h2>/);
+  });
+
   it('says Game Over on the game over screen', () => {
     expect(level).toContain('<h2 class="game-over-title">Game Over</h2>');
   });

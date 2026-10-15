@@ -87,6 +87,12 @@ describe('the course', () => {
     }
   });
 
+  it('keeps the ground going well past the castle, so there\'s no empty sky at the end', () => {
+    const [, to] = MEADOW.ground.at(-1);
+    // Even on a wide screen (2.5 times as wide as tall), with her a third of the way in
+    expect(to - MEADOW.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+
   it('has the castle on the last stretch of ground', () => {
     const [from, to] = MEADOW.ground.at(-1);
     expect(MEADOW.castle).toBeGreaterThan(from);
