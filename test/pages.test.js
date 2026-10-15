@@ -89,6 +89,10 @@ describe('the Meadow', () => {
     }
   });
 
+  it('counts diamonds at the top left, next to the map button', () => {
+    expect(level).toMatch(/<div class="bar-left">\s*<a class="icon-btn map-btn"[\s\S]*?<div class="gem-count"/);
+  });
+
   it('starts with the directions showing', () => {
     expect(level).toContain('<div class="directions">');
     expect(level).toContain('<button class="go-btn" type="button">Go!</button>');

@@ -28,11 +28,21 @@
       </div>
 
       <nav class="meadow-bar">
-        <a class="icon-btn map-btn" href="./world-map.html" aria-label="Back to the map">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
-        </a>
+        <div class="bar-left">
+          <a class="icon-btn map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+          <!-- Diamonds caught so far, counting up -->
+          <div class="gem-count" role="img" aria-label="0 diamonds">
+            <svg viewBox="0 0 32 38" aria-hidden="true">
+              <path d="M16 3 L29 14 L16 35 L3 14 Z" fill="#FF5FA2" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round" />
+              <path d="M3 14 H29 M10 14 L16 3 L22 14 L16 35" fill="none" stroke="#2B2350" stroke-width="2" stroke-linejoin="round" />
+            </svg>
+            <span class="count">0</span>
+          </div>
+        </div>
         <div class="sparkle-meter" role="img" aria-label="Sparkle for dashing">
-          <svg class="gem-icon" viewBox="0 0 32 38" aria-hidden="true"><path d="M16 3 L29 14 L16 35 L3 14 Z" /></svg>
+          <svg class="sparkle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 L14.2 9.8 L23 12 L14.2 14.2 L12 23 L9.8 14.2 L1 12 L9.8 9.8 Z" /></svg>
           <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
         </div>
       </nav>

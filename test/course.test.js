@@ -117,6 +117,34 @@ describe('the course', () => {
     expect(t).toBeLessThan(40); // a short, sweet run
   });
 
+  it('lets every diamond be caught on the way to the castle, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const state = createRunner(MEADOW);
+      const climbed = new Set();
+      let holdUntil = 0;
+      let double = false;
+      for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+        let input = { pressed: false, held: t < holdUntil };
+        const next = gaps.find((g) => g.from > state.x);
+        const cloud = MEADOW.clouds.find((c) => !climbed.has(c) && state.x >= c.from - 240 && state.x < c.from);
+        if (cloud && state.grounded) {
+          climbed.add(cloud);
+          double = true;
+          input = { pressed: true, held: false };
+        } else if (double && state.vy <= 0 && !state.grounded) {
+          double = false;
+          input = { pressed: true, held: false };
+        } else if (next && state.grounded && next.from - state.x < 40) {
+          input = { pressed: true, held: next.width >= 200 };
+          if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+        }
+        step(state, dt, input);
+      }
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.collected.size, `at ${dt}`).toBe(MEADOW.gems.length);
+    }
+  });
+
   it('has gems up on the clouds, out of reach of one jump but not of two', () => {
     const cloudGems = MEADOW.gems.filter(([, y]) => y > 150);
     expect(cloudGems.length).toBeGreaterThan(0);
