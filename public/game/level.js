@@ -73,11 +73,16 @@ const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><re
 // A gumdrop, half sunk in the ground, with sugar sparkles.
 const GUMDROP = (color) => `<path d="M6 46 C6 14 20 4 45 4 C70 4 84 14 84 46 Z" fill="${color}" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><g fill="#fff" opacity="0.8"><circle cx="30" cy="20" r="3"/><circle cx="50" cy="14" r="2.5"/><circle cx="62" cy="28" r="3"/><circle cx="38" cy="34" r="2.5"/></g>`;
 
+// A lollipop tree: a big swirly lollipop on a striped stick.
+const LOLLIPOP = (color) => `<g stroke="#2B2350" stroke-width="5"><rect x="44" y="84" width="12" height="160" rx="4" fill="#fff"/><path d="M44 110 L56 100 M44 140 L56 130 M44 170 L56 160 M44 200 L56 190 M44 230 L56 220" stroke="${color}" stroke-width="5"/><circle cx="50" cy="50" r="44" fill="${color}"/></g><path d="M50 50 m0 -6 a6 6 0 0 1 6 6 a12 12 0 0 1 -12 12 a18 18 0 0 1 -18 -18 a24 24 0 0 1 24 -24 a30 30 0 0 1 30 30" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`;
+
 const SKY_CLOUD = '<path d="M20 62 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 0 0 1 44 16 a18 18 0 0 1 12 30 Z" fill="#fff"/>';
 
 // The course, drawn once.
 function build(course) {
   for (const [x, y, size] of course.sky) place(svg('0 0 160 70', SKY_CLOUD), 'sky-cloud', x, y, 160 * size);
+  // Behind the ground, sticks standing in it
+  course.trees.forEach(([x, height], i) => place(svg('0 0 100 244', LOLLIPOP(GEM_COLORS[(i * 2 + 1) % GEM_COLORS.length])), 'lollipop-tree', x, -30, height * 100 / 244 * (244 / 214)));
   for (const [from, to] of course.ground) {
     const ground = place(document.createElement('div'), 'ground', from, -BASE, to - from);
     ground.style.height = `${BASE}px`;

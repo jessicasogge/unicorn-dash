@@ -218,4 +218,11 @@ describe('Candy Canyon', () => {
   it('keeps the ground going well past the castle', () => {
     expect(CANDY.ground.at(-1)[1] - CANDY.castle).toBeGreaterThanOrEqual(600 * 2.5);
   });
+
+  it('stands its lollipop trees on the ground, not over gaps', () => {
+    expect(CANDY.trees.length).toBeGreaterThanOrEqual(6);
+    for (const [x] of CANDY.trees) {
+      expect(CANDY.ground.some(([from, to]) => x >= from && x + 60 <= to), `tree at ${x}`).toBe(true);
+    }
+  });
 });

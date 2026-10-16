@@ -490,9 +490,20 @@ describe('Candy Canyon', () => {
     expect(gumdrops[0].style.left).toBe(`${CANDY.bouncers[0] - 45}px`);
   });
 
-  it('has no gumdrops in the Meadow', async () => {
+  it('has no gumdrops or lollipop trees in the Meadow', async () => {
     await open();
     expect($$('.course .gumdrop')).toHaveLength(0);
+    expect($$('.course .lollipop-tree')).toHaveLength(0);
+  });
+
+  it('has lollipop trees in the background, behind the ground', async () => {
+    await candy();
+    const trees = $$('.course .lollipop-tree');
+    expect(trees).toHaveLength(CANDY.trees.length);
+    expect(trees[0].style.left).toBe(`${CANDY.trees[0][0]}px`);
+    // drawn before the ground, so the ground covers their sticks' feet
+    const ground = $('.course .ground');
+    expect(trees.every((t) => t.compareDocumentPosition(ground) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
   });
 
   it('explains the gumdrops in its directions', async () => {
