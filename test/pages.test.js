@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html', 'world-map.html', 'meadow.html'];
+const PAGES = ['index.html', 'world-map.html', 'meadow.html', 'candy.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -78,11 +78,11 @@ describe('the world map', () => {
 
 describe('the Meadow', () => {
   const html = readFileSync(file('meadow.html'), 'utf8');
-  const level = html.slice(html.indexOf('<main class="meadow">'), html.indexOf('</main>'));
+  const level = html.slice(html.indexOf('<main class="level"'), html.indexOf('</main>'));
 
   it('names every button for screen readers, in words or a label', () => {
     const controls = [...level.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
-    expect(controls.length).toBe(6); // Go; map; at the castle, play again and map; after a fall, try again and map
+    expect(controls.length).toBe(7); // Go; map; at the castle, play again, map and next; after a fall, try again and map
     for (const [, , attrs, inside] of controls) {
       const words = inside.replace(/<[^>]*>/g, '').trim();
       expect(words || attrs.match(/aria-label="([^"]+)"/)?.[1]).toBeTruthy();
@@ -90,8 +90,8 @@ describe('the Meadow', () => {
   });
 
   it('has the map button on the left and the diamond count on the right, with no sparkle meter', () => {
-    const bar = level.slice(level.indexOf('<nav class="meadow-bar">'), level.indexOf('</nav>'));
-    expect(bar).toMatch(/^<nav class="meadow-bar">\s*<a class="icon-btn map-btn"[\s\S]*<div class="gem-count"/);
+    const bar = level.slice(level.indexOf('<nav class="level-bar">'), level.indexOf('</nav>'));
+    expect(bar).toMatch(/^<nav class="level-bar">\s*<a class="icon-btn map-btn"[\s\S]*<div class="gem-count"/);
     expect(bar).not.toContain('sparkle-meter');
   });
 
@@ -118,6 +118,27 @@ describe('the Meadow', () => {
 
   it('says Game Over on the game over screen', () => {
     expect(level).toContain('<h2 class="game-over-title">Game Over</h2>');
+  });
+});
+
+describe('Candy Canyon', () => {
+  const html = readFileSync(file('candy.html'), 'utf8');
+
+  it('is a level page for the candy course, using the shared level script', () => {
+    expect(html).toContain('<main class="level candy" data-level="candy">');
+    expect(html).toContain('<script type="module" src="./game/level.js"></script>');
+  });
+
+  it('has the same screens as the Meadow', () => {
+    for (const part of ['<div class="directions">', '<div class="finish" hidden>', '<div class="game-over" hidden>', '<div class="gem-count"']) {
+      expect(html).toContain(part);
+    }
+  });
+});
+
+describe('the Meadow and the next level', () => {
+  it('names Candy Canyon as the level after the Meadow', () => {
+    expect(readFileSync(file('meadow.html'), 'utf8')).toContain('<main class="level" data-level="meadow" data-next="./candy.html">');
   });
 });
 

@@ -1,4 +1,5 @@
-// Meadow movement: auto-run right; tap to jump (double jump), hold to dash.
+// Level movement: auto-run right; tap to jump (double jump), hold to dash.
+// Running onto a gumdrop bounces her up high.
 // Dash is faster, level flight, for as long as it's held. Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
@@ -11,6 +12,8 @@ export const AIR_JUMPS = 1;
 export const HOLD_TO_DASH = 0.18; // seconds held before a dash starts
 export const FALL_LIMIT = -400; // below this, she's fallen
 export const GEM_REACH = 50;
+export const BOUNCE = 1100; // upward speed off a gumdrop: about twice a jump's height
+export const GUMDROP_WIDTH = 90;
 
 export function createRunner(course) {
   return {
@@ -26,6 +29,7 @@ export function createRunner(course) {
     collected: new Set(),
     finished: false, // at the castle
     fallen: false, // in a gap: game over
+    bounced: null, // the last gumdrop she bounced on
   };
 }
 
@@ -38,7 +42,7 @@ function surfacesAt(course, x) {
 
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
-// and effects: 'jump', 'dash', 'gem', 'land', 'fall', 'finish'.
+// and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -84,6 +88,16 @@ export function step(state, dt, input) {
   } else if (state.grounded && !tops.includes(state.y)) {
     state.grounded = false; // ran off an edge, but can still jump for a moment
     state.coyote = COYOTE;
+  }
+
+  // On the ground over a gumdrop (not dashing past it): boing!
+  const gumdrop = (state.course.bouncers ?? []).findIndex((x) => Math.abs(state.x - x) <= GUMDROP_WIDTH / 2);
+  if (gumdrop >= 0 && state.grounded && state.y === 0 && !state.dashing) {
+    state.vy = BOUNCE;
+    state.grounded = false;
+    state.airJumps = 0;
+    state.bounced = gumdrop;
+    events.push('bounce');
   }
 
   state.course.gems.forEach(([gx, gy], i) => {

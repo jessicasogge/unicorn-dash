@@ -2,7 +2,7 @@
 // the real physics, to check every gap is fair: short ones take a jump
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
-import { MEADOW } from '../public/game/course.js';
+import { CANDY, LEVELS, MEADOW } from '../public/game/course.js';
 import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
@@ -160,6 +160,75 @@ describe('the course', () => {
       }
       const onIt = MEADOW.gems.filter(([x, y]) => y > 150 && x > cloud.from && x < cloud.to);
       expect(onIt.every(([x, y]) => state.collected.has(MEADOW.gems.findIndex(([gx, gy]) => gx === x && gy === y)))).toBe(true);
+    }
+  });
+});
+
+describe('Candy Canyon', () => {
+  const candyGaps = CANDY.ground.slice(1).map(([to], i) => ({ from: CANDY.ground[i][1], to, width: to - CANDY.ground[i][1] }));
+
+  it('is listed with the other levels', () => {
+    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY });
+  });
+
+  it('has short gaps to jump and long ones to dash, like the Meadow', () => {
+    expect(candyGaps.filter((g) => g.width < 200).length).toBeGreaterThanOrEqual(2);
+    expect(candyGaps.filter((g) => g.width >= 200).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('lands her back on solid ground after every gumdrop bounce', () => {
+    for (const x of CANDY.bouncers) {
+      const state = createRunner(CANDY);
+      state.x = x - 100;
+      let bounced = false;
+      for (let t = 0; t < 3 && !state.fallen; t += 1 / 60) {
+        if (step(state, 1 / 60, { pressed: false, held: false }).includes('bounce')) bounced = true;
+        if (bounced && state.grounded) break;
+      }
+      expect(bounced, `gumdrop at ${x}`).toBe(true);
+      expect(state.fallen, `gumdrop at ${x}`).toBe(false);
+      expect(state.grounded, `gumdrop at ${x}`).toBe(true);
+    }
+  });
+
+  it('has diamonds up high above each gumdrop', () => {
+    for (const x of CANDY.bouncers) {
+      expect(CANDY.gems.some(([gx, gy]) => gx > x && gx < x + 400 && gy > 300), `gumdrop at ${x}`).toBe(true);
+    }
+  });
+
+  it('can be won with every diamond, just jumping short gaps and dashing long ones, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const state = createRunner(CANDY);
+      let holdUntil = 0;
+      for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+        let input = { pressed: false, held: t < holdUntil };
+        const next = candyGaps.find((g) => g.from > state.x);
+        if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+          input = { pressed: true, held: next.width >= 200 };
+          if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+        }
+        step(state, dt, input);
+      }
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.collected.size, `at ${dt}`).toBe(CANDY.gems.length);
+    }
+  });
+
+  it('keeps the ground going well past the castle', () => {
+    expect(CANDY.ground.at(-1)[1] - CANDY.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+
+  it('has just a few lollipop trees, so they aren\'t distracting', () => {
+    expect(CANDY.trees.length).toBeGreaterThanOrEqual(4);
+    expect(CANDY.trees.length).toBeLessThanOrEqual(6);
+    // spread out: at least a screen's width apart
+    CANDY.trees.slice(1).forEach(([x], i) => expect(x - CANDY.trees[i][0]).toBeGreaterThanOrEqual(900));
+  });
+
+  it('stands its lollipop trees on the ground, not over gaps', () => {
+    for (const [x] of CANDY.trees) {
+      expect(CANDY.ground.some(([from, to]) => x >= from && x + 60 <= to), `tree at ${x}`).toBe(true);
     }
   });
 });

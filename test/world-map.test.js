@@ -145,9 +145,19 @@ describe('tapping the flower world', () => {
     expect(location.href).toBe('http://localhost/world-map.html'); // only opened once
   });
 
-  it('is the only world that opens so far', async () => {
+  it('opens the Meadow and Candy Canyon so far', async () => {
     const { WORLD_PAGES } = await import('../public/game/world-map.js');
-    expect(WORLD_PAGES).toEqual({ meadow: './meadow.html' });
+    expect(WORLD_PAGES).toEqual({ meadow: './meadow.html', candy: './candy.html' });
+  });
+});
+
+describe('tapping the lollipop world', () => {
+  it('opens Candy Canyon after a hop, with her mane', async () => {
+    await open('?mane=blue');
+    island('candy').click();
+    expect(hers()).toBe('candy');
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./candy.html?mane=blue');
   });
 });
 
@@ -171,23 +181,23 @@ describe('tapping a world that isn\'t built yet, while she\'s on it', () => {
 
   it('ignores taps mid-hop, so a later hop isn\'t cut short', async () => {
     await open();
-    island('candy').click();
-    island('candy').click();
+    island('night').click();
+    island('night').click();
     vi.advanceTimersByTime(HOP_MS - 1);
-    island('candy').click(); // mid-hop: ignored
+    island('night').click(); // mid-hop: ignored
     vi.advanceTimersByTime(1);
-    island('candy').click(); // a new hop
+    island('night').click(); // a new hop
     vi.advanceTimersByTime(HOP_MS - 1);
-    expect(world('candy').classList.contains('hopping')).toBe(true); // still going
+    expect(world('night').classList.contains('hopping')).toBe(true); // still going
     vi.advanceTimersByTime(1);
-    expect(world('candy').classList.contains('hopping')).toBe(false);
+    expect(world('night').classList.contains('hopping')).toBe(false);
   });
 
   it('stops when she moves to another world mid-hop', async () => {
     await open();
     island('crystal').click();
     island('crystal').click();
-    island('candy').click();
+    island('night').click();
     expect(world('crystal').classList.contains('hopping')).toBe(false);
   });
 });

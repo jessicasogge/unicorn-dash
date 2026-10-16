@@ -428,9 +428,9 @@ body {
   padding: 0;
 }
 
-/* ---- The Meadow: a level ---- */
+/* ---- A level: the Meadow, Candy Canyon ---- */
 
-.meadow {
+.level {
   position: relative;
   height: 100vh;
   height: 100svh;
@@ -449,10 +449,22 @@ body {
   touch-action: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+/* Far hills along the bottom, drifting by slower than the ground. Their
+   own layer, one hill wider than the screen, slid along by level.js and
+   wrapped round a hill at a time, so they never need repainting. */
+.hills {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(100% + 640px);
+  height: 360px;
   background-image: radial-gradient(circle at 50% 100%, #c6f0ae 0 45%, transparent 45.5%);
   background-size: 640px 360px;
   background-repeat: repeat-x;
-  background-position-y: 100%;
+  will-change: transform;
 }
 
 /* Everything on the course, in world units; meadow.js scales it to the
@@ -464,6 +476,7 @@ body {
   width: 1px;
   height: 600px;
   transform-origin: 0 100%;
+  will-change: transform; /* slid by the graphics chip, not redrawn */
 }
 
 .course > * {
@@ -479,6 +492,13 @@ body {
 
 .sky-cloud {
   opacity: 0.85;
+}
+
+/* Candy Canyon's lollipop trees: behind everything else on the course,
+   a little faded so they read as far away */
+.lollipop-tree {
+  height: auto;
+  opacity: 0.7;
 }
 
 .cloud-platform {
@@ -503,6 +523,35 @@ body {
 .castle {
   width: 340px;
   height: 300px;
+}
+
+/* Gumdrops (Candy Canyon): she bounces off them, and they squish */
+.gumdrop {
+  width: 90px;
+  height: 48px;
+  transform-origin: 50% 100%;
+}
+
+.gumdrop.squish {
+  animation: squish 0.35s ease-out;
+}
+
+@keyframes squish {
+  30% { transform: scale(1.25, 0.6); }
+  60% { transform: scale(0.9, 1.15); }
+}
+
+/* Candy Canyon: a pink sky and hills, frosting on chocolate */
+.level.candy {
+  background: #ffe3f1;
+}
+
+.candy .hills {
+  background-image: radial-gradient(circle at 50% 100%, #ffc2df 0 45%, transparent 45.5%);
+}
+
+.candy .ground {
+  background: linear-gradient(#ff8fc0 0 28px, var(--ink) 28px 33px, #9c6644 33px);
 }
 
 /* Fireworks: hidden until every diamond's caught and she's at the castle */
@@ -536,7 +585,9 @@ body {
 }
 
 .runner {
+  left: 0;
   width: 140px;
+  will-change: transform; /* moved with a transform: no re-layout each frame */
 }
 
 .runner .unicorn {
@@ -562,7 +613,7 @@ body {
   opacity: 1;
 }
 
-.meadow-bar {
+.level-bar {
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -573,7 +624,7 @@ body {
   pointer-events: none; /* taps between the buttons still reach the course */
 }
 
-.meadow-bar > * {
+.level-bar > * {
   pointer-events: auto;
 }
 
@@ -796,12 +847,16 @@ body {
   height: 2.8rem;
 }
 
+.finish .next-btn {
+  background: var(--grass);
+}
+
 .replay-btn svg,
 .retry-btn svg {
   stroke: var(--ink);
 }
 
-.meadow .signature {
+.level .signature {
   position: absolute;
   right: 0.75rem;
   bottom: 0.4rem;
