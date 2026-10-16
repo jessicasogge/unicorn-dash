@@ -449,10 +449,22 @@ body {
   touch-action: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+/* Far hills along the bottom, drifting by slower than the ground. Their
+   own layer, one hill wider than the screen, slid along by level.js and
+   wrapped round a hill at a time, so they never need repainting. */
+.hills {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(100% + 640px);
+  height: 360px;
   background-image: radial-gradient(circle at 50% 100%, #c6f0ae 0 45%, transparent 45.5%);
   background-size: 640px 360px;
   background-repeat: repeat-x;
-  background-position-y: 100%;
+  will-change: transform;
 }
 
 /* Everything on the course, in world units; meadow.js scales it to the
@@ -464,6 +476,7 @@ body {
   width: 1px;
   height: 600px;
   transform-origin: 0 100%;
+  will-change: transform; /* slid by the graphics chip, not redrawn */
 }
 
 .course > * {
@@ -533,7 +546,7 @@ body {
   background: #ffe3f1;
 }
 
-.candy .view {
+.candy .hills {
   background-image: radial-gradient(circle at 50% 100%, #ffc2df 0 45%, transparent 45.5%);
 }
 
@@ -572,7 +585,9 @@ body {
 }
 
 .runner {
+  left: 0;
   width: 140px;
+  will-change: transform; /* moved with a transform: no re-layout each frame */
 }
 
 .runner .unicorn {

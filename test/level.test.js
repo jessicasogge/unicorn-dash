@@ -45,8 +45,10 @@ function tick(count = 1, ms = 1000 / 60) {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const runner = () => $('.runner');
-const x = () => parseFloat(runner().style.left) + 70;
-const height = () => parseFloat(runner().style.bottom) - meadow.BASE + 13;
+// Where she is, from the transform that moves her: translate3d(x - 70, -y, 0)
+const moved = () => runner().style.transform.match(/translate3d\((-?[\d.e-]+)px, (-?[\d.e-]+)px/).slice(1).map(Number);
+const x = () => moved()[0] + 70;
+const height = () => -moved()[1] + 0;
 const pointer = (type) => $('.view').dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
 const key = (type, k, repeat = false) => window.dispatchEvent(new KeyboardEvent(type, { key: k, repeat, cancelable: true }));
 
@@ -100,9 +102,50 @@ describe('the course', () => {
     const view = $('.view');
     Object.defineProperty(view, 'clientHeight', { value: 900 });
     Object.defineProperty(view, 'clientWidth', { value: 1600 });
+    window.dispatchEvent(new Event('resize'));
     meadow.render();
-    const camera = MEADOW.start - (1600 / 1.5) * meadow.LEAD;
-    expect($('.course').style.transform).toBe(`scale(1.5) translateX(${-camera}px)`);
+    const camera = Math.round((MEADOW.start - (1600 / 1.5) * meadow.LEAD) * 1.5) / 1.5;
+    expect($('.course').style.transform).toBe(`scale(1.5) translate3d(${-camera}px, 0, 0)`);
+  });
+
+  it('keeps the camera on whole screen pixels, so edges don\'t shimmer', async () => {
+    await open();
+    for (let i = 0; i < 40; i++) {
+      tick();
+      const [, scale, shift] = $('.course').style.transform.match(/scale\(([\d.]+)\) translate3d\((-?[\d.e-]+)px/).map(Number);
+      const onScreen = shift * scale; // how far the course is slid, in screen pixels
+      expect(Math.abs(onScreen - Math.round(onScreen))).toBeLessThan(1e-6);
+    }
+  });
+
+  it('moves her and the hills with transforms, never by laying the page out again', async () => {
+    await open();
+    tick(30);
+    expect(runner().style.left).toBe('');
+    expect(runner().style.transform).toMatch(/^translate3d\(/);
+    expect($('.hills').style.transform).toMatch(/^translate3d\(/);
+    expect($('.view').style.backgroundPositionX).toBe('');
+  });
+
+  it('drifts the far hills by slower than the ground, wrapping round a hill at a time', async () => {
+    await open();
+    const drift = () => -parseFloat($('.hills').style.transform.match(/translate3d\((-?[\d.e-]+)px/)[1]) + 0;
+    let most = 0;
+    for (let i = 0; i < 600 && frames.length; i++) {
+      tick();
+      most = Math.max(most, drift());
+      expect(drift()).toBeGreaterThanOrEqual(0);
+      expect(drift()).toBeLessThan(meadow.HILL_WIDTH);
+    }
+    expect(most).toBeGreaterThan(meadow.HILL_WIDTH * 0.9); // it did go all the way round
+  });
+
+  it('leaves the diamond counter alone until one is caught', async () => {
+    await open();
+    tick(5);
+    $('.gem-count .count').textContent = 'untouched';
+    tick(5); // nothing caught yet
+    expect($('.gem-count .count').textContent).toBe('untouched');
   });
 
   it('zooms out on a narrow screen, like an upright phone, to show the course ahead', async () => {
@@ -110,6 +153,7 @@ describe('the course', () => {
     const view = $('.view');
     Object.defineProperty(view, 'clientHeight', { value: 844 });
     Object.defineProperty(view, 'clientWidth', { value: 390 });
+    window.dispatchEvent(new Event('resize'));
     meadow.render();
     const scale = 390 / meadow.VIEW_WIDTH;
     expect($('.course').style.transform).toMatch(new RegExp(`^scale\\(${scale}\\)`));

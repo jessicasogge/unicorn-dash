@@ -11,6 +11,8 @@ export const VIEW_WIDTH = 700; // at least this much course across, so she sees 
 export const BASE = 140; // the ground's top, up from the bottom of the screen
 export const LEAD = 0.3; // she runs this far across the screen
 export const FINISH_DELAY_MS = 700; // a moment at the castle before the buttons
+export const HILL_WIDTH = 640; // the far hills' repeat, in screen pixels (styles.css)
+export const HILLS_SPEED = 0.3; // they drift by this much slower than the ground
 export const GAME_OVER_DELAY_MS = 500; // a moment to see her fall
 
 const SVG = 'http://www.w3.org/2000/svg';
@@ -20,6 +22,7 @@ const main = document.querySelector('main');
 const LEVEL = LEVELS[main.dataset.level];
 
 const view = document.querySelector('.view');
+const hills = document.querySelector('.hills');
 const course = document.querySelector('.course');
 const finish = document.querySelector('.finish');
 const gameOver = document.querySelector('.game-over');
@@ -107,6 +110,7 @@ const runnerEl = document.createElement('div');
 runnerEl.className = 'runner';
 runnerEl.innerHTML = '<div class="trail" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>';
 runnerEl.append(drawUnicorn(mane));
+runnerEl.style.bottom = `${BASE - 13}px`; // her feet on the ground; moved from here with a transform
 course.append(runnerEl);
 
 let state = createRunner(LEVEL);
@@ -115,22 +119,40 @@ let pressed = false;
 let held = false;
 let last = null;
 
-// Draws her, the camera and the meter where the runner says.
-export function render() {
+// The screen's size, read once and again only when it changes, since
+// reading it every frame can make the browser lay the page out again.
+let size = null;
+function measure() {
   // (jsdom, in the tests, lays nothing out: then a square screen)
   const height = view.clientHeight || VIEW_HEIGHT;
   const width = view.clientWidth || VIEW_HEIGHT;
-  const scale = Math.min(height / VIEW_HEIGHT, width / VIEW_WIDTH);
-  const camera = state.x - (width / scale) * LEAD;
-  course.style.transform = `scale(${scale}) translateX(${-camera}px)`;
-  // Far hills drift by slower than the ground
-  view.style.backgroundPositionX = `${-camera * 0.3 * scale}px`;
-  runnerEl.style.left = `${state.x - 70}px`;
-  runnerEl.style.bottom = `${BASE + state.y - 13}px`;
+  size = { width, scale: Math.min(height / VIEW_HEIGHT, width / VIEW_WIDTH) };
+}
+window.addEventListener('resize', () => { size = null; });
+
+let shownCount = null;
+
+// Draws her, the camera and the counter where the runner says. Everything
+// moves by transforms, which the graphics chip does without laying the
+// page out again, so it stays smooth on phones and tablets.
+export function render() {
+  if (!size) measure();
+  const { width, scale } = size;
+  // The camera stops on whole screen pixels, so edges don't shimmer
+  const camera = Math.round((state.x - (width / scale) * LEAD) * scale) / scale;
+  course.style.transform = `scale(${scale}) translate3d(${-camera}px, 0, 0)`;
+  // (wrapped to 0 up to a hill, even while the camera's still left of the start)
+  const drift = (((camera * scale * HILLS_SPEED) % HILL_WIDTH) + HILL_WIDTH) % HILL_WIDTH;
+  hills.style.transform = `translate3d(${-drift}px, 0, 0)`;
+  runnerEl.style.transform = `translate3d(${state.x - 70}px, ${-state.y}px, 0)`;
   runnerEl.classList.toggle('dashing', state.dashing);
-  gems.forEach((gem, i) => gem.classList.toggle('got', state.collected.has(i)));
-  countNumber.textContent = state.collected.size;
-  count.setAttribute('aria-label', `${state.collected.size} diamonds`);
+  // Only when a diamond's caught (or they're all put back)
+  if (state.collected.size !== shownCount) {
+    shownCount = state.collected.size;
+    gems.forEach((gem, i) => gem.classList.toggle('got', state.collected.has(i)));
+    countNumber.textContent = shownCount;
+    count.setAttribute('aria-label', `${shownCount} diamonds`);
+  }
 }
 
 // Every diamond caught?
