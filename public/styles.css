@@ -428,9 +428,9 @@ body {
   padding: 0;
 }
 
-/* ---- The Meadow: a level ---- */
+/* ---- A level: the Meadow, Candy Canyon ---- */
 
-.meadow {
+.level {
   position: relative;
   height: 100vh;
   height: 100svh;
@@ -505,6 +505,35 @@ body {
   height: 300px;
 }
 
+/* Gumdrops (Candy Canyon): she bounces off them, and they squish */
+.gumdrop {
+  width: 90px;
+  height: 48px;
+  transform-origin: 50% 100%;
+}
+
+.gumdrop.squish {
+  animation: squish 0.35s ease-out;
+}
+
+@keyframes squish {
+  30% { transform: scale(1.25, 0.6); }
+  60% { transform: scale(0.9, 1.15); }
+}
+
+/* Candy Canyon: a pink sky and hills, frosting on chocolate */
+.level.candy {
+  background: #ffe3f1;
+}
+
+.candy .view {
+  background-image: radial-gradient(circle at 50% 100%, #ffc2df 0 45%, transparent 45.5%);
+}
+
+.candy .ground {
+  background: linear-gradient(#ff8fc0 0 28px, var(--ink) 28px 33px, #9c6644 33px);
+}
+
 /* Fireworks: hidden until every diamond's caught and she's at the castle */
 .firework {
   width: 0;
@@ -562,7 +591,7 @@ body {
   opacity: 1;
 }
 
-.meadow-bar {
+.level-bar {
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -573,7 +602,7 @@ body {
   pointer-events: none; /* taps between the buttons still reach the course */
 }
 
-.meadow-bar > * {
+.level-bar > * {
   pointer-events: auto;
 }
 
@@ -796,12 +825,16 @@ body {
   height: 2.8rem;
 }
 
+.finish .next-btn {
+  background: var(--grass);
+}
+
 .replay-btn svg,
 .retry-btn svg {
   stroke: var(--ink);
 }
 
-.meadow .signature {
+.level .signature {
   position: absolute;
   right: 0.75rem;
   bottom: 0.4rem;

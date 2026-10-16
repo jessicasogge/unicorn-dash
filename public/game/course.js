@@ -1,5 +1,5 @@
-// Meadow course in world units (x right, y up): short gaps jump, long gaps
-// need a rainbow dash.
+// The levels' courses, in world units (x right, y up): short gaps take a
+// jump, long gaps a rainbow dash.
 
 export const MEADOW = {
   // Ground, as [from, to] along x. The spaces between are gaps.
@@ -30,6 +30,40 @@ export const MEADOW = {
     [2900, 370, 1], [3600, 280, 1.1], [4300, 340, 0.7], [5000, 300, 1.2],
     [5700, 360, 0.9], [6400, 280, 1],
   ],
+  bouncers: [],
   start: 0,
   castle: 6300,
 };
+
+// Candy Canyon: gumdrops in the ground bounce her up high, to diamonds in
+// the air that a jump can't reach.
+export const CANDY = {
+  ground: [
+    [-400, 1000],
+    [1120, 2100], // short gap
+    [2650, 3500], // long gap
+    [3620, 4700], // short gap
+    [5250, 9800], // long gap; on past the castle
+  ],
+  clouds: [],
+  // Gumdrops, by where they are along x, each well before the next gap so
+  // she comes down on solid ground.
+  bouncers: [450, 1450, 2950, 4050],
+  gems: [
+    [570, 330], [620, 390], [670, 330], // up a bounce
+    [1570, 330], [1620, 390], [1670, 330],
+    [2350, 150], [2450, 150], // over the gap, at dashing height
+    [3070, 330], [3120, 390], [3170, 330],
+    [4170, 330], [4220, 390], [4270, 330],
+    [4950, 150], [5050, 150],
+  ],
+  sky: [
+    [150, 320, 1], [900, 270, 0.8], [1700, 360, 1.1], [2500, 290, 0.9],
+    [3300, 360, 1.2], [4100, 280, 0.8], [4900, 350, 1], [5700, 300, 1.1],
+    [6500, 360, 0.9], [7200, 280, 1],
+  ],
+  start: 0,
+  castle: 6900,
+};
+
+export const LEVELS = { meadow: MEADOW, candy: CANDY };

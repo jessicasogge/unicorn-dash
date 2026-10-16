@@ -21,13 +21,13 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="meadow">
-      <!-- The course, drawn by game/meadow.js. Tap or hold anywhere here. -->
+    <main class="level" data-level="meadow" data-next="./candy.html">
+      <!-- The course, drawn by game/level.js. Tap or hold anywhere here. -->
       <div class="view" role="application" aria-label="The Meadow. Tap to jump, hold to dash.">
         <div class="course"></div>
       </div>
 
-      <nav class="meadow-bar">
+      <nav class="level-bar">
         <a class="icon-btn map-btn" href="./world-map.html" aria-label="Back to the map">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
         </a>
@@ -78,6 +78,9 @@
           <a class="icon-btn finish-map-btn" href="./world-map.html" aria-label="Back to the map">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
           </a>
+          <a class="icon-btn next-btn" href="./candy.html" aria-label="Next level">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L20 12 L7 20 Z" fill="#fff" stroke="#2B2350" stroke-width="2.2" stroke-linejoin="round" /></svg>
+          </a>
         </div>
       </div>
 
@@ -97,6 +100,6 @@
 
       <footer class="signature">jsogge 2026</footer>
     </main>
-    <script type="module" src="./game/meadow.js"></script>
+    <script type="module" src="./game/level.js"></script>
   </body>
 </html>

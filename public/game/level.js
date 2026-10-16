@@ -1,6 +1,8 @@
-// The Meadow: draws the course from course.js and runs the unicorn along
-// it with runner.js. Tap (or space, or the up arrow) to jump; hold to dash.
-import { MEADOW } from './course.js';
+// A level (the Meadow, Candy Canyon): draws its course from course.js, the
+// one the page names (<main data-level="meadow">), and runs the unicorn
+// along it with runner.js. Tap (or space, or the up arrow) to jump; hold to
+// dash.
+import { LEVELS } from './course.js';
 import { createRunner, step } from './runner.js';
 import { drawUnicorn, maneFromAddress } from './unicorn.js';
 
@@ -14,6 +16,9 @@ export const GAME_OVER_DELAY_MS = 500; // a moment to see her fall
 const SVG = 'http://www.w3.org/2000/svg';
 const mane = maneFromAddress(location.search);
 
+const main = document.querySelector('main');
+const LEVEL = LEVELS[main.dataset.level];
+
 const view = document.querySelector('.view');
 const course = document.querySelector('.course');
 const finish = document.querySelector('.finish');
@@ -22,6 +27,11 @@ const gameOver = document.querySelector('.game-over');
 for (const link of document.querySelectorAll('.map-btn, .finish-map-btn, .over-map-btn')) {
   link.href = `./world-map.html?mane=${mane.name}`;
 }
+
+// At the castle, a button on to the next level, if there is one.
+const next = document.querySelector('.next-btn');
+if (main.dataset.next) next.href = `${main.dataset.next}?mane=${mane.name}`;
+else next.remove();
 
 function svg(viewBox, inner) {
   const node = document.createElementNS(SVG, 'svg');
@@ -60,6 +70,9 @@ function firework(x, y, color, delay) {
 }
 const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><rect x="70" y="120" width="200" height="176" fill="#FFD6EC"/><rect x="20" y="90" width="70" height="206" fill="#FFB3D6"/><rect x="250" y="90" width="70" height="206" fill="#FFB3D6"/><path d="M14 92 L55 24 L96 92 Z" fill="#9B6BFF"/><path d="M244 92 L285 24 L326 92 Z" fill="#9B6BFF"/><rect x="135" y="70" width="70" height="60" fill="#FFB3D6"/><path d="M128 72 L170 6 L212 72 Z" fill="#3A8DFF"/></g><path d="M140 296 V230 a30 30 0 0 1 60 0 V296" fill="#2B2350"/><g class="windows" fill="#2B2350"><path d="M46 156 V140 a9 9 0 0 1 18 0 V156 Z"/><path d="M276 156 V140 a9 9 0 0 1 18 0 V156 Z"/><path d="M46 216 V200 a9 9 0 0 1 18 0 V216 Z"/><path d="M276 216 V200 a9 9 0 0 1 18 0 V216 Z"/><path d="M161 106 V90 a9 9 0 0 1 18 0 V106 Z"/><path d="M106 181 V165 a9 9 0 0 1 18 0 V181 Z"/><path d="M216 181 V165 a9 9 0 0 1 18 0 V181 Z"/></g>';
 
+// A gumdrop, half sunk in the ground, with sugar sparkles.
+const GUMDROP = (color) => `<path d="M6 46 C6 14 20 4 45 4 C70 4 84 14 84 46 Z" fill="${color}" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><g fill="#fff" opacity="0.8"><circle cx="30" cy="20" r="3"/><circle cx="50" cy="14" r="2.5"/><circle cx="62" cy="28" r="3"/><circle cx="38" cy="34" r="2.5"/></g>`;
+
 const SKY_CLOUD = '<path d="M20 62 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 0 0 1 44 16 a18 18 0 0 1 12 30 Z" fill="#fff"/>';
 
 // The course, drawn once.
@@ -72,15 +85,16 @@ function build(course) {
   for (const cloud of course.clouds) {
     place(document.createElement('div'), 'cloud-platform', cloud.from, cloud.top - 40, cloud.to - cloud.from);
   }
+  const gumdrops = course.bouncers.map((x, i) => place(svg('0 0 90 48', GUMDROP(GEM_COLORS[(i * 3) % GEM_COLORS.length])), 'gumdrop', x - 45, -8));
   // Six bursts, one after another, then done
   const fireworks = [[-130, 250, 0], [60, 300, 0.5], [220, 240, 1], [-40, 320, 1.5], [150, 280, 2], [-110, 300, 2.5]]
     .map(([dx, y, delay], i) => firework(course.castle + dx, y, GEM_COLORS[(i * 2) % GEM_COLORS.length], delay));
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks };
+  return { gems, fireworks, gumdrops };
 }
 
-const { gems, fireworks } = build(MEADOW);
+const { gems, fireworks, gumdrops } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -90,7 +104,7 @@ runnerEl.innerHTML = '<div class="trail" aria-hidden="true"><span></span><span><
 runnerEl.append(drawUnicorn(mane));
 course.append(runnerEl);
 
-let state = createRunner(MEADOW);
+let state = createRunner(LEVEL);
 let started = false; // not until Go, after the directions
 let pressed = false;
 let held = false;
@@ -115,7 +129,7 @@ export function render() {
 }
 
 // Every diamond caught?
-const allGems = () => state.collected.size === MEADOW.gems.length;
+const allGems = () => state.collected.size === LEVEL.gems.length;
 
 function frame(time) {
   const dt = last === null ? 0 : Math.min(0.05, (time - last) / 1000);
@@ -123,6 +137,12 @@ function frame(time) {
   const events = step(state, dt, { pressed, held });
   pressed = false;
   render();
+  if (events.includes('bounce')) {
+    const gumdrop = gumdrops[state.bounced];
+    gumdrop.classList.remove('squish');
+    void gumdrop.offsetWidth; // restart the squish
+    gumdrop.classList.add('squish');
+  }
   if (events.includes('gem')) {
     count.classList.remove('bump');
     void count.offsetWidth; // restart the bump
@@ -179,7 +199,7 @@ document.querySelector('.oops').append(
 // Play again, after the castle or a fall: back to the start, every gem
 // back in place.
 function restart() {
-  state = createRunner(MEADOW);
+  state = createRunner(LEVEL);
   pressed = false;
   held = false;
   last = null;

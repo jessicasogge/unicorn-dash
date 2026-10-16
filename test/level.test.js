@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-// The Meadow level page (game/meadow.js): the course drawn, her controls,
-// and the castle at the end. These tests load the real page into jsdom, a
-// simulated browser page, and play it frame by frame.
+// The level pages (game/level.js), mostly through the Meadow: the course
+// drawn, her controls, and the castle at the end. Candy Canyon's gumdrops
+// are at the bottom. These tests load the real pages into jsdom, a
+// simulated browser page, and play them frame by frame.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MEADOW } from '../public/game/course.js';
+import { CANDY, MEADOW } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -18,15 +19,16 @@ let frames;
 let now;
 let meadow;
 
-// Opens the page, and presses Go unless told not to.
-async function open(search = '?mane=blue', { go = true } = {}) {
+// Opens a level page (the Meadow unless told), and presses Go unless told
+// not to.
+async function open(search = '?mane=blue', { go = true, page = 'meadow.html' } = {}) {
   frames = [];
   now = 0;
-  vi.stubGlobal('location', { href: `http://localhost/meadow.html${search}`, search });
+  vi.stubGlobal('location', { href: `http://localhost/${page}${search}`, search });
   vi.stubGlobal('requestAnimationFrame', (callback) => frames.push(callback));
-  document.body.outerHTML = html('meadow.html');
+  document.body.outerHTML = html(page);
   vi.resetModules();
-  meadow = await import('../public/game/meadow.js');
+  meadow = await import('../public/game/level.js');
   if (go) document.querySelector('.go-btn').click();
 }
 
@@ -177,6 +179,13 @@ describe('the directions', () => {
 });
 
 describe('the buttons', () => {
+  it('at the Meadow\'s castle include one on to Candy Canyon, with her mane', async () => {
+    await open('?mane=yellow');
+    const next = $('.finish .next-btn');
+    expect(next.getAttribute('href')).toBe('./candy.html?mane=yellow');
+    expect(next.getAttribute('aria-label')).toBe('Next level');
+  });
+
   it('go back to the map, with her mane', async () => {
     await open('?mane=blue');
     expect($('.map-btn').getAttribute('href')).toBe('./world-map.html?mane=blue');
@@ -281,7 +290,7 @@ describe('dashing', () => {
 
   it('are counted up at the top right as she catches them', async () => {
     await open();
-    const count = $('.meadow-bar > .gem-count');
+    const count = $('.level-bar > .gem-count');
     expect(count.previousElementSibling.classList.contains('map-btn')).toBe(true); // map left, count right
     expect(count.querySelector('.count').textContent).toBe('0');
     tick(120);
@@ -466,5 +475,57 @@ describe('the castle', () => {
     expect($$('.course .gem.got')).toHaveLength(0);
     tick(10);
     expect(x()).toBeGreaterThan(MEADOW.start); // running again
+  });
+});
+
+describe('Candy Canyon', () => {
+  const candy = (search = '?mane=blue', options = {}) => open(search, { page: 'candy.html', ...options });
+
+  it('draws its own course, with a gumdrop for each bounce', async () => {
+    await candy();
+    expect($$('.course .ground')).toHaveLength(CANDY.ground.length);
+    expect($$('.course .gem')).toHaveLength(CANDY.gems.length);
+    const gumdrops = $$('.course .gumdrop');
+    expect(gumdrops).toHaveLength(CANDY.bouncers.length);
+    expect(gumdrops[0].style.left).toBe(`${CANDY.bouncers[0] - 45}px`);
+  });
+
+  it('has no gumdrops in the Meadow', async () => {
+    await open();
+    expect($$('.course .gumdrop')).toHaveLength(0);
+  });
+
+  it('explains the gumdrops in its directions', async () => {
+    await candy('?mane=blue', { go: false });
+    expect($('.directions').textContent).toMatch(/Gumdrops\s*bounce you up high/);
+  });
+
+  it('bounces her up high off a gumdrop, and the gumdrop squishes', async () => {
+    await candy();
+    let top = 0;
+    for (let i = 0; i < 150; i++) {
+      tick();
+      top = Math.max(top, height());
+    }
+    expect(top).toBeGreaterThan(300); // far higher than a jump
+    expect($$('.course .gumdrop')[0].classList.contains('squish')).toBe(true);
+  });
+
+  it('catches diamonds up in the air from a bounce', async () => {
+    await candy();
+    tick(150);
+    const high = CANDY.gems.findIndex(([, y]) => y > 350);
+    expect($$('.course .gem')[high].classList.contains('got')).toBe(true);
+  });
+
+  it('has no next level button yet, as the last level', async () => {
+    await candy();
+    expect($('.next-btn')).toBeNull();
+  });
+
+  it('can be tried again', async () => {
+    await candy('?mane=pink');
+    expect($('.retry-btn').getAttribute('aria-label')).toBe('Try Candy Canyon again');
+    expect($('.over-map-btn').getAttribute('href')).toBe('./world-map.html?mane=pink');
   });
 });

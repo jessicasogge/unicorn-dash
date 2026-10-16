@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, COYOTE, DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -167,6 +167,45 @@ describe('falling', () => {
     step(state, DT, TAP);
     run(state, 0.5, HOLD);
     expect(runUntil(state, 'fall')).toBe(true);
+  });
+});
+
+describe('gumdrops', () => {
+  it('bounce her up high when she runs onto one', () => {
+    const state = createRunner(course({ bouncers: [100] }));
+    const events = run(state, 0.3);
+    expect(events).toContain('bounce');
+    expect(state.bounced).toBe(0);
+    let top = 0;
+    for (let i = 0; i < 200; i++) { step(state, DT, IDLE); top = Math.max(top, state.y); }
+    expect(top).toBeCloseTo((BOUNCE * BOUNCE) / (2 * GRAVITY), -1);
+    expect(top).toBeGreaterThan(2 * (JUMP * JUMP) / (2 * GRAVITY) - 10); // about twice a jump
+  });
+
+  it('give her air jump back, to go higher still', () => {
+    const state = createRunner(course({ bouncers: [100] }));
+    run(state, 0.3);
+    expect(state.airJumps).toBe(0);
+    expect(step(state, DT, TAP)).toContain('jump');
+  });
+
+  it('say which gumdrop it was', () => {
+    const state = createRunner(course({ bouncers: [100, 900] }));
+    run(state, 4);
+    expect(state.bounced).toBe(1);
+  });
+
+  it('are dashed straight over, without a bounce', () => {
+    const state = createRunner(course({ bouncers: [300] }));
+    step(state, DT, TAP);
+    run(state, 0.5, HOLD); // dashing level, above the ground
+    const events = run(state, 0.5, HOLD);
+    expect(events).not.toContain('bounce');
+  });
+
+  it('aren\'t in a course without any', () => {
+    const state = createRunner(course());
+    expect(run(state, 2)).not.toContain('bounce');
   });
 });
 
