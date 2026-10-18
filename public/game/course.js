@@ -32,6 +32,8 @@ export const MEADOW = {
   ],
   bouncers: [],
   trees: [],
+  pots: [],
+  gates: [],
   start: 0,
   castle: 6300,
 };
@@ -67,8 +69,58 @@ export const CANDY = {
     [3300, 360, 1.2], [4100, 280, 0.8], [4900, 350, 1], [5700, 300, 1.1],
     [6500, 360, 0.9], [7200, 280, 1],
   ],
+  pots: [],
+  gates: [],
   start: 0,
   castle: 6900,
 };
 
-export const LEVELS = { meadow: MEADOW, candy: CANDY };
+// Cloud Kingdom: paint pots change her mane's color, and rainbow gates only
+// let the matching color through. Each pot is a short run before its gate,
+// so a wrong gate knocks her back over the pot, for the right color.
+export const CLOUD = {
+  ground: [
+    [-400, 1150],
+    [1270, 2450], // short gap
+    [3000, 3950], // long gap
+    [4070, 5250], // short gap
+    [5800, 10300], // long gap; on past the castle
+  ],
+  clouds: [
+    { from: 1700, to: 1920, top: 170 },
+    { from: 4500, to: 4720, top: 170 },
+  ],
+  pots: [
+    { x: 500, mane: 'blue' },
+    { x: 2050, mane: 'yellow' },
+    { x: 3300, mane: 'pink' },
+    { x: 4900, mane: 'blue' },
+    { x: 6200, mane: 'yellow' },
+  ],
+  gates: [
+    { x: 800, mane: 'blue' },
+    { x: 2350, mane: 'yellow' },
+    { x: 3600, mane: 'pink' },
+    { x: 5150, mane: 'blue' },
+    { x: 6500, mane: 'yellow' },
+  ],
+  bouncers: [],
+  trees: [],
+  gems: [
+    [300, 60], [400, 60],
+    [1760, 240], [1810, 240], [1860, 240], // up on a cloud
+    [2650, 150], [2750, 150], [2850, 150], // over the gap
+    [3450, 60], [3800, 60],
+    [4560, 240], [4610, 240], [4660, 240],
+    [5450, 150], [5550, 150], [5650, 150],
+  ],
+  sky: [
+    [100, 330, 1.2], [700, 260, 0.9], [1400, 360, 1.3], [2100, 290, 1],
+    [2800, 370, 1.2], [3500, 270, 1], [4200, 350, 1.3], [4900, 290, 0.9],
+    [5600, 360, 1.2], [6300, 280, 1.1], [7000, 340, 1],
+  ],
+  start: 0,
+  castle: 7300,
+};
+
+export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD };

@@ -1,5 +1,7 @@
 // Level movement: auto-run right; tap to jump (double jump), hold to dash.
-// Running onto a gumdrop bounces her up high.
+// Running onto a gumdrop bounces her up high. Running through a paint pot
+// changes her mane color; a gate only lets the matching color through, and
+// knocks her back (over the pot again) otherwise.
 // Dash is faster, level flight, for as long as it's held. Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
@@ -14,10 +16,22 @@ export const FALL_LIMIT = -400; // below this, she's fallen
 export const GEM_REACH = 50;
 export const BOUNCE = 1100; // upward speed off a gumdrop: about twice a jump's height
 export const GUMDROP_WIDTH = 90;
+export const POT_REACH = 45; // how near a paint pot she has to pass, along x
+export const POT_HEIGHT = 150; // and under this, to dip into it
+export const GATE_FRONT = 80; // the gate's front edge, this far before its middle
+export const KNOCK_TIME = 0.6; // seconds she's knocked back by a wrong gate
+export const KNOCK_SPEED = 600; // going backwards, world units a second
+export const KNOCK_HOP = 520; // with a little hop
 
-export function createRunner(course) {
+// `mane` is her mane color's name (like 'pink'), for the gates.
+export function createRunner(course, mane = null) {
   return {
     course,
+    mane,
+    knock: 0, // time left being knocked back by a wrong gate
+    painted: null, // the last paint pot she went through
+    bumped: null, // the last gate that knocked her back
+    opened: new Set(), // the gates she's gone through
     x: course.start,
     y: 0,
     vy: 0,
@@ -42,7 +56,8 @@ function surfacesAt(course, x) {
 
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
-// and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'fall', 'finish'.
+// and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'paint', 'open',
+// 'bump', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -62,7 +77,8 @@ export function step(state, dt, input) {
   }
 
   state.held = input.held ? state.held + dt : 0;
-  const wantsDash = state.held >= HOLD_TO_DASH;
+  state.knock = Math.max(0, state.knock - dt);
+  const wantsDash = state.held >= HOLD_TO_DASH && state.knock === 0;
   if (wantsDash && !state.dashing) events.push('dash');
   state.dashing = wantsDash;
 
@@ -72,7 +88,8 @@ export function step(state, dt, input) {
     state.vy -= GRAVITY * dt;
   }
 
-  state.x += (state.dashing ? DASH : RUN) * dt;
+  const from = state.x;
+  state.x += (state.knock > 0 ? -KNOCK_SPEED : state.dashing ? DASH : RUN) * dt;
   const before = state.y;
   state.y += state.vy * dt;
 
@@ -99,6 +116,34 @@ export function step(state, dt, input) {
     state.bounced = gumdrop;
     events.push('bounce');
   }
+
+  // Through a paint pot: her mane takes its color
+  (state.course.pots ?? []).forEach((pot, i) => {
+    if (state.mane !== pot.mane && Math.abs(state.x - pot.x) < POT_REACH && state.y < POT_HEIGHT) {
+      state.mane = pot.mane;
+      state.painted = i;
+      events.push('paint');
+    }
+  });
+
+  // Up to a gate: through it with the matching mane, knocked back without
+  (state.course.gates ?? []).forEach((gate, i) => {
+    const front = gate.x - GATE_FRONT; // it opens, or knocks her back, as she arrives
+    // (at any height: no jumping, bouncing or dashing over a gate)
+    if (state.opened.has(i) || from >= front || state.x < front) return;
+    if (state.mane === gate.mane) {
+      state.opened.add(i);
+      events.push('open');
+    } else {
+      state.x = front - 1;
+      state.knock = KNOCK_TIME;
+      state.vy = KNOCK_HOP;
+      state.grounded = false;
+      state.dashing = false;
+      state.bumped = i;
+      events.push('bump');
+    }
+  });
 
   state.course.gems.forEach(([gx, gy], i) => {
     if (state.collected.has(i)) return;

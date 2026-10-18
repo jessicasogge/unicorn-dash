@@ -4,7 +4,7 @@
 // dash.
 import { LEVELS } from './course.js';
 import { createRunner, step } from './runner.js';
-import { drawUnicorn, maneFromAddress } from './unicorn.js';
+import { MANES, drawUnicorn, maneFromAddress, setMane } from './unicorn.js';
 
 export const VIEW_HEIGHT = 600; // world units from the bottom of the screen to the top
 export const VIEW_WIDTH = 700; // at least this much course across, so she sees gaps coming
@@ -76,6 +76,23 @@ const CASTLE = '<g stroke="#2B2350" stroke-width="6" stroke-linejoin="round"><re
 // A gumdrop, half sunk in the ground, with sugar sparkles.
 const GUMDROP = (color) => `<path d="M6 46 C6 14 20 4 45 4 C70 4 84 14 84 46 Z" fill="${color}" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><g fill="#fff" opacity="0.8"><circle cx="30" cy="20" r="3"/><circle cx="50" cy="14" r="2.5"/><circle cx="62" cy="28" r="3"/><circle cx="38" cy="34" r="2.5"/></g>`;
 
+// The shapes that go with each mane color (pink heart, blue star, yellow
+// moon), so a player who can't tell the colors apart can still match them.
+const SHAPES = {
+  heart: '<path d="M12 21 C5 15.5 2 12 2 8 A4.8 4.8 0 0 1 12 6 A4.8 4.8 0 0 1 22 8 C22 12 19 15.5 12 21 Z"/>',
+  star: '<path d="M12 1.8 L15 8.6 L22.3 9.3 L16.8 14.2 L18.4 21.4 L12 17.6 L5.6 21.4 L7.2 14.2 L1.7 9.3 L9 8.6 Z"/>',
+  moon: '<path d="M15 2 a10 10 0 1 0 7 17 a8 8 0 0 1 -7 -17 Z"/>',
+};
+const maneNamed = (name) => MANES.find((m) => m.name === name);
+const badge = (mane, x, y, size) => `<g transform="translate(${x} ${y}) scale(${size / 24})" fill="${mane.color}" stroke="#2B2350" stroke-width="${48 / size}" stroke-linejoin="round">${SHAPES[mane.shape]}</g>`;
+
+// A paint pot, its paint and shape in one mane color.
+const POT = (mane) => `<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 26 H70 L62 88 H18 Z" fill="#fff"/><rect x="4" y="14" width="72" height="16" rx="8" fill="${mane.color}"/></g><path d="M20 30 v14 a5 5 0 0 0 10 0 v-14 M50 30 v8 a4 4 0 0 0 8 0 v-8" fill="${mane.color}"/>${badge(mane, 24, 44, 32)}`;
+
+// A gate: a tall arch in one mane color, its shape on a badge at the top,
+// with a see-through curtain that opens for the matching mane.
+const GATE = (mane) => `<rect class="curtain" x="22" y="40" width="116" height="280" fill="${mane.color}" opacity="0.3"/><g stroke="#2B2350" stroke-width="6" stroke-linejoin="round" fill="${mane.color}"><rect x="4" y="30" width="30" height="290" rx="10"/><rect x="126" y="30" width="30" height="290" rx="10"/><rect x="-2" y="20" width="164" height="30" rx="15"/><circle cx="80" cy="22" r="34" fill="#fff"/></g>${badge(mane, 56, -2, 48)}`;
+
 // A lollipop tree: a big swirly lollipop on a striped stick.
 const LOLLIPOP = (color) => `<g stroke="#2B2350" stroke-width="5"><rect x="44" y="84" width="12" height="160" rx="4" fill="#fff"/><path d="M44 110 L56 100 M44 140 L56 130 M44 170 L56 160 M44 200 L56 190 M44 230 L56 220" stroke="${color}" stroke-width="5"/><circle cx="50" cy="50" r="44" fill="${color}"/></g><path d="M50 50 m0 -6 a6 6 0 0 1 6 6 a12 12 0 0 1 -12 12 a18 18 0 0 1 -18 -18 a24 24 0 0 1 24 -24 a30 30 0 0 1 30 30" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`;
 
@@ -98,22 +115,25 @@ function build(course) {
   const fireworks = [[-130, 250, 0], [60, 300, 0.5], [220, 240, 1], [-40, 320, 1.5], [150, 280, 2], [-110, 300, 2.5]]
     .map(([dx, y, delay], i) => firework(course.castle + dx, y, GEM_COLORS[(i * 2) % GEM_COLORS.length], delay));
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
+  const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
+  const gates = course.gates.map((gate) => place(svg('-6 -14 172 336', GATE(maneNamed(gate.mane))), 'gate', gate.x - 86, -2));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops };
+  return { gems, fireworks, gumdrops, pots, gates };
 }
 
-const { gems, fireworks, gumdrops } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, gates } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
 const runnerEl = document.createElement('div');
 runnerEl.className = 'runner';
 runnerEl.innerHTML = '<div class="trail" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>';
-runnerEl.append(drawUnicorn(mane));
+const unicorn = drawUnicorn(mane);
+runnerEl.append(unicorn);
 runnerEl.style.bottom = `${BASE - 13}px`; // her feet on the ground; moved from here with a transform
 course.append(runnerEl);
 
-let state = createRunner(LEVEL);
+let state = createRunner(LEVEL, mane.name);
 let started = false; // not until Go, after the directions
 let pressed = false;
 let held = false;
@@ -158,23 +178,29 @@ export function render() {
 // Every diamond caught?
 const allGems = () => state.collected.size === LEVEL.gems.length;
 
+// Plays a one-off animation again, even if it played a moment ago.
+function replay(element, className) {
+  element.classList.remove(className);
+  void element.offsetWidth; // restart it
+  element.classList.add(className);
+}
+
 function frame(time) {
   const dt = last === null ? 0 : Math.min(0.05, (time - last) / 1000);
   last = time;
   const events = step(state, dt, { pressed, held });
   pressed = false;
   render();
-  if (events.includes('bounce')) {
-    const gumdrop = gumdrops[state.bounced];
-    gumdrop.classList.remove('squish');
-    void gumdrop.offsetWidth; // restart the squish
-    gumdrop.classList.add('squish');
+  if (events.includes('paint')) {
+    setMane(unicorn, maneNamed(state.mane));
+    replay(pots[state.painted], 'splash');
   }
-  if (events.includes('gem')) {
-    count.classList.remove('bump');
-    void count.offsetWidth; // restart the bump
-    count.classList.add('bump');
+  if (events.includes('open')) {
+    for (const i of state.opened) gates[i].classList.add('open');
   }
+  if (events.includes('bump')) replay(gates[state.bumped], 'shake');
+  if (events.includes('bounce')) replay(gumdrops[state.bounced], 'squish');
+  if (events.includes('gem')) replay(count, 'bump');
   if (events.includes('finish')) {
     for (const burst of fireworks) burst.classList.toggle('going', allGems());
     setTimeout(() => { finish.hidden = false; }, FINISH_DELAY_MS);
@@ -226,7 +252,9 @@ document.querySelector('.oops').append(
 // Play again, after the castle or a fall: back to the start, every gem
 // back in place.
 function restart() {
-  state = createRunner(LEVEL);
+  state = createRunner(LEVEL, mane.name);
+  setMane(unicorn, mane); // back to the color she came with
+  for (const gate of gates) gate.classList.remove('open');
   pressed = false;
   held = false;
   last = null;

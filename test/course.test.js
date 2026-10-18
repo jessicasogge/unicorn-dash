@@ -2,7 +2,7 @@
 // the real physics, to check every gap is fair: short ones take a jump
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
-import { CANDY, LEVELS, MEADOW } from '../public/game/course.js';
+import { CANDY, CLOUD, LEVELS, MEADOW } from '../public/game/course.js';
 import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
@@ -168,7 +168,7 @@ describe('Candy Canyon', () => {
   const candyGaps = CANDY.ground.slice(1).map(([to], i) => ({ from: CANDY.ground[i][1], to, width: to - CANDY.ground[i][1] }));
 
   it('is listed with the other levels', () => {
-    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY });
+    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD });
   });
 
   it('has short gaps to jump and long ones to dash, like the Meadow', () => {
@@ -230,5 +230,81 @@ describe('Candy Canyon', () => {
     for (const [x] of CANDY.trees) {
       expect(CANDY.ground.some(([from, to]) => x >= from && x + 60 <= to), `tree at ${x}`).toBe(true);
     }
+  });
+});
+
+describe('Cloud Kingdom', () => {
+  const cloudGaps = CLOUD.ground.slice(1).map(([to], i) => ({ from: CLOUD.ground[i][1], to, width: to - CLOUD.ground[i][1] }));
+  const onGround = (x, margin) => CLOUD.ground.some(([from, to]) => x - margin >= from && x + margin <= to);
+
+  it('has a paint pot a short run before each gate, the same color', () => {
+    expect(CLOUD.gates.length).toBe(CLOUD.pots.length);
+    expect(CLOUD.gates.length).toBeGreaterThanOrEqual(3);
+    CLOUD.gates.forEach((gate, i) => {
+      const pot = CLOUD.pots[i];
+      expect(pot.mane, `gate at ${gate.x}`).toBe(gate.mane);
+      expect(gate.x - pot.x, `gate at ${gate.x}`).toBeGreaterThanOrEqual(200);
+      expect(gate.x - pot.x, `gate at ${gate.x}`).toBeLessThanOrEqual(400);
+    });
+  });
+
+  it('uses every mane color for its gates', () => {
+    expect(new Set(CLOUD.gates.map((g) => g.mane))).toEqual(new Set(['pink', 'blue', 'yellow']));
+  });
+
+  it('changes color from one gate to the next', () => {
+    CLOUD.gates.slice(1).forEach((gate, i) => expect(gate.mane).not.toBe(CLOUD.gates[i].mane));
+  });
+
+  it('puts its pots and gates on solid ground, with room to be knocked back', () => {
+    for (const pot of CLOUD.pots) expect(onGround(pot.x, 100), `pot at ${pot.x}`).toBe(true);
+    for (const gate of CLOUD.gates) expect(onGround(gate.x - 450, 0) && onGround(gate.x, 100), `gate at ${gate.x}`).toBe(true);
+  });
+
+  it('gets her through every gate from the wrong color, without falling, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      CLOUD.gates.forEach((gate, i) => {
+        const state = createRunner(CLOUD, gate.mane === 'pink' ? 'blue' : 'pink');
+        state.x = CLOUD.pots[i].x + 60; // just past the pot, the wrong color
+        const events = [];
+        for (let t = 0; t < 4 && !state.opened.has(i) && !state.fallen; t += dt) events.push(...step(state, dt, { pressed: false, held: false }));
+        expect(events, `gate at ${gate.x}`).toContain('bump');
+        expect(state.opened.has(i), `gate at ${gate.x}`).toBe(true);
+        expect(state.fallen, `gate at ${gate.x}`).toBe(false);
+      });
+    }
+  });
+
+  it('can be won with every diamond, jumping gaps, dashing, and double jumping onto clouds, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const state = createRunner(CLOUD, 'pink');
+      const climbed = new Set();
+      let holdUntil = 0;
+      let double = false;
+      for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+        let input = { pressed: false, held: t < holdUntil };
+        const next = cloudGaps.find((g) => g.from > state.x);
+        const cloud = CLOUD.clouds.find((c) => !climbed.has(c) && state.x >= c.from - 240 && state.x < c.from);
+        if (cloud && state.grounded) {
+          climbed.add(cloud);
+          double = true;
+          input = { pressed: true, held: false };
+        } else if (double && state.vy <= 0 && !state.grounded) {
+          double = false;
+          input = { pressed: true, held: false };
+        } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+          input = { pressed: true, held: next.width >= 200 };
+          if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+        }
+        step(state, dt, input);
+      }
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.opened.size, `at ${dt}`).toBe(CLOUD.gates.length);
+      expect(state.collected.size, `at ${dt}`).toBe(CLOUD.gems.length);
+    }
+  });
+
+  it('keeps the ground going well past the castle', () => {
+    expect(CLOUD.ground.at(-1)[1] - CLOUD.castle).toBeGreaterThanOrEqual(600 * 2.5);
   });
 });

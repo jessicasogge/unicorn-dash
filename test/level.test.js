@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CANDY, MEADOW } from '../public/game/course.js';
+import { CANDY, CLOUD, MEADOW } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -573,14 +573,103 @@ describe('Candy Canyon', () => {
     expect($$('.course .gem')[high].classList.contains('got')).toBe(true);
   });
 
-  it('has no next level button yet, as the last level', async () => {
-    await candy();
-    expect($('.next-btn')).toBeNull();
+  it('has a next level button on to Cloud Kingdom', async () => {
+    await candy('?mane=pink');
+    expect($('.next-btn').getAttribute('href')).toBe('./cloud.html?mane=pink');
   });
 
   it('can be tried again', async () => {
     await candy('?mane=pink');
     expect($('.retry-btn').getAttribute('aria-label')).toBe('Try Candy Canyon again');
     expect($('.over-map-btn').getAttribute('href')).toBe('./world-map.html?mane=pink');
+  });
+});
+
+describe('Cloud Kingdom', () => {
+  const cloud = (search = '?mane=pink', options = {}) => open(search, { page: 'cloud.html', ...options });
+  const mane = () => $('.runner svg.unicorn').dataset.mane;
+  const gate = (i) => $$('.course .gate')[i];
+  // Runs until her x passes `to` (or she stops)
+  const runTo = (to) => { for (let i = 0; i < 900 && frames.length && x() < to; i++) tick(); };
+
+  it('draws a paint pot and a gate in each color, with its shape', async () => {
+    await cloud();
+    expect($$('.course .paint-pot')).toHaveLength(CLOUD.pots.length);
+    expect($$('.course .gate')).toHaveLength(CLOUD.gates.length);
+    expect(gate(0).style.left).toBe(`${CLOUD.gates[0].x - 86}px`);
+    expect(gate(0).innerHTML).toContain('#3A8DFF'); // the first gate is blue
+  });
+
+  it('has no pots or gates in the other levels', async () => {
+    await open();
+    expect($$('.course .paint-pot, .course .gate')).toHaveLength(0);
+  });
+
+  it('explains the paint pots and gates in its directions', async () => {
+    await cloud('?mane=pink', { go: false });
+    expect($('.directions').textContent).toMatch(/Paint pots\s*change your mane's color/);
+    expect($('.directions').textContent).toMatch(/only let the matching color through/);
+  });
+
+  it('starts her with the mane she came with', async () => {
+    await cloud('?mane=yellow');
+    expect(mane()).toBe('yellow');
+  });
+
+  it('turns her mane the pot\'s color as she runs through it, with a splash', async () => {
+    await cloud('?mane=pink');
+    runTo(CLOUD.pots[0].x + 50);
+    expect(mane()).toBe(CLOUD.pots[0].mane);
+    expect($$('.course .paint-pot')[0].classList.contains('splash')).toBe(true);
+  });
+
+  it('opens the gate for the matching color', async () => {
+    await cloud('?mane=pink');
+    expect(gate(0).classList.contains('open')).toBe(false);
+    runTo(CLOUD.gates[0].x + 50);
+    expect(gate(0).classList.contains('open')).toBe(true);
+  });
+
+  it('shakes the gate and knocks her back for the wrong color, until the pot paints her right', async () => {
+    await cloud('?mane=pink');
+    const pot = CLOUD.pots[0];
+    runTo(pot.x - 200);
+    // A double jump, high over the pot, so she stays pink
+    pointer('pointerdown'); tick(); pointer('pointerup');
+    let rising = true;
+    while (rising) { const h = height(); tick(); rising = height() > h; }
+    pointer('pointerdown'); tick(); pointer('pointerup');
+    runTo(pot.x + 60);
+    expect(mane()).toBe('pink');
+    let shook = false;
+    let back = false;
+    for (let i = 0; i < 400 && !gate(0).classList.contains('open'); i++) {
+      const before = x();
+      tick();
+      shook ||= gate(0).classList.contains('shake');
+      back ||= x() < before;
+    }
+    expect(shook).toBe(true);
+    expect(back).toBe(true); // knocked backwards
+    expect(mane()).toBe(pot.mane); // back over the pot
+    expect(gate(0).classList.contains('open')).toBe(true);
+  });
+
+  it('puts her mane and the gates back as they were on a new try', async () => {
+    await cloud('?mane=pink');
+    runTo(CLOUD.gates[0].x + 50);
+    expect(mane()).toBe('blue');
+    for (let i = 0; i < 900 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect(mane()).toBe('pink');
+    expect($$('.course .gate.open')).toHaveLength(0);
+  });
+
+  it('is the last level for now: no next level button', async () => {
+    await cloud();
+    expect($('.next-btn')).toBeNull();
   });
 });
