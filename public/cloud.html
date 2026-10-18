@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloud Kingdom: Unicorn Dash</title>
+    <meta name="description" content="Paint your mane to match the rainbow gates in Cloud Kingdom: tap to jump, hold to dash, and reach the castle. No reading needed." />
+    <link rel="canonical" href="https://jessicasogge.github.io/unicorn-dash/cloud.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unicorn Dash" />
+    <meta property="og:title" content="Cloud Kingdom: Unicorn Dash" />
+    <meta property="og:description" content="Paint your mane to match the rainbow gates in Cloud Kingdom: tap to jump, hold to dash, and reach the castle. No reading needed." />
+    <meta property="og:url" content="https://jessicasogge.github.io/unicorn-dash/cloud.html" />
+    <meta property="og:image" content="https://jessicasogge.github.io/unicorn-dash/social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Unicorn Dash start screen: a white unicorn with a pink mane leaping on a rainbow trail under the words Unicorn Dash" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="level cloud" data-level="cloud">
+      <!-- The course, drawn by game/level.js. Tap or hold anywhere here. -->
+      <div class="view" role="application" aria-label="Cloud Kingdom. Tap to jump, hold to dash.">
+        <div class="hills" aria-hidden="true"></div>
+        <div class="course"></div>
+      </div>
+
+      <nav class="level-bar">
+        <a class="icon-btn map-btn" href="./world-map.html" aria-label="Back to the map">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+        </a>
+        <!-- Diamonds caught so far, counting up -->
+        <div class="gem-count" role="img" aria-label="0 diamonds">
+          <svg viewBox="0 0 32 38" aria-hidden="true">
+            <path d="M16 3 L29 14 L16 35 L3 14 Z" fill="#FF5FA2" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round" />
+            <path d="M3 14 H29 M10 14 L16 3 L22 14 L16 35" fill="none" stroke="#2B2350" stroke-width="2" stroke-linejoin="round" />
+          </svg>
+          <span class="count">0</span>
+        </div>
+      </nav>
+
+      <!-- How to play, before she starts running -->
+      <div class="directions">
+        <div class="directions-card">
+          <h2 class="directions-title">How to play</h2>
+          <div class="direction">
+            <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+              <circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5" />
+              <circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5" />
+              <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+            </svg>
+            <p><strong>Quick tap</strong> to jump.<br />Tap again in the air to jump higher!</p>
+          </div>
+          <div class="direction">
+            <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+              <circle cx="46" cy="22" r="20" fill="none" stroke="#E6E0F5" stroke-width="7" />
+              <circle cx="46" cy="22" r="20" fill="none" stroke="#9B6BFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="84 126" transform="rotate(-90 46 22)" />
+              <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+            </svg>
+            <p><strong>Long tap</strong> (hold) to rainbow dash over big gaps.<br />Catch every diamond for a surprise at the castle!</p>
+          </div>
+          <div class="direction">
+            <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+              <g stroke="#2B2350" stroke-width="4" stroke-linejoin="round">
+                <path d="M6 44 H38 L34 80 H10 Z" fill="#fff" /><rect x="2" y="36" width="40" height="10" rx="5" fill="#3A8DFF" />
+                <rect x="52" y="20" width="10" height="64" rx="4" fill="#3A8DFF" /><rect x="80" y="20" width="10" height="64" rx="4" fill="#3A8DFF" /><rect x="50" y="14" width="42" height="10" rx="5" fill="#3A8DFF" />
+                <path d="M71 1.8 L73.6 7.6 L79.9 8.2 L75.1 12.4 L76.5 18.6 L71 15.3 L65.5 18.6 L66.9 12.4 L62.1 8.2 L68.4 7.6 Z" fill="#3A8DFF" />
+              </g>
+            </svg>
+            <p><strong>Paint pots</strong> change your mane's color.<br />Rainbow gates only let the matching color through!</p>
+          </div>
+          <p class="direction-keys">On a keyboard, use the space bar or the up arrow.</p>
+          <button class="go-btn" type="button">Go!</button>
+        </div>
+      </div>
+
+      <!-- At the castle: play again, or back to the map -->
+      <div class="finish" hidden>
+        <h2 class="finish-title">You beat the level!</h2>
+        <div class="finish-buttons">
+          <button class="icon-btn replay-btn" type="button" aria-label="Play Cloud Kingdom again">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12 a7 7 0 1 1 -2.1 -5" fill="none" stroke-width="3" stroke-linecap="round" /><path d="M18.5 2.5 V7.5 H13.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <a class="icon-btn finish-map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+          <!-- Removed by game/level.js: no level after this one yet -->
+          <a class="icon-btn next-btn" href="./world-map.html" aria-label="Next level">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L20 12 L7 20 Z" fill="#fff" stroke="#2B2350" stroke-width="2.2" stroke-linejoin="round" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Fell in a gap: try again, or back to the map -->
+      <div class="game-over" hidden>
+        <h2 class="game-over-title">Game Over</h2>
+        <div class="oops" aria-hidden="true"></div>
+        <div class="finish-buttons">
+          <button class="icon-btn retry-btn" type="button" aria-label="Try Cloud Kingdom again">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12 a7 7 0 1 1 -2.1 -5" fill="none" stroke-width="3" stroke-linecap="round" /><path d="M18.5 2.5 V7.5 H13.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <a class="icon-btn over-map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <footer class="signature">jsogge 2026</footer>
+    </main>
+    <script type="module" src="./game/level.js"></script>
+  </body>
+</html>

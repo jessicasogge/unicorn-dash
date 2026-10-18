@@ -541,6 +541,57 @@ body {
   60% { transform: scale(0.9, 1.15); }
 }
 
+/* Paint pots (Cloud Kingdom): a splash as she dips her mane in */
+.paint-pot {
+  width: 80px;
+  height: 92px;
+  transform-origin: 50% 100%;
+}
+
+.paint-pot.splash {
+  animation: splash 0.4s ease-out;
+}
+
+@keyframes splash {
+  40% { transform: scale(1.2, 0.85); }
+}
+
+/* Gates: a shake for the wrong color, and the curtain opens for the right one */
+.gate {
+  width: 172px;
+  height: 336px;
+}
+
+.gate .curtain {
+  transition: opacity 0.3s;
+}
+
+.gate.open .curtain {
+  opacity: 0;
+}
+
+.gate.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */
+.level.cloud {
+  background: #dce9ff;
+}
+
+.cloud .hills {
+  background-image: radial-gradient(circle at 50% 100%, #f4f8ff 0 45%, transparent 45.5%);
+}
+
+.cloud .ground {
+  background: linear-gradient(#ffffff 0 28px, var(--ink) 28px 33px, #c9d6f5 33px);
+}
+
 /* Candy Canyon: a pink sky and hills, frosting on chocolate */
 .level.candy {
   background: #ffe3f1;

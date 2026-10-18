@@ -24,7 +24,7 @@ function goTo(world) {
 if (here) goTo(here);
 
 // The worlds that are built so far, and where each one opens.
-export const WORLD_PAGES = { meadow: './meadow.html', candy: './candy.html' };
+export const WORLD_PAGES = { meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html' };
 
 for (const world of worlds) {
   world.querySelector('.island').addEventListener('click', () => {

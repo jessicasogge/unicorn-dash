@@ -74,11 +74,11 @@ describe('the unicorn', () => {
 
   it('stays put when her own world is tapped', async () => {
     await open();
-    island('cloud').click();
-    island('cloud').click();
+    island('crystal').click();
+    island('crystal').click();
     vi.advanceTimersByTime(HOP_MS);
-    expect(hers()).toBe('cloud');
-    expect(island('cloud').getAttribute('aria-pressed')).toBe('true');
+    expect(hers()).toBe('crystal');
+    expect(island('crystal').getAttribute('aria-pressed')).toBe('true');
   });
 
   it('starts on the Meadow every time, whatever the address says', async () => {
@@ -145,9 +145,9 @@ describe('tapping the flower world', () => {
     expect(location.href).toBe('http://localhost/world-map.html'); // only opened once
   });
 
-  it('opens the Meadow and Candy Canyon so far', async () => {
+  it('opens the Meadow, Candy Canyon and Cloud Kingdom so far', async () => {
     const { WORLD_PAGES } = await import('../public/game/world-map.js');
-    expect(WORLD_PAGES).toEqual({ meadow: './meadow.html', candy: './candy.html' });
+    expect(WORLD_PAGES).toEqual({ meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html' });
   });
 });
 
@@ -161,22 +161,31 @@ describe('tapping the lollipop world', () => {
   });
 });
 
+describe('tapping the cloud world', () => {
+  it('opens Cloud Kingdom after a hop, with her mane', async () => {
+    await open('?mane=yellow');
+    island('cloud').click();
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./cloud.html?mane=yellow');
+  });
+});
+
 describe('tapping a world that isn\'t built yet, while she\'s on it', () => {
   it('makes her hop, just for as long as the hop takes', async () => {
     await open();
-    island('cloud').click();
-    island('cloud').click();
-    expect(world('cloud').classList.contains('hopping')).toBe(true);
+    island('crystal').click();
+    island('crystal').click();
+    expect(world('crystal').classList.contains('hopping')).toBe(true);
     vi.advanceTimersByTime(HOP_MS - 1);
-    expect(world('cloud').classList.contains('hopping')).toBe(true);
+    expect(world('crystal').classList.contains('hopping')).toBe(true);
     vi.advanceTimersByTime(1);
-    expect(world('cloud').classList.contains('hopping')).toBe(false);
+    expect(world('crystal').classList.contains('hopping')).toBe(false);
   });
 
   it('doesn\'t hop when she\'s just moving there', async () => {
     await open();
-    island('cloud').click();
-    expect(world('cloud').classList.contains('hopping')).toBe(false);
+    island('crystal').click();
+    expect(world('crystal').classList.contains('hopping')).toBe(false);
   });
 
   it('ignores taps mid-hop, so a later hop isn\'t cut short', async () => {
