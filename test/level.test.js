@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CANDY, CLOUD, MEADOW } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, MEADOW } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -668,8 +668,71 @@ describe('Cloud Kingdom', () => {
     expect($$('.course .gate.open')).toHaveLength(0);
   });
 
+  it('has a next level button on to the Crystal Caves', async () => {
+    await cloud('?mane=blue');
+    expect($('.next-btn').getAttribute('href')).toBe('./crystal.html?mane=blue');
+  });
+});
+
+describe('Crystal Caves', () => {
+  const cave = (search = '?mane=pink', options = {}) => open(search, { page: 'crystal.html', ...options });
+  const wall = (i) => $$('.course .crystal-wall')[i];
+  const runTo = (to) => { for (let i = 0; i < 900 && frames.length && x() < to; i++) tick(); };
+
+  it('draws its crystal walls and background crystals', async () => {
+    await cave();
+    expect($$('.course .crystal-wall')).toHaveLength(CRYSTAL.walls.length);
+    expect(wall(0).style.left).toBe(`${CRYSTAL.walls[0] - 64}px`);
+    expect($$('.course .cave-crystals')).toHaveLength(CRYSTAL.crystals.length);
+  });
+
+  it('has no crystal walls in the other levels', async () => {
+    await open();
+    expect($$('.course .crystal-wall, .course .cave-crystals')).toHaveLength(0);
+  });
+
+  it('explains the crystal walls in its directions', async () => {
+    await cave('?mane=pink', { go: false });
+    expect($('.directions').textContent).toMatch(/Crystal walls\s*only break for a rainbow dash/);
+  });
+
+  it('wobbles a wall and knocks her back when she runs into it', async () => {
+    await cave();
+    let back = false;
+    for (let i = 0; i < 300 && !wall(0).classList.contains('wobble'); i++) tick();
+    expect(wall(0).classList.contains('wobble')).toBe(true);
+    const at = x();
+    tick(10);
+    back = x() < at;
+    expect(back).toBe(true);
+    expect(wall(0).classList.contains('smashed')).toBe(false);
+  });
+
+  it('smashes a wall to pieces when she dashes into it', async () => {
+    await cave();
+    runTo(CRYSTAL.walls[0] - 200);
+    pointer('pointerdown');
+    runTo(CRYSTAL.walls[0] + 100);
+    pointer('pointerup');
+    expect(wall(0).classList.contains('smashed')).toBe(true);
+  });
+
+  it('puts the walls back up on a new try', async () => {
+    await cave();
+    runTo(CRYSTAL.walls[0] - 200);
+    pointer('pointerdown');
+    runTo(CRYSTAL.walls[0] + 100);
+    pointer('pointerup');
+    for (let i = 0; i < 900 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect($$('.course .crystal-wall.smashed')).toHaveLength(0);
+  });
+
   it('is the last level for now: no next level button', async () => {
-    await cloud();
+    await cave();
     expect($('.next-btn')).toBeNull();
   });
 });

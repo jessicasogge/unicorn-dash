@@ -34,6 +34,8 @@ export const MEADOW = {
   trees: [],
   pots: [],
   gates: [],
+  walls: [],
+  crystals: [],
   start: 0,
   castle: 6300,
 };
@@ -71,6 +73,8 @@ export const CANDY = {
   ],
   pots: [],
   gates: [],
+  walls: [],
+  crystals: [],
   start: 0,
   castle: 6900,
 };
@@ -119,8 +123,49 @@ export const CLOUD = {
     [2800, 370, 1.2], [3500, 270, 1], [4200, 350, 1.3], [4900, 290, 0.9],
     [5600, 360, 1.2], [6300, 280, 1.1], [7000, 340, 1],
   ],
+  walls: [],
+  crystals: [],
   start: 0,
   castle: 7300,
 };
 
-export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD };
+// Crystal Caves: crystal walls only break for a rainbow dash, and knock
+// her back otherwise. Each wall stands well after the gap before it, so a
+// knock back lands her on solid ground.
+export const CRYSTAL = {
+  ground: [
+    [-400, 1200],
+    [1320, 2500], // short gap
+    [3050, 4100], // long gap
+    [4220, 5400], // short gap
+    [5950, 10500], // long gap; on past the castle
+  ],
+  clouds: [
+    { from: 1700, to: 1920, top: 170 },
+    { from: 4400, to: 4620, top: 170 },
+  ],
+  // Crystal walls, by where they are along x
+  walls: [800, 2150, 3550, 4950, 6450],
+  gems: [
+    [400, 60], [500, 60],
+    [920, 150], [980, 150], // just past a wall, at dashing height
+    [1760, 240], [1810, 240], [1860, 240], // up on a cloud
+    [2700, 150], [2800, 150], [2900, 150], // over the gap
+    [3670, 150], [3730, 150],
+    [4460, 240], [4510, 240], [4560, 240],
+    [5650, 150],
+  ],
+  // Glowing crystals in the background, just for looks: [x, height]
+  crystals: [
+    [250, 180], [1500, 220], [3300, 200], [4700, 240], [6100, 210], [7200, 230],
+  ],
+  sky: [],
+  bouncers: [],
+  trees: [],
+  pots: [],
+  gates: [],
+  start: 0,
+  castle: 7500,
+};
+
+export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL };

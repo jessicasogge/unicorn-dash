@@ -93,6 +93,17 @@ const POT = (mane) => `<g stroke="#2B2350" stroke-width="5" stroke-linejoin="rou
 // with a see-through curtain that opens for the matching mane.
 const GATE = (mane) => `<rect class="curtain" x="22" y="40" width="116" height="280" fill="${mane.color}" opacity="0.3"/><g stroke="#2B2350" stroke-width="6" stroke-linejoin="round" fill="${mane.color}"><rect x="4" y="30" width="30" height="290" rx="10"/><rect x="126" y="30" width="30" height="290" rx="10"/><rect x="-2" y="20" width="164" height="30" rx="15"/><circle cx="80" cy="22" r="34" fill="#fff"/></g>${badge(mane, 56, -2, 48)}`;
 
+// A crystal wall: tall glassy shards, in pieces that fly apart when a dash
+// smashes through.
+const WALL = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round">'
+  + '<path class="shard" d="M8 330 L4 120 L30 40 L52 110 L48 330 Z" fill="#7FE3FF"/>'
+  + '<path class="shard" d="M44 330 L46 70 L70 0 L92 80 L88 330 Z" fill="#B9F1FF"/>'
+  + '<path class="shard" d="M84 330 L86 140 L108 60 L124 150 L120 330 Z" fill="#9B6BFF"/>'
+  + '</g><g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.7"><path d="M22 90 L16 150 M66 40 L58 110 M104 110 L98 160"/></g>';
+
+// A cluster of glowing crystals for the cave's background.
+const CRYSTALS = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 240 L20 120 L40 80 L56 130 L50 240 Z" fill="#9B6BFF"/><path d="M46 240 L52 60 L78 0 L102 70 L96 240 Z" fill="#7FE3FF"/><path d="M92 240 L98 140 L118 100 L132 150 L128 240 Z" fill="#FF8FC0"/></g>';
+
 // A lollipop tree: a big swirly lollipop on a striped stick.
 const LOLLIPOP = (color) => `<g stroke="#2B2350" stroke-width="5"><rect x="44" y="84" width="12" height="160" rx="4" fill="#fff"/><path d="M44 110 L56 100 M44 140 L56 130 M44 170 L56 160 M44 200 L56 190 M44 230 L56 220" stroke="${color}" stroke-width="5"/><circle cx="50" cy="50" r="44" fill="${color}"/></g><path d="M50 50 m0 -6 a6 6 0 0 1 6 6 a12 12 0 0 1 -12 12 a18 18 0 0 1 -18 -18 a24 24 0 0 1 24 -24 a30 30 0 0 1 30 30" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`;
 
@@ -101,6 +112,7 @@ const SKY_CLOUD = '<path d="M20 62 a20 20 0 0 1 8 -38 a30 30 0 0 1 56 -8 a24 24 
 // The course, drawn once.
 function build(course) {
   for (const [x, y, size] of course.sky) place(svg('0 0 160 70', SKY_CLOUD), 'sky-cloud', x, y, 160 * size);
+  for (const [x, height] of course.crystals) place(svg('0 0 140 240', CRYSTALS), 'cave-crystals', x, -20, height * 140 / 240);
   // Behind the ground, sticks standing in it
   course.trees.forEach(([x, height], i) => place(svg('0 0 100 244', LOLLIPOP(GEM_COLORS[(i * 2 + 1) % GEM_COLORS.length])), 'lollipop-tree', x, -30, height * 100 / 244 * (244 / 214)));
   for (const [from, to] of course.ground) {
@@ -117,11 +129,12 @@ function build(course) {
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
   const gates = course.gates.map((gate) => place(svg('-6 -14 172 336', GATE(maneNamed(gate.mane))), 'gate', gate.x - 86, -2));
+  const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, gates };
+  return { gems, fireworks, gumdrops, pots, gates, walls };
 }
 
-const { gems, fireworks, gumdrops, pots, gates } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, gates, walls } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -199,6 +212,8 @@ function frame(time) {
     for (const i of state.opened) gates[i].classList.add('open');
   }
   if (events.includes('bump')) replay(gates[state.bumped], 'shake');
+  if (events.includes('smash')) walls[state.hit].classList.add('smashed');
+  if (events.includes('thud')) replay(walls[state.hit], 'wobble');
   if (events.includes('bounce')) replay(gumdrops[state.bounced], 'squish');
   if (events.includes('gem')) replay(count, 'bump');
   if (events.includes('finish')) {
@@ -255,6 +270,7 @@ function restart() {
   state = createRunner(LEVEL, mane.name);
   setMane(unicorn, mane); // back to the color she came with
   for (const gate of gates) gate.classList.remove('open');
+  for (const wall of walls) wall.classList.remove('smashed', 'wobble');
   pressed = false;
   held = false;
   last = null;

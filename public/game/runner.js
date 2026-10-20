@@ -1,7 +1,8 @@
 // Level movement: auto-run right; tap to jump (double jump), hold to dash.
 // Running onto a gumdrop bounces her up high. Running through a paint pot
 // changes her mane color; a gate only lets the matching color through, and
-// knocks her back (over the pot again) otherwise.
+// knocks her back (over the pot again) otherwise. Crystal walls only break
+// for a rainbow dash, and knock her back otherwise.
 // Dash is faster, level flight, for as long as it's held. Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
@@ -22,6 +23,7 @@ export const GATE_FRONT = 80; // the gate's front edge, this far before its midd
 export const KNOCK_TIME = 0.6; // seconds she's knocked back by a wrong gate
 export const KNOCK_SPEED = 600; // going backwards, world units a second
 export const KNOCK_HOP = 520; // with a little hop
+export const WALL_FRONT = 40; // a crystal wall's front edge, this far before its middle
 
 // `mane` is her mane color's name (like 'pink'), for the gates.
 export function createRunner(course, mane = null) {
@@ -32,6 +34,8 @@ export function createRunner(course, mane = null) {
     painted: null, // the last paint pot she went through
     bumped: null, // the last gate that knocked her back
     opened: new Set(), // the gates she's gone through
+    smashed: new Set(), // the crystal walls she's dashed through
+    hit: null, // the last wall she smashed or bumped into
     x: course.start,
     y: 0,
     vy: 0,
@@ -57,7 +61,7 @@ function surfacesAt(course, x) {
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
 // and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'paint', 'open',
-// 'bump', 'fall', 'finish'.
+// 'bump', 'smash', 'thud', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -142,6 +146,23 @@ export function step(state, dt, input) {
       state.dashing = false;
       state.bumped = i;
       events.push('bump');
+    }
+  });
+
+  // Up to a crystal wall: a dash smashes through, anything else bumps back
+  (state.course.walls ?? []).forEach((wallX, i) => {
+    const front = wallX - WALL_FRONT;
+    if (state.smashed.has(i) || from >= front || state.x < front) return;
+    state.hit = i;
+    if (state.dashing) {
+      state.smashed.add(i);
+      events.push('smash');
+    } else {
+      state.x = front - 1;
+      state.knock = KNOCK_TIME;
+      state.vy = KNOCK_HOP;
+      state.grounded = false;
+      events.push('thud');
     }
   });
 
