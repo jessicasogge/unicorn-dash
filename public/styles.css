@@ -636,6 +636,63 @@ body {
   color: #ffffff; /* on the dark cave floor */
 }
 
+/* Shooting stars (the Night Sky): glowing as she rides one, then zooming
+   off and fading when she hops off */
+.shooting-star {
+  width: 140px;
+  height: 96px;
+  filter: drop-shadow(0 0 10px #ffe58a);
+}
+
+.shooting-star.riding {
+  filter: drop-shadow(0 0 18px #fff3b0);
+}
+
+.shooting-star.gone {
+  translate: 500px -260px;
+  opacity: 0;
+  transition: translate 0.9s ease-in, opacity 0.9s ease-in;
+}
+
+/* The Night Sky: dark blue, with a crescent moon and twinkly stars that
+   stay put (they're far away), soft purple hills and lavender ground */
+.level.night {
+  background-color: #1d1a3f;
+  background-image:
+    radial-gradient(circle at 8% 18%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 22% 8%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 30%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 48% 12%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 58% 26%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 70% 6%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 92% 34%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 14% 42%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 44%, #fff 0 1px, transparent 2px);
+}
+
+.night .view::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 12%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  box-shadow: 24px 10px 0 0 #ffe58a; /* the shadow is the crescent */
+}
+
+.night .hills {
+  background-image: radial-gradient(circle at 50% 100%, #2f2a63 0 45%, transparent 45.5%);
+}
+
+.night .ground {
+  background: linear-gradient(#b8a6ff 0 28px, var(--ink) 28px 33px, #3b3570 33px);
+}
+
+.night .signature {
+  color: #ffffff;
+}
+
 /* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */
 .level.cloud {
   background: #dce9ff;

@@ -101,6 +101,9 @@ const WALL = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round">'
   + '<path class="shard" d="M84 330 L86 140 L108 60 L124 150 L120 330 Z" fill="#9B6BFF"/>'
   + '</g><g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.7"><path d="M22 90 L16 150 M66 40 L58 110 M104 110 L98 160"/></g>';
 
+// A shooting star: a big glowing star with a sparkly tail behind it.
+const SHOOTING_STAR = '<g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
+
 // A cluster of glowing crystals for the cave's background.
 const CRYSTALS = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 240 L20 120 L40 80 L56 130 L50 240 Z" fill="#9B6BFF"/><path d="M46 240 L52 60 L78 0 L102 70 L96 240 Z" fill="#7FE3FF"/><path d="M92 240 L98 140 L118 100 L132 150 L128 240 Z" fill="#FF8FC0"/></g>';
 
@@ -130,11 +133,12 @@ function build(course) {
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
   const gates = course.gates.map((gate) => place(svg('-6 -14 172 336', GATE(maneNamed(gate.mane))), 'gate', gate.x - 86, -2));
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
+  const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, gates, walls };
+  return { gems, fireworks, gumdrops, pots, gates, walls, stars };
 }
 
-const { gems, fireworks, gumdrops, pots, gates, walls } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, gates, walls, stars } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -179,6 +183,11 @@ export function render() {
   hills.style.transform = `translate3d(${-drift}px, 0, 0)`;
   runnerEl.style.transform = `translate3d(${state.x - 70}px, ${-state.y}px, 0)`;
   runnerEl.classList.toggle('dashing', state.dashing);
+  // A shooting star she's riding goes along with her
+  if (state.riding !== null) {
+    const star = LEVEL.stars[state.riding];
+    stars[state.riding].style.transform = `translate3d(${state.x - star.x}px, 0, 0)`;
+  }
   // Only when a diamond's caught (or they're all put back)
   if (state.collected.size !== shownCount) {
     shownCount = state.collected.size;
@@ -212,6 +221,11 @@ function frame(time) {
     for (const i of state.opened) gates[i].classList.add('open');
   }
   if (events.includes('bump')) replay(gates[state.bumped], 'shake');
+  if (events.includes('ride')) stars[state.riding].classList.add('riding');
+  if (events.includes('hop-off')) {
+    const star = [...state.rode].at(-1);
+    stars[star].classList.replace('riding', 'gone'); // zooms off and fades
+  }
   if (events.includes('smash')) walls[state.hit].classList.add('smashed');
   if (events.includes('thud')) replay(walls[state.hit], 'wobble');
   if (events.includes('bounce')) replay(gumdrops[state.bounced], 'squish');
@@ -271,6 +285,10 @@ function restart() {
   setMane(unicorn, mane); // back to the color she came with
   for (const gate of gates) gate.classList.remove('open');
   for (const wall of walls) wall.classList.remove('smashed', 'wobble');
+  for (const star of stars) {
+    star.classList.remove('riding', 'gone');
+    star.style.transform = '';
+  }
   pressed = false;
   held = false;
   last = null;

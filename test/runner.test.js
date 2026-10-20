@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, BOUNCE, COYOTE, DASH, GATE_FRONT, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RUN, WALL_FRONT,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, GATE_FRONT, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -359,6 +359,100 @@ describe('crystal walls', () => {
     run(state, 2, HOLD);
     state.x = 400;
     expect(run(state, 2)).not.toContain('thud');
+  });
+});
+
+describe('shooting stars', () => {
+  const star = { x: 500, y: 260, length: 1000 };
+  const sky = (more = {}) => course({ stars: [star], ...more });
+  // Puts her up by the star, as if a gumdrop had launched her there.
+  const upBy = (state, x = star.x - STAR_REACH - 5) => {
+    state.x = x;
+    state.y = star.y;
+    state.vy = 0;
+    state.grounded = false;
+  };
+
+  it('carry her when she touches one, level, at its speed', () => {
+    const state = createRunner(sky());
+    upBy(state);
+    expect(runUntil(state, 'ride')).toBe(true);
+    expect(state.riding).toBe(0);
+    const x = state.x;
+    run(state, 0.5);
+    expect(state.y).toBe(star.y);
+    expect(state.x - x).toBeCloseTo(RIDE * 0.5, -1);
+  });
+
+  it('aren\'t touched from the ground', () => {
+    const state = createRunner(sky());
+    run(state, 3);
+    expect(state.riding).toBeNull();
+    expect(state.rode.size).toBe(0);
+  });
+
+  it('carry her whatever she presses, even a jump or a dash', () => {
+    const state = createRunner(sky());
+    upBy(state);
+    runUntil(state, 'ride');
+    const events = run(state, 0.5, TAP);
+    expect(events).not.toContain('jump');
+    expect(events).not.toContain('dash');
+    expect(state.y).toBe(star.y);
+  });
+
+  it('drop her off at their end, to fall and land', () => {
+    const state = createRunner(sky());
+    upBy(state);
+    runUntil(state, 'ride');
+    expect(runUntil(state, 'hop-off')).toBe(true);
+    expect(state.x).toBeGreaterThanOrEqual(star.x + star.length);
+    expect(state.riding).toBeNull();
+    expect(state.rode.has(0)).toBe(true);
+    expect(runUntil(state, 'land')).toBe(true);
+    expect(state.dashing).toBe(false);
+  });
+
+  it('let her dash on straight away, if she\'s holding as she hops off', () => {
+    const state = createRunner(sky());
+    upBy(state);
+    runUntil(state, 'ride');
+    let events = [];
+    while (!events.includes('hop-off')) events = step(state, DT, HOLD);
+    expect(step(state, DT, HOLD)).toContain('dash');
+    expect(state.y).toBe(star.y); // flying on, level
+  });
+
+  it('carry her only once each', () => {
+    const state = createRunner(sky());
+    upBy(state);
+    runUntil(state, 'ride');
+    runUntil(state, 'hop-off');
+    upBy(state); // back up by it, somehow
+    expect(run(state, 0.2)).not.toContain('ride');
+  });
+
+  it('catch diamonds along the way', () => {
+    const state = createRunner(sky({ gems: [[900, star.y + 50]] }));
+    upBy(state);
+    runUntil(state, 'ride');
+    expect(runUntil(state, 'gem')).toBe(true);
+    expect(state.riding).toBe(0);
+  });
+
+  it('can take her all the way to the castle', () => {
+    const state = createRunner(sky({ castle: 1000 }));
+    upBy(state);
+    runUntil(state, 'ride');
+    expect(runUntil(state, 'finish')).toBe(true);
+    expect(state.finished).toBe(true);
+    expect(state.riding).toBe(0);
+  });
+
+  it('aren\'t in a course without any', () => {
+    const state = createRunner(course());
+    upBy(state);
+    expect(run(state, 0.5)).not.toContain('ride');
   });
 });
 

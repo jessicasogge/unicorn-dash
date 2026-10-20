@@ -2,8 +2,8 @@
 // the real physics, to check every gap is fair: short ones take a jump
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
-import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW } from '../public/game/course.js';
-import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
+import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/course.js';
+import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RIDE, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
 const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], to, width: to - MEADOW.ground[i][1] }));
@@ -168,7 +168,7 @@ describe('Candy Canyon', () => {
   const candyGaps = CANDY.ground.slice(1).map(([to], i) => ({ from: CANDY.ground[i][1], to, width: to - CANDY.ground[i][1] }));
 
   it('is listed with the other levels', () => {
-    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL });
+    expect(LEVELS.candy).toBe(CANDY);
   });
 
   it('has short gaps to jump and long ones to dash, like the Meadow', () => {
@@ -385,5 +385,90 @@ describe('Crystal Caves', () => {
 
   it('keeps the ground going well past the castle', () => {
     expect(CRYSTAL.ground.at(-1)[1] - CRYSTAL.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+});
+
+describe('the Night Sky', () => {
+  const nightGaps = NIGHT.ground.slice(1).map(([to], i) => ({ from: NIGHT.ground[i][1], to, width: to - NIGHT.ground[i][1] }));
+  const onGround = (x, margin) => NIGHT.ground.some(([from, to]) => x - margin >= from && x + margin <= to);
+
+  // Jumps short gaps, dashes long ones and the wall: the gumdrops and the
+  // shooting stars do the rest.
+  function play(dt) {
+    const state = createRunner(NIGHT, 'pink');
+    const events = [];
+    const dashedAt = new Set();
+    let holdUntil = 0;
+    for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+      let input = { pressed: false, held: t < holdUntil };
+      const next = nightGaps.find((g) => g.from > state.x);
+      const wall = NIGHT.walls.find((w, i) => !dashedAt.has(i) && w - 40 - state.x < 120 && w > state.x);
+      if (wall && state.grounded && t >= holdUntil) {
+        dashedAt.add(NIGHT.walls.indexOf(wall));
+        input = { pressed: true, held: true };
+        holdUntil = t + 0.6;
+      } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+        input = { pressed: true, held: next.width >= 200 };
+        if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+      }
+      events.push(...step(state, dt, input));
+    }
+    return { state, events };
+  }
+
+  it('is listed with the other levels', () => {
+    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT });
+  });
+
+  it('has a bit of everything: a gumdrop, a paint pot and gate, a crystal wall', () => {
+    expect(NIGHT.bouncers.length).toBeGreaterThanOrEqual(1);
+    expect(NIGHT.pots.length).toBeGreaterThanOrEqual(1);
+    expect(NIGHT.gates.map((g) => g.mane)).toEqual(NIGHT.pots.map((p) => p.mane));
+    expect(NIGHT.walls.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('has a gumdrop to launch her up to each shooting star', () => {
+    expect(NIGHT.stars.length).toBeGreaterThanOrEqual(2);
+    for (const star of NIGHT.stars) {
+      const gumdrop = NIGHT.bouncers.filter((x) => x < star.x).at(-1);
+      expect(star.x - gumdrop, `star at ${star.x}`).toBeLessThan(400);
+    }
+  });
+
+  it('drops her off every shooting star over solid ground', () => {
+    for (const star of NIGHT.stars) {
+      // where she lands, falling from the star's height while running on
+      const fallTime = Math.sqrt((2 * star.y) / GRAVITY);
+      expect(onGround(star.x + star.length + RUN * fallTime, 60), `star at ${star.x}`).toBe(true);
+    }
+  });
+
+  it('carries her over gaps too wide even for a dash, on a shooting star', () => {
+    const widest = Math.max(...nightGaps.map((g) => g.width));
+    expect(widest).toBeGreaterThan(DASH * 1.2);
+    expect(NIGHT.stars.some((s) => s.length * (DASH / RIDE) > widest)).toBe(true);
+  });
+
+  it('can be won with every diamond, riding both stars, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const { state, events } = play(dt);
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.rode.size, `at ${dt}`).toBe(NIGHT.stars.length);
+      expect(state.smashed.size, `at ${dt}`).toBe(NIGHT.walls.length);
+      expect(state.opened.size, `at ${dt}`).toBe(NIGHT.gates.length);
+      expect(events.filter((e) => e === 'bounce'), `at ${dt}`).toHaveLength(NIGHT.bouncers.length);
+      expect(state.collected.size, `at ${dt}`).toBe(NIGHT.gems.length);
+    }
+  });
+
+  it('can be won just by holding the whole way', () => {
+    const state = createRunner(NIGHT);
+    step(state, 1 / 60, { pressed: true, held: true });
+    for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
+    expect(state.finished).toBe(true);
+  });
+
+  it('keeps the ground going well past the castle', () => {
+    expect(NIGHT.ground.at(-1)[1] - NIGHT.castle).toBeGreaterThanOrEqual(600 * 2.5);
   });
 });
