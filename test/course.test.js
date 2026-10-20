@@ -2,7 +2,7 @@
 // the real physics, to check every gap is fair: short ones take a jump
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
-import { CANDY, CLOUD, LEVELS, MEADOW } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW } from '../public/game/course.js';
 import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
@@ -168,7 +168,7 @@ describe('Candy Canyon', () => {
   const candyGaps = CANDY.ground.slice(1).map(([to], i) => ({ from: CANDY.ground[i][1], to, width: to - CANDY.ground[i][1] }));
 
   it('is listed with the other levels', () => {
-    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD });
+    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL });
   });
 
   it('has short gaps to jump and long ones to dash, like the Meadow', () => {
@@ -306,5 +306,84 @@ describe('Cloud Kingdom', () => {
 
   it('keeps the ground going well past the castle', () => {
     expect(CLOUD.ground.at(-1)[1] - CLOUD.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+});
+
+describe('Crystal Caves', () => {
+  const caveGaps = CRYSTAL.ground.slice(1).map(([to], i) => ({ from: CRYSTAL.ground[i][1], to, width: to - CRYSTAL.ground[i][1] }));
+  const onGround = (x, margin) => CRYSTAL.ground.some(([from, to]) => x - margin >= from && x + margin <= to);
+
+  it('has crystal walls along the way', () => {
+    expect(CRYSTAL.walls.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('stands its walls on solid ground, with room behind for a knock back', () => {
+    for (const x of CRYSTAL.walls) expect(onGround(x - 450, 0) && onGround(x, 60), `wall at ${x}`).toBe(true);
+  });
+
+  it('knocks her back onto solid ground from every wall, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      CRYSTAL.walls.forEach((x, i) => {
+        const state = createRunner(CRYSTAL);
+        state.x = x - 200;
+        state.smashed = new Set(CRYSTAL.walls.map((_, j) => j).filter((j) => j !== i));
+        const events = [];
+        for (let t = 0; t < 3; t += dt) events.push(...step(state, dt, { pressed: false, held: false }));
+        expect(events, `wall at ${x}`).toContain('thud');
+        expect(state.fallen, `wall at ${x}`).toBe(false);
+      });
+    }
+  });
+
+  it('can be won with every diamond, dashing through the walls, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const state = createRunner(CRYSTAL);
+      const climbed = new Set();
+      const dashedAt = new Set();
+      let holdUntil = 0;
+      let double = false;
+      for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+        let input = { pressed: false, held: t < holdUntil };
+        const next = caveGaps.find((g) => g.from > state.x);
+        const cloud = CRYSTAL.clouds.find((c) => !climbed.has(c) && state.x >= c.from - 240 && state.x < c.from);
+        const wall = CRYSTAL.walls.find((w, i) => !dashedAt.has(i) && w - 40 - state.x < 120 && w > state.x);
+        if (cloud && state.grounded && t >= holdUntil) {
+          climbed.add(cloud);
+          double = true;
+          input = { pressed: true, held: false };
+        } else if (double && state.vy <= 0 && !state.grounded) {
+          double = false;
+          input = { pressed: true, held: false };
+        } else if (wall && state.grounded && t >= holdUntil) {
+          dashedAt.add(CRYSTAL.walls.indexOf(wall));
+          input = { pressed: true, held: true };
+          holdUntil = t + 0.6;
+        } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+          input = { pressed: true, held: next.width >= 200 };
+          if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+        }
+        step(state, dt, input);
+      }
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.smashed.size, `at ${dt}`).toBe(CRYSTAL.walls.length);
+      expect(state.collected.size, `at ${dt}`).toBe(CRYSTAL.gems.length);
+    }
+  });
+
+  it('can be won just by holding the whole way', () => {
+    const state = createRunner(CRYSTAL);
+    step(state, 1 / 60, { pressed: true, held: true });
+    for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
+    expect(state.finished).toBe(true);
+  });
+
+  it('has a few glowing crystals in the background, on solid ground', () => {
+    expect(CRYSTAL.crystals.length).toBeGreaterThanOrEqual(4);
+    expect(CRYSTAL.crystals.length).toBeLessThanOrEqual(6);
+    for (const [x] of CRYSTAL.crystals) expect(onGround(x + 70, 70), `crystals at ${x}`).toBe(true);
+  });
+
+  it('keeps the ground going well past the castle', () => {
+    expect(CRYSTAL.ground.at(-1)[1] - CRYSTAL.castle).toBeGreaterThanOrEqual(600 * 2.5);
   });
 });

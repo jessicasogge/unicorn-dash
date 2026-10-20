@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, BOUNCE, COYOTE, DASH, GATE_FRONT, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RUN,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, GATE_FRONT, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RUN, WALL_FRONT,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -305,6 +305,60 @@ describe('paint pots and gates', () => {
     state.mane = 'pink';
     state.x = 400;
     expect(run(state, 2)).not.toContain('bump');
+  });
+});
+
+describe('crystal walls', () => {
+  const wall = (more = {}) => course({ walls: [600], ...more });
+
+  it('break when she dashes into one, and she keeps going', () => {
+    const state = createRunner(wall());
+    step(state, DT, TAP);
+    const events = run(state, 2, HOLD);
+    expect(events).toContain('smash');
+    expect(state.smashed).toEqual(new Set([0]));
+    expect(state.hit).toBe(0);
+    expect(state.x).toBeGreaterThan(600);
+  });
+
+  it('knock her back, with a hop, if she just runs into one', () => {
+    const state = createRunner(wall());
+    let thudAt = null;
+    for (let t = 0; t < 3 && thudAt === null; t += DT) if (step(state, DT, IDLE).includes('thud')) thudAt = state.x;
+    expect(thudAt).toBeLessThan(600 - WALL_FRONT);
+    run(state, KNOCK_TIME / 2);
+    expect(state.x).toBeLessThan(thudAt);
+    expect(state.smashed.size).toBe(0);
+  });
+
+  it('can\'t be jumped or bounced over', () => {
+    for (const more of [{}, { bouncers: [400] }]) {
+      const state = createRunner(wall(more));
+      if (!more.bouncers) { run(state, 0.5); step(state, DT, TAP); }
+      expect(run(state, 3)).toContain('thud');
+    }
+  });
+
+  it('still stand in her way until she dashes, however often she runs at one', () => {
+    const state = createRunner(wall());
+    const events = run(state, 6);
+    expect(events.filter((e) => e === 'thud').length).toBeGreaterThan(2);
+    expect(state.x).toBeLessThan(600);
+  });
+
+  it('can be dashed through right after a knock back, by holding on', () => {
+    const state = createRunner(wall());
+    for (let t = 0; t < 3; t += DT) if (step(state, DT, IDLE).includes('thud')) break;
+    step(state, DT, TAP);
+    expect(run(state, 3, HOLD)).toContain('smash');
+  });
+
+  it('stay broken: running past later is fine', () => {
+    const state = createRunner(wall());
+    step(state, DT, TAP);
+    run(state, 2, HOLD);
+    state.x = 400;
+    expect(run(state, 2)).not.toContain('thud');
   });
 });
 

@@ -8,13 +8,14 @@ A rainbow running game for the browser. Your unicorn gallops across a sky world 
 
 ## What's here so far
 
-The **start screen**, the **world map**, and the first three worlds, the **Meadow**, **Candy Canyon** and **Cloud Kingdom**:
+The **start screen**, the **world map**, and the first four worlds, the **Meadow**, **Candy Canyon**, **Cloud Kingdom** and the **Crystal Caves**:
 
 - **Tap the unicorn** on the start screen and she hops into a new mane color: pink, then blue, then yellow, then pink again. **Press Play** and she dashes off to the map, keeping her color.
-- **On the map**, tap a world and she goes there. Tap the flower world (the **Meadow**), the lollipop world (**Candy Canyon**) or the cloud world (**Cloud Kingdom**) and it opens. The other two worlds aren't built yet, so tapping the one she's on just gets a hop from her. The house button goes back to the start.
+- **On the map**, tap a world and she goes there. Tap the flower world (the **Meadow**), the lollipop world (**Candy Canyon**), the cloud world (**Cloud Kingdom**) or the crystal world (the **Crystal Caves**) and it opens. The Night Sky isn't built yet, so tapping it while she's on it just gets a hop from her. The house button goes back to the start.
 - **In the Meadow**, a "How to play" card comes first: a **quick tap** jumps, a **long tap** (hold) dashes. Press **Go!** (or the space bar) and she runs on her own. **Tap** (or press space or the up arrow) to jump, and tap again in the air to jump higher, up to the gems on the clouds. **Hold** to rainbow dash across the long gaps, as long as you like. A counter at the top right counts the rainbow-colored diamonds as she catches them. Catch every diamond and six fireworks go off behind the castle. Fall into a gap and it's **game over**: try again from the start, or go back to the map. Reach the castle and "You beat the level!" comes up: play again, go back to the map, or go on to the next level.
 - **In Candy Canyon**, it's the same, plus **gumdrops** in the ground: run onto one and she bounces up high, to diamonds in the sky. The sky and hills are pink, the ground is frosting on chocolate, and lollipop trees stand in the background.
 - **In Cloud Kingdom**, run through a **paint pot** and her mane takes its color. **Rainbow gates** only let the matching color through, and each color has its own shape too (pink ♥, blue ★, yellow ☾). Run up to a gate the wrong color and it shakes and knocks her back over the pot, which paints her the right color for another go, so she never gets stuck.
+- **In the Crystal Caves**, tall **crystal walls** only break for a rainbow dash: hold, and she smashes right through, the pieces flying. Run into one without dashing and it wobbles and knocks her back, onto solid ground, until she dashes. It's a dark purple cave with crystal-topped ground and glowing crystals in the background.
 
 There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
@@ -53,10 +54,10 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | `public/script.js` | The start screen's taps: a new mane color, and Play |
 | `public/world-map.html` | The world map: the five worlds |
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
-| `public/meadow.html`, `public/candy.html`, `public/cloud.html` | The Meadow, Candy Canyon and Cloud Kingdom, the first three worlds |
+| `public/meadow.html`, `public/candy.html`, `public/cloud.html`, `public/crystal.html` | The Meadow, Candy Canyon, Cloud Kingdom and the Crystal Caves, the first four worlds |
 | `public/game/level.js` | Draws a level and runs her through it: the controls, the camera, the castle. Each level page names its course (`data-level`) and the level after it (`data-next`) |
-| `public/game/runner.js` | Her running, jumping, dashing and bouncing, paint pots and gates, with no drawing: speeds, gravity, diamonds |
-| `public/game/course.js` | Each level's course: where the ground, gaps, clouds, gumdrops, paint pots, gates and gems are |
+| `public/game/runner.js` | Her running, jumping, dashing and bouncing, paint pots, gates and crystal walls, with no drawing: speeds, gravity, diamonds |
+| `public/game/course.js` | Each level's course: where the ground, gaps, clouds, gumdrops, paint pots, gates, crystal walls and gems are |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |
 | `public/styles.css` | How every screen looks, and the hop and dash animations |
 | `test/` | Tests |

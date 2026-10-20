@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html', 'world-map.html', 'meadow.html', 'candy.html', 'cloud.html'];
+const PAGES = ['index.html', 'world-map.html', 'meadow.html', 'candy.html', 'cloud.html', 'crystal.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -140,7 +140,22 @@ describe('Cloud Kingdom', () => {
   const html = readFileSync(file('cloud.html'), 'utf8');
 
   it('is a level page for the cloud course, using the shared level script', () => {
-    expect(html).toContain('<main class="level cloud" data-level="cloud">');
+    expect(html).toContain('<main class="level cloud" data-level="cloud" data-next="./crystal.html">');
+    expect(html).toContain('<script type="module" src="./game/level.js"></script>');
+  });
+
+  it('has the same screens as the other levels', () => {
+    for (const part of ['<div class="directions">', '<div class="finish" hidden>', '<div class="game-over" hidden>', '<div class="gem-count"']) {
+      expect(html).toContain(part);
+    }
+  });
+});
+
+describe('Crystal Caves', () => {
+  const html = readFileSync(file('crystal.html'), 'utf8');
+
+  it('is a level page for the crystal course, using the shared level script', () => {
+    expect(html).toContain('<main class="level crystal" data-level="crystal">');
     expect(html).toContain('<script type="module" src="./game/level.js"></script>');
   });
 

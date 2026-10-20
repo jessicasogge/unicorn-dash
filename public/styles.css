@@ -579,6 +579,63 @@ body {
   40%, 80% { transform: translateX(8px); }
 }
 
+/* Crystal walls (Crystal Caves): a wobble when bumped, and smashed apart
+   by a dash, each shard flying its own way */
+.crystal-wall {
+  width: 128px;
+  height: 334px;
+  transform-origin: 50% 100%;
+}
+
+.crystal-wall.wobble {
+  animation: wobble 0.4s ease-in-out;
+}
+
+@keyframes wobble {
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+.crystal-wall .shard {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+
+.crystal-wall.smashed .shard {
+  opacity: 0;
+}
+
+.crystal-wall.smashed .shard:nth-child(1) { transform: translate(-60px, -120px) rotate(-50deg); }
+.crystal-wall.smashed .shard:nth-child(2) { transform: translate(40px, -180px) rotate(40deg); }
+.crystal-wall.smashed .shard:nth-child(3) { transform: translate(120px, -90px) rotate(70deg); }
+
+.crystal-wall.smashed > g:last-child {
+  opacity: 0;
+}
+
+.cave-crystals {
+  height: auto;
+  opacity: 0.55;
+}
+
+/* Crystal Caves: a dark cave, purple hills, crystal-topped ground */
+.level.crystal {
+  background: #2e2650;
+}
+
+.crystal .hills {
+  background-image: radial-gradient(circle at 50% 100%, #463b7a 0 45%, transparent 45.5%);
+}
+
+.crystal .ground {
+  background: linear-gradient(#7fe3ff 0 28px, var(--ink) 28px 33px, #4b3f7a 33px);
+}
+
+.crystal .signature {
+  color: #ffffff; /* on the dark cave floor */
+}
+
 /* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */
 .level.cloud {
   background: #dce9ff;
