@@ -2,7 +2,8 @@
 // Running onto a gumdrop bounces her up high. Running through a paint pot
 // changes her mane color; a gate only lets the matching color through, and
 // knocks her back (over the pot again) otherwise. Crystal walls only break
-// for a rainbow dash, and knock her back otherwise.
+// for a rainbow dash, and knock her back otherwise. Touching a shooting
+// star, she rides it through the sky, then drops off at its end.
 // Dash is faster, level flight, for as long as it's held. Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
@@ -24,6 +25,9 @@ export const KNOCK_TIME = 0.6; // seconds she's knocked back by a wrong gate
 export const KNOCK_SPEED = 600; // going backwards, world units a second
 export const KNOCK_HOP = 520; // with a little hop
 export const WALL_FRONT = 40; // a crystal wall's front edge, this far before its middle
+export const RIDE = 640; // a shooting star's speed, carrying her
+export const STAR_REACH = 70; // how near a shooting star she has to get, along x
+export const STAR_REACH_Y = 90; // and up or down
 
 // `mane` is her mane color's name (like 'pink'), for the gates.
 export function createRunner(course, mane = null) {
@@ -36,6 +40,8 @@ export function createRunner(course, mane = null) {
     opened: new Set(), // the gates she's gone through
     smashed: new Set(), // the crystal walls she's dashed through
     hit: null, // the last wall she smashed or bumped into
+    riding: null, // the shooting star she's riding, if any
+    rode: new Set(), // the shooting stars she's ridden
     x: course.start,
     y: 0,
     vy: 0,
@@ -61,10 +67,28 @@ function surfacesAt(course, x) {
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
 // and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'paint', 'open',
-// 'bump', 'smash', 'thud', 'fall', 'finish'.
+// 'bump', 'smash', 'thud', 'ride', 'hop-off', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
+
+  // On a shooting star: it carries her along, level, to its end, whatever
+  // she presses
+  if (state.riding !== null) {
+    const star = state.course.stars[state.riding];
+    state.x += RIDE * dt;
+    state.y = star.y;
+    if (state.x >= star.x + star.length) {
+      state.rode.add(state.riding);
+      state.riding = null;
+      state.vy = 0;
+      state.held = input.held ? HOLD_TO_DASH : 0; // still holding: dash on straight away
+      events.push('hop-off');
+    }
+    catchGems(state, events);
+    finishAt(state, events);
+    return events;
+  }
 
   state.coyote = Math.max(0, state.coyote - dt);
   if (input.pressed) {
@@ -166,13 +190,21 @@ export function step(state, dt, input) {
     }
   });
 
-  state.course.gems.forEach(([gx, gy], i) => {
-    if (state.collected.has(i)) return;
-    if (Math.abs(gx - state.x) < GEM_REACH && Math.abs(gy - (state.y + 50)) < GEM_REACH + 10) {
-      state.collected.add(i);
-      events.push('gem');
+  // Up to a shooting star: on she gets
+  (state.course.stars ?? []).forEach((star, i) => {
+    if (state.riding !== null || state.rode.has(i)) return;
+    if (Math.abs(state.x - star.x) < STAR_REACH && Math.abs(state.y - star.y) < STAR_REACH_Y) {
+      state.riding = i;
+      state.y = star.y;
+      state.vy = 0;
+      state.grounded = false;
+      state.dashing = false;
+      state.airJumps = 0;
+      events.push('ride');
     }
   });
+
+  catchGems(state, events);
 
   if (state.y < FALL_LIMIT) {
     state.fallen = true;
@@ -181,11 +213,25 @@ export function step(state, dt, input) {
     return events;
   }
 
+  finishAt(state, events);
+
+  return events;
+}
+
+function catchGems(state, events) {
+  state.course.gems.forEach(([gx, gy], i) => {
+    if (state.collected.has(i)) return;
+    if (Math.abs(gx - state.x) < GEM_REACH && Math.abs(gy - (state.y + 50)) < GEM_REACH + 10) {
+      state.collected.add(i);
+      events.push('gem');
+    }
+  });
+}
+
+function finishAt(state, events) {
   if (state.x >= state.course.castle) {
     state.finished = true;
     state.dashing = false;
     events.push('finish');
   }
-
-  return events;
 }

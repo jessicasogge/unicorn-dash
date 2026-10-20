@@ -145,9 +145,21 @@ describe('tapping the flower world', () => {
     expect(location.href).toBe('http://localhost/world-map.html'); // only opened once
   });
 
-  it('opens every world but the Night Sky so far', async () => {
+  it('opens every world', async () => {
     const { WORLD_PAGES } = await import('../public/game/world-map.js');
-    expect(WORLD_PAGES).toEqual({ meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html', crystal: './crystal.html' });
+    expect(WORLD_PAGES).toEqual({
+      meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html', crystal: './crystal.html', night: './night.html',
+    });
+  });
+
+  it('opens the world tapped last, if another is tapped mid-hop', async () => {
+    await open();
+    island('meadow').click();
+    vi.advanceTimersByTime(HOP_MS / 2);
+    island('candy').click();
+    expect(world('meadow').classList.contains('hopping')).toBe(false);
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./candy.html?mane=pink');
   });
 });
 
@@ -179,44 +191,13 @@ describe('tapping the crystal world', () => {
   });
 });
 
-describe('tapping a world that isn\'t built yet, while she\'s on it', () => {
-  it('makes her hop, just for as long as the hop takes', async () => {
-    await open();
-    island('night').click();
+describe('tapping the night world', () => {
+  it('opens the Night Sky after a hop, with her mane', async () => {
+    await open('?mane=yellow');
     island('night').click();
     expect(world('night').classList.contains('hopping')).toBe(true);
-    vi.advanceTimersByTime(HOP_MS - 1);
-    expect(world('night').classList.contains('hopping')).toBe(true);
-    vi.advanceTimersByTime(1);
-    expect(world('night').classList.contains('hopping')).toBe(false);
-  });
-
-  it('doesn\'t hop when she\'s just moving there', async () => {
-    await open();
-    island('night').click();
-    expect(world('night').classList.contains('hopping')).toBe(false);
-  });
-
-  it('ignores taps mid-hop, so a later hop isn\'t cut short', async () => {
-    await open();
-    island('night').click();
-    island('night').click();
-    vi.advanceTimersByTime(HOP_MS - 1);
-    island('night').click(); // mid-hop: ignored
-    vi.advanceTimersByTime(1);
-    island('night').click(); // a new hop
-    vi.advanceTimersByTime(HOP_MS - 1);
-    expect(world('night').classList.contains('hopping')).toBe(true); // still going
-    vi.advanceTimersByTime(1);
-    expect(world('night').classList.contains('hopping')).toBe(false);
-  });
-
-  it('stops when she moves to another world mid-hop', async () => {
-    await open();
-    island('night').click();
-    island('night').click();
-    island('candy').click();
-    expect(world('night').classList.contains('hopping')).toBe(false);
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./night.html?mane=yellow');
   });
 });
 

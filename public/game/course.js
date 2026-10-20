@@ -36,6 +36,7 @@ export const MEADOW = {
   gates: [],
   walls: [],
   crystals: [],
+  stars: [],
   start: 0,
   castle: 6300,
 };
@@ -75,6 +76,7 @@ export const CANDY = {
   gates: [],
   walls: [],
   crystals: [],
+  stars: [],
   start: 0,
   castle: 6900,
 };
@@ -125,6 +127,7 @@ export const CLOUD = {
   ],
   walls: [],
   crystals: [],
+  stars: [],
   start: 0,
   castle: 7300,
 };
@@ -164,8 +167,46 @@ export const CRYSTAL = {
   trees: [],
   pots: [],
   gates: [],
+  stars: [],
   start: 0,
   castle: 7500,
 };
 
-export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL };
+// The Night Sky, the last world: a bit of everything (a gumdrop, a paint
+// pot and gate, a crystal wall, gaps to jump and dash), plus shooting stars
+// to ride across the sky. A gumdrop launches her up to each star, and each
+// one drops her off on solid ground.
+export const NIGHT = {
+  ground: [
+    [-400, 1100],
+    [1220, 2300], // short gap
+    [2900, 3900], // long gap, under a shooting star
+    [4020, 5200], // short gap
+    [5800, 6900], // long gap
+    [7700, 12500], // a very long gap, under a shooting star; on past the castle
+  ],
+  clouds: [],
+  bouncers: [1700, 6250],
+  stars: [
+    { x: 1950, y: 260, length: 1100 },
+    { x: 6500, y: 260, length: 1300 },
+  ],
+  walls: [3450],
+  pots: [{ x: 4400, mane: 'blue' }],
+  gates: [{ x: 4700, mane: 'blue' }],
+  gems: [
+    [400, 60], [500, 60],
+    [2200, 310], [2350, 310], [2500, 310], [2650, 310], // along a shooting star
+    [3560, 150], [3620, 150], // just past the wall, at dashing height
+    [4200, 60], [4300, 60],
+    [5450, 150], [5550, 150], // over the gap
+    [6800, 310], [7000, 310], [7200, 310], [7400, 310],
+  ],
+  trees: [],
+  crystals: [],
+  sky: [],
+  start: 0,
+  castle: 8600,
+};
+
+export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT };

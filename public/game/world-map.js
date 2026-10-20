@@ -1,5 +1,5 @@
 // The world map: the five worlds, with the unicorn standing on the one
-// she's in. Every world is open: tap one and she goes there.
+// she's in. Every world is open: tap one and she goes there, and it opens.
 import { HOP_MS, drawUnicorn, maneFromAddress } from './unicorn.js';
 
 const mane = maneFromAddress(location.search);
@@ -23,37 +23,31 @@ function goTo(world) {
 
 if (here) goTo(here);
 
-// The worlds that are built so far, and where each one opens.
-export const WORLD_PAGES = { meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html', crystal: './crystal.html' };
+// Where each world opens.
+export const WORLD_PAGES = {
+  meadow: './meadow.html',
+  candy: './candy.html',
+  cloud: './cloud.html',
+  crystal: './crystal.html',
+  night: './night.html',
+};
 
+// Tap a world: she goes there and hops in, then it opens. Another tap on
+// it while she's hopping is ignored; a tap on a different world goes there
+// instead.
+let opening = null;
 for (const world of worlds) {
   world.querySelector('.island').addEventListener('click', () => {
-    const page = WORLD_PAGES[world.dataset.world];
-    if (page) open(world, page);
-    else if (world === here) hop();
-    else goTo(world);
+    if (world.classList.contains('hopping')) return;
+    clearTimeout(opening);
+    goTo(world);
+    world.classList.add('hopping');
+    opening = setTimeout(() => {
+      location.href = `${WORLD_PAGES[world.dataset.world]}?mane=${mane.name}`;
+    }, HOP_MS);
   });
-}
-
-// She goes to the world and hops in, then it opens.
-function open(world, page) {
-  if (world.classList.contains('hopping')) return;
-  goTo(world);
-  hop();
-  setTimeout(() => {
-    location.href = `${page}?mane=${mane.name}`;
-  }, HOP_MS);
 }
 
 // Home keeps her mane, too.
 const home = document.querySelector('.home-btn');
 if (home) home.href = `./index.html?mane=${mane.name}`;
-
-// Tap a world that isn't built yet, while she's on it, and she hops. A tap
-// mid-hop is ignored.
-function hop() {
-  if (here.classList.contains('hopping')) return;
-  const world = here;
-  world.classList.add('hopping');
-  setTimeout(() => world.classList.remove('hopping'), HOP_MS);
-}

@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CANDY, CLOUD, CRYSTAL, MEADOW } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, MEADOW, NIGHT } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -731,8 +731,99 @@ describe('Crystal Caves', () => {
     expect($$('.course .crystal-wall.smashed')).toHaveLength(0);
   });
 
-  it('is the last level for now: no next level button', async () => {
-    await cave();
+  it('has a next level button on to the Night Sky', async () => {
+    await cave('?mane=yellow');
+    expect($('.next-btn').getAttribute('href')).toBe('./night.html?mane=yellow');
+  });
+});
+
+describe('the Night Sky', () => {
+  const night = (search = '?mane=pink', options = {}) => open(search, { page: 'night.html', ...options });
+  const star = (i) => $$('.course .shooting-star')[i];
+  const gaps = NIGHT.ground.slice(1).map(([to], i) => ({ from: NIGHT.ground[i][1], width: to - NIGHT.ground[i][1] }));
+
+  // Plays on until `done()`: a tap before each short gap, a hold over each
+  // long one and into the wall. The gumdrops and stars do the rest.
+  function playUntil(done) {
+    let releaseAt = Infinity;
+    const dashedAt = new Set();
+    for (let i = 0; i < 60 * 60 && frames.length && !done(); i++) {
+      const next = gaps.find((g) => g.from > x());
+      const wall = NIGHT.walls.find((w) => !dashedAt.has(w) && w - 40 - x() < 120 && w > x());
+      if (releaseAt === Infinity && height() === 0) {
+        if (wall) {
+          dashedAt.add(wall);
+          pointer('pointerdown');
+          releaseAt = i + 36;
+        } else if (next && next.from - x() < 40) {
+          pointer('pointerdown');
+          releaseAt = next.width >= 200 ? i + Math.ceil((HOLD_TO_DASH + next.width / DASH + 0.3) * 60) : i + 1;
+        }
+      }
+      if (i >= releaseAt) {
+        pointer('pointerup');
+        releaseAt = Infinity;
+      }
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+  }
+
+  it('draws its shooting stars, up in the sky', async () => {
+    await night();
+    expect($$('.course .shooting-star')).toHaveLength(NIGHT.stars.length);
+    expect(star(0).style.left).toBe(`${NIGHT.stars[0].x - 100}px`);
+    expect(star(0).style.bottom).toBe(`${140 + NIGHT.stars[0].y - 40}px`); // up from the ground's top
+  });
+
+  it('has no shooting stars in the other levels', async () => {
+    await open();
+    expect($$('.course .shooting-star')).toHaveLength(0);
+  });
+
+  it('explains the shooting stars in its directions', async () => {
+    await night('?mane=pink', { go: false });
+    expect($('.directions').textContent).toMatch(/Shooting stars:\s*touch one and ride it across the sky!/);
+  });
+
+  it('carries her along on a shooting star, which moves with her', async () => {
+    await night();
+    playUntil(() => star(0).classList.contains('riding'));
+    expect(star(0).classList.contains('riding')).toBe(true);
+    expect(height()).toBe(NIGHT.stars[0].y);
+    tick(30);
+    expect(height()).toBe(NIGHT.stars[0].y);
+    const shift = Number(star(0).style.transform.match(/translate3d\((-?[\d.]+)px/)[1]);
+    expect(shift).toBeCloseTo(x() - NIGHT.stars[0].x, 0);
+  });
+
+  it('sends the star zooming off once she hops off', async () => {
+    await night();
+    playUntil(() => star(0).classList.contains('gone'));
+    expect(star(0).classList.contains('gone')).toBe(true);
+    expect(star(0).classList.contains('riding')).toBe(false);
+    expect(x()).toBeGreaterThanOrEqual(NIGHT.stars[0].x + NIGHT.stars[0].length);
+  });
+
+  it('puts the stars back on a new try', async () => {
+    await night();
+    playUntil(() => star(0).classList.contains('gone'));
+    for (let i = 0; i < 900 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    $('.retry-btn').click();
+    expect($$('.course .shooting-star.riding, .course .shooting-star.gone')).toHaveLength(0);
+    expect(star(0).style.transform).toBe('');
+  });
+
+  it('ends the game: every world beaten, and no next level button', async () => {
+    await night();
     expect($('.next-btn')).toBeNull();
+    playUntil(() => !$('.finish').hidden);
+    vi.advanceTimersByTime(2000); // the moment at the castle
+    expect($('.finish').hidden).toBe(false);
+    expect($('.finish-title').textContent).toBe('You beat every world!');
+    expect($('.count').textContent).toBe(String(NIGHT.gems.length));
   });
 });
