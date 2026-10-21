@@ -301,9 +301,17 @@ function restart() {
 
 for (const button of document.querySelectorAll('.replay-btn, .retry-btn')) button.addEventListener('click', restart);
 
-// The directions show first; Go starts her running.
+// A card shows first, with two buttons: Go starts her running, and How to
+// play opens the directions on it, for whoever wants them.
 const directions = document.querySelector('.directions');
 const goButton = document.querySelector('.go-btn');
+const howButton = document.querySelector('.how-btn');
+
+howButton.addEventListener('click', () => {
+  document.querySelector('.how-to').hidden = false;
+  howButton.hidden = true;
+  goButton.focus();
+});
 
 function go() {
   started = true;

@@ -169,10 +169,23 @@ describe('the course', () => {
 });
 
 describe('the directions', () => {
-  it('show first, explaining a quick tap and a long tap', async () => {
+  it('show first as just the world\'s name, with a How to play button and a Go button', async () => {
     await open('?mane=blue', { go: false });
-    const directions = $('.directions');
-    expect(directions.hidden).toBe(false);
+    expect($('.directions').hidden).toBe(false);
+    expect($('.directions-title').textContent).toBe('Meadow');
+    expect($('.how-to').hidden).toBe(true);
+    expect($('.how-btn').hidden).toBe(false);
+    expect($('.go-btn').textContent).toBe('Go!');
+  });
+
+  it('open on How to play, explaining a quick tap and a long tap, with Go ready', async () => {
+    await open('?mane=blue', { go: false });
+    $('.how-btn').click();
+    expect($('.how-to').hidden).toBe(false);
+    expect($('.how-btn').hidden).toBe(true);
+    expect(document.activeElement).toBe($('.go-btn'));
+    expect(frames).toHaveLength(0); // still waiting for Go
+    const directions = $('.how-to');
     expect(directions.textContent).toMatch(/Quick tap\s*to jump/);
     expect(directions.textContent).toMatch(/Long tap\s*\(hold\) to rainbow dash/);
     expect(directions.textContent).toMatch(/space bar or the up arrow/);
@@ -192,6 +205,15 @@ describe('the directions', () => {
     $('.go-btn').click();
     tick(10);
     expect(height()).toBe(0); // no jump saved up from before Go
+  });
+
+  it('go away on Go after How to play, too', async () => {
+    await open('?mane=blue', { go: false });
+    $('.how-btn').click();
+    $('.go-btn').click();
+    expect($('.directions').hidden).toBe(true);
+    tick(30);
+    expect(x()).toBeGreaterThan(MEADOW.start);
   });
 
   it('go away on Go, and she starts running', async () => {
