@@ -82,7 +82,7 @@ describe('the Meadow', () => {
 
   it('names every button for screen readers, in words or a label', () => {
     const controls = [...level.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
-    expect(controls.length).toBe(7); // Go; map; at the castle, play again, map and next; after a fall, try again and map
+    expect(controls.length).toBe(8); // How to play and Go; map; at the castle, play again, map and next; after a fall, try again and map
     for (const [, , attrs, inside] of controls) {
       const words = inside.replace(/<[^>]*>/g, '').trim();
       expect(words || attrs.match(/aria-label="([^"]+)"/)?.[1]).toBeTruthy();
@@ -105,6 +105,8 @@ describe('the Meadow', () => {
   it('starts with the directions showing', () => {
     expect(level).toContain('<div class="directions">');
     expect(level).toContain('<button class="go-btn" type="button">Go!</button>');
+    expect(level).toContain('<button class="how-btn" type="button">How to play</button>');
+    expect(level).toContain('<div class="how-to" hidden>');
   });
 
   it('keeps the castle and game over screens hidden until they\'re needed', () => {
@@ -182,6 +184,19 @@ describe('the Night Sky', () => {
 
   it('cheers for beating every world at its castle', () => {
     expect(html).toContain('<h2 class="finish-title">You beat every world!</h2>');
+  });
+});
+
+describe('the card at the start of each level', () => {
+  it.each([
+    ['meadow.html', 'Meadow'], ['candy.html', 'Candy Canyon'], ['cloud.html', 'Cloud Kingdom'],
+    ['crystal.html', 'Crystal Caves'], ['night.html', 'Night Sky'],
+  ])('%s shows its name, with How to play and Go, and the directions tucked away', (page, name) => {
+    const html = readFileSync(file(page), 'utf8');
+    expect(html).toContain(`<h2 class="directions-title">${name}</h2>`);
+    expect(html).toContain('<div class="how-to" hidden>');
+    expect(html).toContain('<button class="how-btn" type="button">How to play</button>');
+    expect(html).toContain('<button class="go-btn" type="button">Go!</button>');
   });
 });
 

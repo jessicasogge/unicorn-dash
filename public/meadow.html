@@ -42,30 +42,36 @@
         </div>
       </nav>
 
-      <!-- How to play, before she starts running -->
+      <!-- Before she starts running: Go, or how to play first -->
       <div class="directions">
         <div class="directions-card">
-          <h2 class="directions-title">How to play</h2>
-          <div class="direction">
-            <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
-              <circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5" />
-              <circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5" />
-              <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
-              <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
-            </svg>
-            <p><strong>Quick tap</strong> to jump.<br />Tap again in the air to jump higher!</p>
+          <h2 class="directions-title">Meadow</h2>
+          <!-- Shown by the How to play button -->
+          <div class="how-to" hidden>
+            <div class="direction">
+              <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+                <circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5" />
+                <circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5" />
+                <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+                <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              </svg>
+              <p><strong>Quick tap</strong> to jump.<br />Tap again in the air to jump higher!</p>
+            </div>
+            <div class="direction">
+              <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+                <circle cx="46" cy="22" r="20" fill="none" stroke="#E6E0F5" stroke-width="7" />
+                <circle cx="46" cy="22" r="20" fill="none" stroke="#9B6BFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="84 126" transform="rotate(-90 46 22)" />
+                <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+                <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              </svg>
+              <p><strong>Long tap</strong> (hold) to rainbow dash over big gaps.<br />Catch every diamond for a surprise at the castle!</p>
+            </div>
+            <p class="direction-keys">On a keyboard, use the space bar or the up arrow.</p>
           </div>
-          <div class="direction">
-            <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
-              <circle cx="46" cy="22" r="20" fill="none" stroke="#E6E0F5" stroke-width="7" />
-              <circle cx="46" cy="22" r="20" fill="none" stroke="#9B6BFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="84 126" transform="rotate(-90 46 22)" />
-              <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
-              <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
-            </svg>
-            <p><strong>Long tap</strong> (hold) to rainbow dash over big gaps.<br />Catch every diamond for a surprise at the castle!</p>
+          <div class="directions-buttons">
+            <button class="how-btn" type="button">How to play</button>
+            <button class="go-btn" type="button">Go!</button>
           </div>
-          <p class="direction-keys">On a keyboard, use the space bar or the up arrow.</p>
-          <button class="go-btn" type="button">Go!</button>
         </div>
       </div>
 
