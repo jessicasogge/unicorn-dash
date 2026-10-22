@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, BOUNCE, COYOTE, DASH, GATE_FRONT, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GATE_FRONT, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -120,10 +120,63 @@ describe('dashing', () => {
     expect(state.x - x).toBeCloseTo(DASH * 0.2, -1);
   });
 
-  it('lasts as long as the button is held', () => {
+  it('lasts a while, not forever, however long the button is held', () => {
     const state = createRunner(course());
     step(state, DT, TAP);
-    run(state, 10, HOLD);
+    run(state, HOLD_TO_DASH + DASH_TIME - 0.1, HOLD);
+    expect(state.dashing).toBe(true);
+    run(state, 0.2, HOLD);
+    expect(state.dashing).toBe(false);
+    expect(run(state, 5, HOLD)).not.toContain('dash'); // still held: no new dash
+    expect(state.grounded).toBe(true); // back down, running
+  });
+
+  it('glides her gently down once it runs out, while still held', () => {
+    const state = createRunner(course());
+    step(state, DT, TAP);
+    run(state, HOLD_TO_DASH + DASH_TIME + 0.2, HOLD);
+    expect(state.grounded).toBe(false);
+    expect(state.vy).toBe(-GLIDE_FALL);
+    const { x } = state;
+    run(state, 0.1, HOLD);
+    expect(state.x - x).toBeCloseTo(RUN * 0.1, -1); // at running speed
+    expect(runUntil(state, 'land')).toBe(true);
+  });
+
+  it('falls normally, not gliding, once let go', () => {
+    const state = createRunner(course());
+    step(state, DT, TAP);
+    run(state, HOLD_TO_DASH + DASH_TIME + 0.05, HOLD);
+    run(state, 0.2);
+    expect(state.vy).toBeLessThan(-GLIDE_FALL);
+  });
+
+  it('comes again after letting go and pressing again, once she\'s down', () => {
+    const state = createRunner(course());
+    step(state, DT, TAP);
+    run(state, HOLD_TO_DASH + DASH_TIME + 0.2, HOLD);
+    runUntil(state, 'land');
+    step(state, DT, IDLE);
+    run(state, 0.1, { ...TAP });
+    expect(run(state, HOLD_TO_DASH, HOLD)).toContain('dash');
+  });
+
+  it('comes only once each time she\'s up in the air, so tapping can\'t keep her up', () => {
+    const state = createRunner(course());
+    step(state, DT, TAP);
+    run(state, 0.5, HOLD); // a jump into a dash
+    expect(state.dashing).toBe(true);
+    step(state, DT, IDLE); // let go, up in the air
+    step(state, DT, TAP);
+    expect(run(state, 0.5, HOLD)).not.toContain('dash');
+    expect(state.dashing).toBe(false);
+  });
+
+  it('keeps going off an edge, for as long as it lasts', () => {
+    const state = createRunner(course({ ground: [[-100, 100], [800, 5000]] }));
+    step(state, DT, TAP);
+    run(state, 0.5, HOLD);
+    expect(state.grounded).toBe(false);
     expect(state.dashing).toBe(true);
   });
 

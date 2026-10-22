@@ -3,7 +3,7 @@
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
 import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/course.js';
-import { DASH, GRAVITY, HOLD_TO_DASH, JUMP, RIDE, RUN, createRunner, step } from '../public/game/runner.js';
+import { DASH, DASH_TIME, GRAVITY, HOLD_TO_DASH, JUMP, RIDE, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
 const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], to, width: to - MEADOW.ground[i][1] }));
@@ -370,12 +370,6 @@ describe('Crystal Caves', () => {
     }
   });
 
-  it('can be won just by holding the whole way', () => {
-    const state = createRunner(CRYSTAL);
-    step(state, 1 / 60, { pressed: true, held: true });
-    for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
-    expect(state.finished).toBe(true);
-  });
 
   it('has a few glowing crystals in the background, on solid ground', () => {
     expect(CRYSTAL.crystals.length).toBeGreaterThanOrEqual(4);
@@ -461,14 +455,30 @@ describe('the Night Sky', () => {
     }
   });
 
-  it('can be won just by holding the whole way', () => {
-    const state = createRunner(NIGHT);
-    step(state, 1 / 60, { pressed: true, held: true });
-    for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
-    expect(state.finished).toBe(true);
-  });
 
   it('keeps the ground going well past the castle', () => {
     expect(NIGHT.ground.at(-1)[1] - NIGHT.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+});
+
+describe('every level', () => {
+  it('has no gap too wide for one dash, unless a shooting star carries her over it', () => {
+    for (const [name, level] of Object.entries(LEVELS)) {
+      level.ground.slice(1).forEach(([to], i) => {
+        const from = level.ground[i][1];
+        const ridden = level.stars.some((star) => star.x < from && star.x + star.length > to);
+        // with room to spare: a press just before the edge, and the moment held before the dash starts
+        if (!ridden) expect(to - from + 150, `${name} gap at ${from}`).toBeLessThan(DASH * DASH_TIME);
+      });
+    }
+  });
+
+  it('can\'t be won by holding the whole way: a dash runs out', () => {
+    for (const level of [MEADOW, NIGHT]) {
+      const state = createRunner(level);
+      step(state, 1 / 60, { pressed: true, held: true });
+      for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
+      expect(state.fallen).toBe(true);
+    }
   });
 });
