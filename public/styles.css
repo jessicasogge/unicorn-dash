@@ -391,7 +391,7 @@ body {
 .world[data-world='candy'] .island { background: #ffb3d6; }
 .world[data-world='cloud'] .island { background: #e8f4ff; }
 .world[data-world='crystal'] .island { background: #9ee6e0; }
-.world[data-world='night'] .island { background: #3c3470; }
+.world[data-world='night'] .island { background: #12306a; }
 
 /* The world she's in: a white ring, outlined */
 .island[aria-pressed='true'] {
@@ -654,10 +654,11 @@ body {
   transition: translate 0.9s ease-in, opacity 0.9s ease-in;
 }
 
-/* The Night Sky: dark blue, with a crescent moon and twinkly stars that
-   stay put (they're far away), soft purple hills and lavender ground */
+/* The Night Sky: deep blue, fading to teal at the horizon, with a crescent
+   moon and twinkly stars that stay put (they're far away), dark teal hills
+   and moonlit grass. Blue and green, to tell it from the purple cave. */
 .level.night {
-  background-color: #1d1a3f;
+  background-color: #0d1f45;
   background-image:
     radial-gradient(circle at 8% 18%, #fff 0 1.5px, transparent 2.5px),
     radial-gradient(circle at 22% 8%, #fff 0 1px, transparent 2px),
@@ -667,7 +668,8 @@ body {
     radial-gradient(circle at 70% 6%, #fff 0 1px, transparent 2px),
     radial-gradient(circle at 92% 34%, #fff 0 1.5px, transparent 2.5px),
     radial-gradient(circle at 14% 42%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 64% 44%, #fff 0 1px, transparent 2px);
+    radial-gradient(circle at 64% 44%, #fff 0 1px, transparent 2px),
+    linear-gradient(#0a1838 0%, #12306a 55%, #1f6f8b 100%);
 }
 
 .night .view::before {
@@ -678,15 +680,16 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  box-shadow: 24px 10px 0 0 #ffe58a; /* the shadow is the crescent */
+  box-shadow: 24px 10px 0 0 #fff4c7; /* the shadow is the crescent */
+  filter: drop-shadow(0 0 12px rgba(255, 244, 199, 0.6));
 }
 
 .night .hills {
-  background-image: radial-gradient(circle at 50% 100%, #2f2a63 0 45%, transparent 45.5%);
+  background-image: radial-gradient(circle at 50% 100%, #0f4a5c 0 45%, transparent 45.5%);
 }
 
 .night .ground {
-  background: linear-gradient(#b8a6ff 0 28px, var(--ink) 28px 33px, #3b3570 33px);
+  background: linear-gradient(#7fdcb4 0 28px, var(--ink) 28px 33px, #174652 33px);
 }
 
 .night .signature {
