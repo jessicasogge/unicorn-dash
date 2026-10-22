@@ -4,7 +4,9 @@
 // knocks her back (over the pot again) otherwise. Crystal walls only break
 // for a rainbow dash, and knock her back otherwise. Touching a shooting
 // star, she rides it through the sky, then drops off at its end.
-// Dash is faster, level flight, for as long as it's held. Gems are counted.
+// Dash is faster, level flight, for a while: then, still held, she glides
+// gently down, and it takes letting go and pressing again to dash again
+// (once each time she's up in the air). Gems are counted.
 // Falling in a gap is game over. No drawing; meadow.js renders it.
 
 export const RUN = 280; // speed, world units a second
@@ -14,6 +16,8 @@ export const JUMP = 720; // upward speed when she jumps
 export const COYOTE = 0.12; // seconds after running off an edge she can still jump
 export const AIR_JUMPS = 1;
 export const HOLD_TO_DASH = 0.18; // seconds held before a dash starts
+export const DASH_TIME = 1.5; // longest a dash lasts, in seconds
+export const GLIDE_FALL = 220; // fastest she falls gliding, after a dash runs out
 export const FALL_LIMIT = -400; // below this, she's fallen
 export const GEM_REACH = 50;
 export const BOUNCE = 1100; // upward speed off a gumdrop: about twice a jump's height
@@ -50,6 +54,9 @@ export function createRunner(course, mane = null) {
     airJumps: 0,
     held: 0, // seconds the button's been held
     dashing: false,
+    dashTime: 0, // seconds into this dash
+    spent: false, // this press's dash has run out: let go to dash again
+    airDashed: false, // she's dashed since last on the ground
     collected: new Set(),
     finished: false, // at the castle
     fallen: false, // in a gap: game over
@@ -83,6 +90,8 @@ export function step(state, dt, input) {
       state.riding = null;
       state.vy = 0;
       state.held = input.held ? HOLD_TO_DASH : 0; // still holding: dash on straight away
+      state.spent = false;
+      state.airDashed = false;
       events.push('hop-off');
     }
     catchGems(state, events);
@@ -105,15 +114,30 @@ export function step(state, dt, input) {
   }
 
   state.held = input.held ? state.held + dt : 0;
+  if (!input.held) state.spent = false; // let go: ready to dash again
   state.knock = Math.max(0, state.knock - dt);
-  const wantsDash = state.held >= HOLD_TO_DASH && state.knock === 0;
-  if (wantsDash && !state.dashing) events.push('dash');
-  state.dashing = wantsDash;
+  const wasDashing = state.dashing;
+  // One dash each time she's up in the air, so tapping again can't keep her up
+  const canDash = !state.spent && state.knock === 0 && (wasDashing || state.grounded || !state.airDashed);
+  state.dashing = state.held >= HOLD_TO_DASH && canDash;
+  if (state.dashing && !wasDashing) {
+    state.dashTime = 0;
+    events.push('dash');
+  }
+  if (state.dashing) {
+    state.dashTime += dt;
+    if (state.dashTime >= DASH_TIME) {
+      state.dashing = false; // ran out
+      state.spent = true;
+    }
+  }
+  if (wasDashing && !state.dashing && !state.grounded) state.airDashed = true;
 
   if (state.dashing) {
     state.vy = 0; // flies level
   } else if (!state.grounded) {
     state.vy -= GRAVITY * dt;
+    if (input.held && state.spent) state.vy = Math.max(state.vy, -GLIDE_FALL); // glides down
   }
 
   const from = state.x;
@@ -130,6 +154,7 @@ export function step(state, dt, input) {
     state.vy = 0;
     state.grounded = true;
     state.airJumps = 0;
+    state.airDashed = false;
   } else if (state.grounded && !tops.includes(state.y)) {
     state.grounded = false; // ran off an edge, but can still jump for a moment
     state.coyote = COYOTE;
