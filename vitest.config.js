@@ -5,6 +5,9 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Some tests play a whole level frame by frame, which takes a few
+    // seconds, more while coverage is measured.
+    testTimeout: 20000,
     coverage: {
       provider: 'v8',
       include: ['public/**/*.js'],
