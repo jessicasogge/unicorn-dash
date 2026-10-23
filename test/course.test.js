@@ -462,6 +462,20 @@ describe('the Night Sky', () => {
 });
 
 describe('every level', () => {
+  it('has 20 diamonds to catch', () => {
+    for (const [name, level] of Object.entries(LEVELS)) expect(level.gems, name).toHaveLength(20);
+  });
+
+  it('ends with a short gap to jump on the way to the castle, with a diamond over it', () => {
+    for (const [name, level] of Object.entries(LEVELS)) {
+      const from = level.ground.at(-2)[1];
+      const to = level.ground.at(-1)[0];
+      expect(to - from, name).toBeLessThan(200);
+      expect(to, name).toBeLessThan(level.castle);
+      expect(level.gems.some(([x, y]) => x > from && x < to && y > 100), name).toBe(true);
+    }
+  });
+
   it('has no gap too wide for one dash, unless a shooting star carries her over it', () => {
     for (const [name, level] of Object.entries(LEVELS)) {
       level.ground.slice(1).forEach(([to], i) => {
