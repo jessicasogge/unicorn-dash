@@ -1,4 +1,4 @@
-import { HOP_MS, drawUnicorn, maneFromAddress, nextMane, setMane } from './game/unicorn.js';
+import { HOP_MS, drawUnicorn, maneFromAddress, nextMane, pressOnReturn, setMane } from './game/unicorn.js';
 
 export { HOP_MS }; // a hop, the same on every screen
 export const DASH_MS = 900; // galloping off the right of the screen
@@ -37,6 +37,9 @@ if (stage && tapTarget && playButton) {
       location.href = `${NEXT_PAGE}?mane=${mane.name}`;
     }, DASH_MS);
   });
+
+  // Return on a keyboard presses Play
+  pressOnReturn(() => playButton);
 
   // On Back, reset the unicorn and Play button if the page was cached.
   window.addEventListener('pageshow', (event) => {

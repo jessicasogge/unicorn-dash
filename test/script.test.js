@@ -152,6 +152,17 @@ describe('pressing Play', () => {
   });
 });
 
+describe('Return on a keyboard', () => {
+  it('presses Play', async () => {
+    const { stage, play } = await open();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+    expect(stage.classList.contains('dashing')).toBe(true);
+    expect(play.disabled).toBe(true);
+    vi.advanceTimersByTime(timings.DASH_MS);
+    expect(location.href).toBe('./world-map.html?mane=pink');
+  });
+});
+
 describe('coming back with the Back button', () => {
   // The browser can show the page exactly as it was left: her gone, and
   // Play pressed and stuck.

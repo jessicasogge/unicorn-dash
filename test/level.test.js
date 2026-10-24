@@ -244,6 +244,67 @@ describe('the directions', () => {
   });
 });
 
+describe('Return on a keyboard', () => {
+  const enter = () => key('keydown', 'Enter');
+  // Runs frames, and the timers after them, until she's stopped and a screen shows.
+  const runOut = () => {
+    for (let i = 0; i < 900 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    vi.advanceTimersByTime(2000);
+  };
+
+  it('presses Go on the card at the start, after How to play too', async () => {
+    await open('?mane=blue', { go: false });
+    $('.how-btn').click();
+    enter();
+    expect($('.directions').hidden).toBe(true);
+    tick(10);
+    expect(height()).toBe(0); // no jump
+    expect(x()).toBeGreaterThan(MEADOW.start);
+  });
+
+  it('does nothing while she runs', async () => {
+    await open();
+    tick(10);
+    const click = vi.fn();
+    for (const button of $$('button, a')) button.addEventListener('click', click);
+    enter();
+    tick(10);
+    expect(click).not.toHaveBeenCalled();
+    expect(height()).toBe(0);
+  });
+
+  it('tries again after a fall', async () => {
+    await open();
+    runOut();
+    expect($('.game-over').hidden).toBe(false);
+    enter();
+    expect($('.game-over').hidden).toBe(true);
+    expect(x()).toBe(MEADOW.start);
+  });
+
+  it('goes on to the next level at the castle', async () => {
+    await open('?mane=yellow');
+    const next = $('.next-btn');
+    const click = vi.fn((event) => event.preventDefault()); // (jsdom can't follow links)
+    next.addEventListener('click', click);
+    expect(next.getAttribute('href')).toBe('./candy.html?mane=yellow');
+    $('.finish').hidden = false; // as if she'd got there
+    enter();
+    expect(click).toHaveBeenCalledTimes(1);
+  });
+
+  it('plays the last level again at its castle, with no next level', async () => {
+    await open('?mane=pink', { page: 'night.html' });
+    $('.finish').hidden = false; // as if she'd got there
+    enter();
+    expect($('.finish').hidden).toBe(true);
+    expect(x()).toBe(NIGHT.start);
+  });
+});
+
 describe('the buttons', () => {
   it('at the Meadow\'s castle include one on to Candy Canyon, with her mane', async () => {
     await open('?mane=yellow');

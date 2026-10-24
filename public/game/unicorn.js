@@ -105,3 +105,15 @@ export function maneFromAddress(search) {
   const name = new URLSearchParams(search).get('mane');
   return MANES.find((mane) => mane.name === name) ?? MANES[0];
 }
+
+// Return (Enter) on a keyboard presses the screen's main button: whichever
+// `pick` gives, if any. A focused button or link keeps Return for itself.
+export function pressOnReturn(pick) {
+  window.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.repeat || event.target.closest?.('button, a')) return;
+    const button = pick();
+    if (!button?.isConnected) return; // none, or not on the page
+    event.preventDefault();
+    button.click();
+  });
+}

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // The unicorn's drawing, and her three mane colors.
-import { describe, expect, it } from 'vitest';
-import { MANES, drawUnicorn, maneFromAddress, nextMane, setMane } from '../public/game/unicorn.js';
+import { describe, expect, it, vi } from 'vitest';
+import { MANES, drawUnicorn, maneFromAddress, nextMane, pressOnReturn, setMane } from '../public/game/unicorn.js';
 
 const maneFills = (svg) => [...svg.querySelectorAll('.mane')].map((part) => part.getAttribute('fill'));
 
@@ -71,5 +71,62 @@ describe('her mane in a page\'s address', () => {
   it('is pink when there\'s none, or it isn\'t one of hers', () => {
     expect(maneFromAddress('')).toBe(MANES[0]);
     expect(maneFromAddress('?mane=green')).toBe(MANES[0]);
+  });
+});
+
+describe('Return on a keyboard', () => {
+  // A fresh button for each test, with a listener that presses it while
+  // `on` says so (listeners from earlier tests stay, but are switched off).
+  function setUp() {
+    document.body.innerHTML = '<button class="main">Go</button><a href="#">Elsewhere</a>';
+    const button = document.querySelector('.main');
+    const click = vi.fn();
+    button.addEventListener('click', click);
+    const state = { on: true };
+    pressOnReturn(() => (state.on ? button : null));
+    return { button, click, state };
+  }
+  const press = (key, { repeat = false, target = window } = {}) => {
+    const event = new KeyboardEvent('keydown', { key, repeat, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  it('presses the screen\'s main button', () => {
+    const { click, state } = setUp();
+    expect(press('Enter').defaultPrevented).toBe(true);
+    expect(click).toHaveBeenCalledTimes(1);
+    state.on = false;
+  });
+
+  it('does nothing when there\'s no main button showing', () => {
+    const { click, state } = setUp();
+    state.on = false;
+    expect(press('Enter').defaultPrevented).toBe(false);
+    expect(click).not.toHaveBeenCalled();
+  });
+
+  it('does nothing for a button that isn\'t on the page', () => {
+    const { button, click, state } = setUp();
+    button.remove();
+    expect(press('Enter').defaultPrevented).toBe(false);
+    expect(click).not.toHaveBeenCalled();
+    state.on = false;
+  });
+
+  it('ignores other keys, and Return held down repeating', () => {
+    const { click, state } = setUp();
+    press('a');
+    press('Enter', { repeat: true });
+    expect(click).not.toHaveBeenCalled();
+    state.on = false;
+  });
+
+  it('leaves Return to a focused button or link', () => {
+    const { button, click, state } = setUp();
+    press('Enter', { target: document.querySelector('a') });
+    press('Enter', { target: button });
+    expect(click).not.toHaveBeenCalled();
+    state.on = false;
   });
 });

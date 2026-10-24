@@ -4,7 +4,7 @@
 // dash.
 import { LEVELS } from './course.js';
 import { createRunner, step } from './runner.js';
-import { MANES, drawUnicorn, maneFromAddress, setMane } from './unicorn.js';
+import { MANES, drawUnicorn, maneFromAddress, pressOnReturn, setMane } from './unicorn.js';
 
 export const VIEW_HEIGHT = 600; // world units from the bottom of the screen to the top
 export const VIEW_WIDTH = 700; // at least this much course across, so she sees gaps coming
@@ -320,5 +320,14 @@ function go() {
 }
 
 goButton.addEventListener('click', go);
+
+// Return on a keyboard presses the showing screen's main button: Go, the
+// next level (or play again, after the last), or try again.
+pressOnReturn(() => {
+  if (!directions.hidden) return goButton;
+  if (!finish.hidden) return finish.querySelector('.next-btn') ?? finish.querySelector('.replay-btn');
+  if (!gameOver.hidden) return gameOver.querySelector('.retry-btn');
+  return null; // while she runs
+});
 render();
 
