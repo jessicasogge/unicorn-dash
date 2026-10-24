@@ -201,6 +201,16 @@ describe('tapping the night world', () => {
   });
 });
 
+describe('Return on a keyboard', () => {
+  it('opens the world she\'s on, the Meadow at first', async () => {
+    await open('?mane=blue');
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+    expect(world('meadow').classList.contains('hopping')).toBe(true);
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./meadow.html?mane=blue');
+  });
+});
+
 describe('no levels on the map', () => {
   it('has no level numbers at the bottom', async () => {
     await open();

@@ -18,6 +18,8 @@ The **start screen**, the **world map**, and all five worlds, the **Meadow**, **
 - **In the Crystal Caves**, tall **crystal walls** only break for a rainbow dash: hold, and she smashes right through, the pieces flying. Run into one without dashing and it wobbles and knocks her back, onto solid ground, until she dashes. It's a dark purple cave with crystal-topped ground and glowing crystals in the background.
 - **In the Night Sky**, the last world, there's a bit of everything (a gumdrop, a paint pot and gate, a crystal wall) plus **shooting stars**: a gumdrop bounces her up to one, and she rides it across the sky, over a gap too wide even to dash, catching diamonds on the way. At the end of its trail she hops off onto the ground and the star zooms away. It's a deep blue starry night, teal at the horizon, with a crescent moon and moonlit green grass, and at its castle "You beat every world!" comes up.
 
+On a keyboard, **Return** presses each screen's main button: Play on the start screen, the world she's on on the map, Go on a level's card, the next level at the castle (or play again, after the last one), and try again after a fall.
+
 There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
 ## The plan

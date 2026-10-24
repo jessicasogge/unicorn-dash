@@ -1,6 +1,6 @@
 // The world map: the five worlds, with the unicorn standing on the one
 // she's in. Every world is open: tap one and she goes there, and it opens.
-import { HOP_MS, drawUnicorn, maneFromAddress } from './unicorn.js';
+import { HOP_MS, drawUnicorn, maneFromAddress, pressOnReturn } from './unicorn.js';
 
 const mane = maneFromAddress(location.search);
 const worlds = [...document.querySelectorAll('.world')];
@@ -47,6 +47,9 @@ for (const world of worlds) {
     }, HOP_MS);
   });
 }
+
+// Return on a keyboard opens the world she's on
+if (here) pressOnReturn(() => here.querySelector('.island'));
 
 // Home keeps her mane, too.
 const home = document.querySelector('.home-btn');
