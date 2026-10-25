@@ -37,7 +37,6 @@ export const MEADOW = {
   bouncers: [],
   trees: [],
   pots: [],
-  gates: [],
   walls: [],
   crystals: [],
   stars: [],
@@ -81,7 +80,6 @@ export const CANDY = {
     [6500, 360, 0.9], [7200, 280, 1],
   ],
   pots: [],
-  gates: [],
   walls: [],
   crystals: [],
   stars: [],
@@ -89,9 +87,8 @@ export const CANDY = {
   castle: 6900,
 };
 
-// Cloud Kingdom: paint pots change her mane's color, and rainbow gates only
-// let the matching color through. Each pot is a short run before its gate,
-// so a wrong gate knocks her back over the pot, for the right color.
+// Cloud Kingdom: paint pots along the way change her mane's color, one
+// color after another.
 export const CLOUD = {
   ground: [
     [-400, 1150],
@@ -111,13 +108,6 @@ export const CLOUD = {
     { x: 3300, mane: 'pink' },
     { x: 4900, mane: 'blue' },
     { x: 6200, mane: 'yellow' },
-  ],
-  gates: [
-    { x: 800, mane: 'blue' },
-    { x: 2350, mane: 'yellow' },
-    { x: 3600, mane: 'pink' },
-    { x: 5150, mane: 'blue' },
-    { x: 6500, mane: 'yellow' },
   ],
   bouncers: [],
   trees: [],
@@ -182,14 +172,13 @@ export const CRYSTAL = {
   bouncers: [],
   trees: [],
   pots: [],
-  gates: [],
   stars: [],
   start: 0,
   castle: 7500,
 };
 
 // The Night Sky, the last world: a bit of everything (a gumdrop, a paint
-// pot and gate, a crystal wall, gaps to jump and dash), plus shooting stars
+// pot, a crystal wall, gaps to jump and dash), plus shooting stars
 // to ride across the sky. A gumdrop launches her up to each star, and each
 // one drops her off on solid ground.
 export const NIGHT = {
@@ -210,7 +199,6 @@ export const NIGHT = {
   ],
   walls: [3450],
   pots: [{ x: 4400, mane: 'blue' }],
-  gates: [{ x: 4700, mane: 'blue' }],
   gems: [
     [400, 60], [500, 60],
     [2200, 310], [2350, 310], [2500, 310], [2650, 310], // along a shooting star

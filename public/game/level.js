@@ -89,10 +89,6 @@ const badge = (mane, x, y, size) => `<g transform="translate(${x} ${y}) scale(${
 // A paint pot, its paint and shape in one mane color.
 const POT = (mane) => `<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 26 H70 L62 88 H18 Z" fill="#fff"/><rect x="4" y="14" width="72" height="16" rx="8" fill="${mane.color}"/></g><path d="M20 30 v14 a5 5 0 0 0 10 0 v-14 M50 30 v8 a4 4 0 0 0 8 0 v-8" fill="${mane.color}"/>${badge(mane, 24, 44, 32)}`;
 
-// A gate: a tall arch in one mane color, its shape on a badge at the top,
-// with a see-through curtain that opens for the matching mane.
-const GATE = (mane) => `<rect class="curtain" x="22" y="40" width="116" height="280" fill="${mane.color}" opacity="0.3"/><g stroke="#2B2350" stroke-width="6" stroke-linejoin="round" fill="${mane.color}"><rect x="4" y="30" width="30" height="290" rx="10"/><rect x="126" y="30" width="30" height="290" rx="10"/><rect x="-2" y="20" width="164" height="30" rx="15"/><circle cx="80" cy="22" r="34" fill="#fff"/></g>${badge(mane, 56, -2, 48)}`;
-
 // A crystal wall: tall glassy shards, in pieces that fly apart when a dash
 // smashes through.
 const WALL = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round">'
@@ -131,14 +127,13 @@ function build(course) {
     .map(([dx, y, delay], i) => firework(course.castle + dx, y, GEM_COLORS[(i * 2) % GEM_COLORS.length], delay));
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
-  const gates = course.gates.map((gate) => place(svg('-6 -14 172 336', GATE(maneNamed(gate.mane))), 'gate', gate.x - 86, -2));
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, gates, walls, stars };
+  return { gems, fireworks, gumdrops, pots, walls, stars };
 }
 
-const { gems, fireworks, gumdrops, pots, gates, walls, stars } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, walls, stars } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -217,10 +212,6 @@ function frame(time) {
     setMane(unicorn, maneNamed(state.mane));
     replay(pots[state.painted], 'splash');
   }
-  if (events.includes('open')) {
-    for (const i of state.opened) gates[i].classList.add('open');
-  }
-  if (events.includes('bump')) replay(gates[state.bumped], 'shake');
   if (events.includes('ride')) stars[state.riding].classList.add('riding');
   if (events.includes('hop-off')) {
     const star = [...state.rode].at(-1);
@@ -283,7 +274,6 @@ document.querySelector('.oops').append(
 function restart() {
   state = createRunner(LEVEL, mane.name);
   setMane(unicorn, mane); // back to the color she came with
-  for (const gate of gates) gate.classList.remove('open');
   for (const wall of walls) wall.classList.remove('smashed', 'wobble');
   for (const star of stars) {
     star.classList.remove('riding', 'gone');

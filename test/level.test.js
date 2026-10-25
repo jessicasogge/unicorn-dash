@@ -671,27 +671,26 @@ describe('Candy Canyon', () => {
 describe('Cloud Kingdom', () => {
   const cloud = (search = '?mane=pink', options = {}) => open(search, { page: 'cloud.html', ...options });
   const mane = () => $('.runner svg.unicorn').dataset.mane;
-  const gate = (i) => $$('.course .gate')[i];
   // Runs until her x passes `to` (or she stops)
   const runTo = (to) => { for (let i = 0; i < 900 && frames.length && x() < to; i++) tick(); };
 
-  it('draws a paint pot and a gate in each color, with its shape', async () => {
+  it('draws a paint pot in each color, with its shape', async () => {
     await cloud();
     expect($$('.course .paint-pot')).toHaveLength(CLOUD.pots.length);
-    expect($$('.course .gate')).toHaveLength(CLOUD.gates.length);
-    expect(gate(0).style.left).toBe(`${CLOUD.gates[0].x - 86}px`);
-    expect(gate(0).innerHTML).toContain('#3A8DFF'); // the first gate is blue
+    expect($$('.course .paint-pot')[0].innerHTML).toContain('#3A8DFF'); // the first pot is blue
   });
 
-  it('has no pots or gates in the other levels', async () => {
+  it('has no pots in the other levels, and no gates anywhere', async () => {
     await open();
-    expect($$('.course .paint-pot, .course .gate')).toHaveLength(0);
+    expect($$('.course .paint-pot')).toHaveLength(0);
+    await cloud();
+    expect($$('.course .gate')).toHaveLength(0);
   });
 
-  it('explains the paint pots and gates in its directions', async () => {
+  it('explains the paint pots in its directions, with no gates', async () => {
     await cloud('?mane=pink', { go: false });
     expect($('.directions').textContent).toMatch(/Paint pots\s*change your mane's color/);
-    expect($('.directions').textContent).toMatch(/only let the matching color through/);
+    expect($('.directions').textContent).not.toMatch(/gate/i);
   });
 
   it('starts her with the mane she came with', async () => {
@@ -706,41 +705,21 @@ describe('Cloud Kingdom', () => {
     expect($$('.course .paint-pot')[0].classList.contains('splash')).toBe(true);
   });
 
-  it('opens the gate for the matching color', async () => {
+  it('turns her mane again at the next pot, a new color', async () => {
     await cloud('?mane=pink');
-    expect(gate(0).classList.contains('open')).toBe(false);
-    runTo(CLOUD.gates[0].x + 50);
-    expect(gate(0).classList.contains('open')).toBe(true);
-  });
-
-  it('shakes the gate and knocks her back for the wrong color, until the pot paints her right', async () => {
-    await cloud('?mane=pink');
-    const pot = CLOUD.pots[0];
-    runTo(pot.x - 200);
-    // A double jump, high over the pot, so she stays pink
-    pointer('pointerdown'); tick(); pointer('pointerup');
-    let rising = true;
-    while (rising) { const h = height(); tick(); rising = height() > h; }
-    pointer('pointerdown'); tick(); pointer('pointerup');
-    runTo(pot.x + 60);
-    expect(mane()).toBe('pink');
-    let shook = false;
-    let back = false;
-    for (let i = 0; i < 400 && !gate(0).classList.contains('open'); i++) {
-      const before = x();
+    // on to the second pot, jumping the gap on the way
+    runTo(CLOUD.pots[0].x + 50);
+    for (let i = 0; i < 900 && frames.length && x() < CLOUD.pots[1].x + 50; i++) {
+      const gap = CLOUD.ground.find(([, to]) => to > x() && to - x() < 40);
+      if (gap && height() === 0) { pointer('pointerdown'); tick(); pointer('pointerup'); }
       tick();
-      shook ||= gate(0).classList.contains('shake');
-      back ||= x() < before;
     }
-    expect(shook).toBe(true);
-    expect(back).toBe(true); // knocked backwards
-    expect(mane()).toBe(pot.mane); // back over the pot
-    expect(gate(0).classList.contains('open')).toBe(true);
+    expect(mane()).toBe(CLOUD.pots[1].mane);
   });
 
-  it('puts her mane and the gates back as they were on a new try', async () => {
+  it('puts her mane back as it was on a new try', async () => {
     await cloud('?mane=pink');
-    runTo(CLOUD.gates[0].x + 50);
+    runTo(CLOUD.pots[0].x + 50);
     expect(mane()).toBe('blue');
     for (let i = 0; i < 900 && frames.length; i++) {
       tick();
@@ -748,7 +727,6 @@ describe('Cloud Kingdom', () => {
     }
     $('.retry-btn').click();
     expect(mane()).toBe('pink');
-    expect($$('.course .gate.open')).toHaveLength(0);
   });
 
   it('has a next level button on to the Crystal Caves', async () => {
