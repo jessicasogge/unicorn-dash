@@ -46,6 +46,22 @@ describe('the worlds', () => {
     expect(document.querySelector('.locked, .padlock, [disabled]')).toBeNull();
   });
 
+  it('have their names written under them', async () => {
+    await open();
+    const names = [...document.querySelectorAll('.world')].map((w) => w.querySelector('.island + .world-name').textContent);
+    expect(names).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Night Sky']);
+    // (said once to screen readers, by the circle's label)
+    for (const name of document.querySelectorAll('.world-name')) expect(name.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('open when their name is tapped, too', async () => {
+    await open('?mane=blue');
+    world('crystal').querySelector('.world-name').click();
+    expect(hers()).toBe('crystal');
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./crystal.html?mane=blue');
+  });
+
   it('have names for screen readers', async () => {
     await open();
     const labels = [...document.querySelectorAll('.island')].map((i) => i.getAttribute('aria-label'));

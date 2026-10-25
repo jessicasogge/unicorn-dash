@@ -32,12 +32,12 @@ export const WORLD_PAGES = {
   night: './night.html',
 };
 
-// Tap a world: she goes there and hops in, then it opens. Another tap on
-// it while she's hopping is ignored; a tap on a different world goes there
-// instead.
+// Tap a world, or its name: she goes there and hops in, then it opens.
+// Another tap on it while she's hopping is ignored; a tap on a different
+// world goes there instead.
 let opening = null;
 for (const world of worlds) {
-  world.querySelector('.island').addEventListener('click', () => {
+  const open = () => {
     if (world.classList.contains('hopping')) return;
     clearTimeout(opening);
     goTo(world);
@@ -45,7 +45,9 @@ for (const world of worlds) {
     opening = setTimeout(() => {
       location.href = `${WORLD_PAGES[world.dataset.world]}?mane=${mane.name}`;
     }, HOP_MS);
-  });
+  };
+  world.querySelector('.island').addEventListener('click', open);
+  world.querySelector('.world-name').addEventListener('click', open);
 }
 
 // Return on a keyboard opens the world she's on
