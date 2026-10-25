@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GATE_FRONT, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -262,28 +262,42 @@ describe('gumdrops', () => {
   });
 });
 
-describe('paint pots and gates', () => {
-  const potAndGate = (more = {}) => course({ pots: [{ x: 200, mane: 'blue' }], gates: [{ x: 600, mane: 'blue' }], ...more });
+describe('paint pots', () => {
+  const pot = (more = {}) => course({ pots: [{ x: 200, mane: 'blue' }], ...more });
 
   it('starts her with the mane she came with', () => {
     expect(createRunner(course(), 'yellow').mane).toBe('yellow');
     expect(createRunner(course()).mane).toBeNull();
   });
 
-  it('changes her mane when she runs through a pot', () => {
-    const state = createRunner(potAndGate(), 'pink');
+  it('change her mane when she runs through a pot', () => {
+    const state = createRunner(pot(), 'pink');
     const events = run(state, 0.8);
     expect(events).toContain('paint');
     expect(state).toMatchObject({ mane: 'blue', painted: 0 });
   });
 
-  it('doesn\'t splash again for a pot already her color', () => {
-    const state = createRunner(potAndGate(), 'blue');
+  it('don\'t splash again for a pot already her color', () => {
+    const state = createRunner(pot(), 'blue');
     expect(run(state, 0.8)).not.toContain('paint');
   });
 
+  it('paint her again at the next pot of another color', () => {
+    const state = createRunner(course({ pots: [{ x: 200, mane: 'blue' }, { x: 600, mane: 'yellow' }] }), 'pink');
+    const events = run(state, 3);
+    expect(events.filter((e) => e === 'paint')).toHaveLength(2);
+    expect(state).toMatchObject({ mane: 'yellow', painted: 1 });
+  });
+
+  it('don\'t stand in her way', () => {
+    const state = createRunner(pot(), 'pink');
+    run(state, 2);
+    expect(state.x).toBeCloseTo(RUN * 2, -1);
+    expect(state.knock).toBe(0);
+  });
+
   it('dips her mane even when she jumps at a pot, but not from high above it', () => {
-    const low = createRunner(potAndGate(), 'pink');
+    const low = createRunner(pot(), 'pink');
     run(low, 100 / RUN);
     step(low, DT, TAP);
     run(low, 0.6);
@@ -292,72 +306,6 @@ describe('paint pots and gates', () => {
     const high = createRunner(course({ pots: [{ x: 200, mane: 'blue' }], bouncers: [60] }), 'pink');
     run(high, 0.8); // bounced high over it
     expect(high.mane).toBe('pink');
-  });
-
-  it('lets her through a gate with the matching mane, as she arrives at its front', () => {
-    const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }] }), 'blue');
-    let openedAt = null;
-    for (let t = 0; t < 3 && openedAt === null; t += DT) if (step(state, DT, IDLE).includes('open')) openedAt = state.x;
-    expect(openedAt).toBeGreaterThanOrEqual(600 - GATE_FRONT);
-    expect(openedAt).toBeLessThan(600 - GATE_FRONT + 10);
-    run(state, 2);
-    expect(state.opened).toEqual(new Set([0]));
-    expect(state.x).toBeGreaterThan(1000);
-  });
-
-  it('knocks her back from a gate without the matching mane', () => {
-    const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }] }), 'pink');
-    const events = run(state, 2);
-    expect(events).toContain('bump');
-    expect(events).not.toContain('open');
-    expect(state.bumped).toBe(0);
-    expect(state.x).toBeLessThan(600 - GATE_FRONT); // never gets through
-  });
-
-  it('knocks her backwards, with a hop, for a moment', () => {
-    const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }] }), 'pink');
-    for (let t = 0; t < 3; t += DT) if (step(state, DT, IDLE).includes('bump')) break;
-    const x = state.x;
-    run(state, KNOCK_TIME / 2);
-    expect(state.x).toBeLessThan(x);
-    expect(state.y).toBeGreaterThan(0);
-    run(state, KNOCK_TIME);
-    expect(state.knock).toBe(0);
-  });
-
-  it('can\'t dash while she\'s being knocked back', () => {
-    const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }] }), 'pink');
-    for (let t = 0; t < 3; t += DT) if (step(state, DT, IDLE).includes('bump')) break;
-    run(state, KNOCK_TIME / 2, HOLD);
-    expect(state.dashing).toBe(false);
-  });
-
-  it('knocks her back over the pot, which paints her the right color, so she gets through', () => {
-    const state = createRunner(potAndGate(), 'pink');
-    state.x = 260; // just past the pot, still pink
-    const events = run(state, 4);
-    expect(events.indexOf('bump')).toBeLessThan(events.indexOf('paint'));
-    expect(events).toContain('open');
-    expect(state.mane).toBe('blue');
-  });
-
-  it('can\'t be jumped, bounced or dashed over', () => {
-    for (const [name, more, input] of [
-      ['bounce', { bouncers: [400] }, IDLE],
-      ['dash', {}, HOLD],
-    ]) {
-      const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }], ...more }), 'pink');
-      if (name === 'dash') step(state, DT, TAP);
-      expect(run(state, 3, input), name).toContain('bump');
-    }
-  });
-
-  it('let her straight through when it\'s already open', () => {
-    const state = createRunner(course({ gates: [{ x: 600, mane: 'blue' }] }), 'blue');
-    run(state, 3);
-    state.mane = 'pink';
-    state.x = 400;
-    expect(run(state, 2)).not.toContain('bump');
   });
 });
 

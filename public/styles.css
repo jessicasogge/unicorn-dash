@@ -329,8 +329,9 @@ body {
 }
 
 .worlds {
-  /* The circles' size, to fit the screen's width and height */
-  --island: clamp(5rem, min(14vw, 19vh), 10rem);
+  /* The circles' size, to fit the screen's width and height: small enough
+     that all five, with their names, fit in one row on a computer */
+  --island: clamp(5rem, min(12vw, 19vh), 10rem);
   list-style: none;
   margin: clamp(1rem, 14vh, 9rem) 0 auto; /* a bit above the middle of the sky */
   padding: 0;
@@ -339,7 +340,7 @@ body {
   flex-wrap: wrap; /* on a phone, three worlds and then two */
   justify-content: center;
   align-items: flex-end;
-  gap: 1.5rem 2.5rem;
+  gap: 1.5rem 2rem;
 }
 
 .world {
@@ -393,6 +394,21 @@ body {
 .world[data-world='crystal'] .island { background: #9ee6e0; }
 .world[data-world='night'] .island { background: #12306a; }
 
+/* Each world's name, under its circle (the circle's label already says it
+   to screen readers). Room for two lines, so the circles stay in a row. */
+.world-name {
+  width: calc(var(--island) + 1.5rem);
+  min-height: 2.4em;
+  margin-top: 0.5rem; /* clear of the ring round her world */
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, calc(var(--island) * 0.14), 1.35rem); /* in step with the circles */
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink);
+  cursor: pointer;
+}
+
 /* The world she's in: a white ring, outlined */
 .island[aria-pressed='true'] {
   box-shadow: 0 0 0 7px #ffffff, 0 0 0 12px var(--ink);
@@ -411,10 +427,19 @@ body {
   }
 }
 
-/* On a phone, bigger circles in rows of two */
-@media (max-width: 600px) {
+/* On a phone or small tablet, bigger circles in rows of two or three (not
+   four and one), a little closer together to leave room for the names */
+@media (max-width: 720px) {
   .worlds {
-    --island: clamp(5rem, min(30vw, 15vh), 8rem);
+    --island: clamp(4.5rem, min(30vw, 12.5vh), 8rem);
+    max-width: calc(var(--island) * 3 + 8.5rem); /* three, with their names and gaps */
+    margin-top: clamp(1rem, 6vh, 3rem);
+    row-gap: 1rem;
+  }
+
+  .world-name {
+    min-height: 0;
+    margin-top: 0.25rem;
   }
 }
 
@@ -554,29 +579,6 @@ body {
 
 @keyframes splash {
   40% { transform: scale(1.2, 0.85); }
-}
-
-/* Gates: a shake for the wrong color, and the curtain opens for the right one */
-.gate {
-  width: 172px;
-  height: 336px;
-}
-
-.gate .curtain {
-  transition: opacity 0.3s;
-}
-
-.gate.open .curtain {
-  opacity: 0;
-}
-
-.gate.shake {
-  animation: shake 0.4s ease-in-out;
-}
-
-@keyframes shake {
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
 }
 
 /* Crystal walls (Crystal Caves): a wobble when bumped, and smashed apart

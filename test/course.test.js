@@ -237,42 +237,14 @@ describe('Cloud Kingdom', () => {
   const cloudGaps = CLOUD.ground.slice(1).map(([to], i) => ({ from: CLOUD.ground[i][1], to, width: to - CLOUD.ground[i][1] }));
   const onGround = (x, margin) => CLOUD.ground.some(([from, to]) => x - margin >= from && x + margin <= to);
 
-  it('has a paint pot a short run before each gate, the same color', () => {
-    expect(CLOUD.gates.length).toBe(CLOUD.pots.length);
-    expect(CLOUD.gates.length).toBeGreaterThanOrEqual(3);
-    CLOUD.gates.forEach((gate, i) => {
-      const pot = CLOUD.pots[i];
-      expect(pot.mane, `gate at ${gate.x}`).toBe(gate.mane);
-      expect(gate.x - pot.x, `gate at ${gate.x}`).toBeGreaterThanOrEqual(200);
-      expect(gate.x - pot.x, `gate at ${gate.x}`).toBeLessThanOrEqual(400);
-    });
+  it('has paint pots along the way, in every mane color, changing color from one to the next', () => {
+    expect(CLOUD.pots.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(CLOUD.pots.map((p) => p.mane))).toEqual(new Set(['pink', 'blue', 'yellow']));
+    CLOUD.pots.slice(1).forEach((pot, i) => expect(pot.mane).not.toBe(CLOUD.pots[i].mane));
   });
 
-  it('uses every mane color for its gates', () => {
-    expect(new Set(CLOUD.gates.map((g) => g.mane))).toEqual(new Set(['pink', 'blue', 'yellow']));
-  });
-
-  it('changes color from one gate to the next', () => {
-    CLOUD.gates.slice(1).forEach((gate, i) => expect(gate.mane).not.toBe(CLOUD.gates[i].mane));
-  });
-
-  it('puts its pots and gates on solid ground, with room to be knocked back', () => {
+  it('puts its pots on solid ground', () => {
     for (const pot of CLOUD.pots) expect(onGround(pot.x, 100), `pot at ${pot.x}`).toBe(true);
-    for (const gate of CLOUD.gates) expect(onGround(gate.x - 450, 0) && onGround(gate.x, 100), `gate at ${gate.x}`).toBe(true);
-  });
-
-  it('gets her through every gate from the wrong color, without falling, at 60 or 30 frames a second', () => {
-    for (const dt of [1 / 60, 1 / 30]) {
-      CLOUD.gates.forEach((gate, i) => {
-        const state = createRunner(CLOUD, gate.mane === 'pink' ? 'blue' : 'pink');
-        state.x = CLOUD.pots[i].x + 60; // just past the pot, the wrong color
-        const events = [];
-        for (let t = 0; t < 4 && !state.opened.has(i) && !state.fallen; t += dt) events.push(...step(state, dt, { pressed: false, held: false }));
-        expect(events, `gate at ${gate.x}`).toContain('bump');
-        expect(state.opened.has(i), `gate at ${gate.x}`).toBe(true);
-        expect(state.fallen, `gate at ${gate.x}`).toBe(false);
-      });
-    }
   });
 
   it('can be won with every diamond, jumping gaps, dashing, and double jumping onto clouds, at 60 or 30 frames a second', () => {
@@ -299,7 +271,7 @@ describe('Cloud Kingdom', () => {
         step(state, dt, input);
       }
       expect(state.finished, `at ${dt}`).toBe(true);
-      expect(state.opened.size, `at ${dt}`).toBe(CLOUD.gates.length);
+      expect(state.painted, `at ${dt}`).toBe(CLOUD.pots.length - 1); // through every pot
       expect(state.collected.size, `at ${dt}`).toBe(CLOUD.gems.length);
     }
   });
@@ -414,10 +386,9 @@ describe('the Night Sky', () => {
     expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT });
   });
 
-  it('has a bit of everything: a gumdrop, a paint pot and gate, a crystal wall', () => {
+  it('has a bit of everything: a gumdrop, a paint pot, a crystal wall', () => {
     expect(NIGHT.bouncers.length).toBeGreaterThanOrEqual(1);
     expect(NIGHT.pots.length).toBeGreaterThanOrEqual(1);
-    expect(NIGHT.gates.map((g) => g.mane)).toEqual(NIGHT.pots.map((p) => p.mane));
     expect(NIGHT.walls.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -449,7 +420,7 @@ describe('the Night Sky', () => {
       expect(state.finished, `at ${dt}`).toBe(true);
       expect(state.rode.size, `at ${dt}`).toBe(NIGHT.stars.length);
       expect(state.smashed.size, `at ${dt}`).toBe(NIGHT.walls.length);
-      expect(state.opened.size, `at ${dt}`).toBe(NIGHT.gates.length);
+      expect(state.mane, `at ${dt}`).toBe(NIGHT.pots.at(-1).mane);
       expect(events.filter((e) => e === 'bounce'), `at ${dt}`).toHaveLength(NIGHT.bouncers.length);
       expect(state.collected.size, `at ${dt}`).toBe(NIGHT.gems.length);
     }

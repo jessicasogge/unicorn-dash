@@ -1,6 +1,6 @@
 // SVG unicorn: white pony facing right, golden horn, colored mane/tail/hooves.
 // Each mane color has a matching shape (heart, star, moon) for accessibility.
-// Gates require a matching mane; tapping on the start screen cycles manes.
+// Paint pots change her mane; tapping on the start screen cycles manes.
 
 const SVG = 'http://www.w3.org/2000/svg';
 
