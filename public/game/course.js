@@ -18,16 +18,17 @@ export const MEADOW = {
     { from: 4300, to: 4520, top: 170 },
   ],
   gems: [
-    [350, 150], // up over a thistle
-    [500, 60], [600, 60],
+    [500, 60], [700, 60],
     [1360, 240], [1410, 240], [1460, 240],
-    [2300, 60], [2450, 150], [2600, 60],
+    [2300, 150], // up over a thistle
+    [2500, 60], [2600, 60],
     [2900, 150], [3000, 150], // over the gap, at dashing height
+    [3625, 150], // up over a thistle
     [4360, 240], [4410, 240], [4460, 240],
     [4900, 150], [5000, 150], // over the gap
     [5450, 60], [5550, 60],
     [5760, 150], // over the last gap, up a jump
-    [6050, 150],
+    [6000, 60],
   ],
   // Clouds in the sky, just for looks: [x, y, size]
   sky: [
@@ -35,8 +36,9 @@ export const MEADOW = {
     [2900, 370, 1], [3600, 280, 1.1], [4300, 340, 0.7], [5000, 300, 1.2],
     [5700, 360, 0.9], [6400, 280, 1],
   ],
-  // Prickly things to jump over (game over if she runs into one), by x
-  thorns: [350, 2450, 6050],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [2300, 3625],
   bouncers: [],
   trees: [],
   pots: [],
@@ -59,22 +61,23 @@ export const CANDY = {
     [6020, 9800], // short gap; on past the castle
   ],
   clouds: [],
-  // Prickly things to jump over (game over if she runs into one), by x
-  thorns: [200, 6450],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [1875, 3825, 5650],
   // Gumdrops, by where they are along x, each well before the next gap so
   // she comes down on solid ground.
   bouncers: [450, 1450, 2950, 4050],
   gems: [
-    [200, 150], // up over a spiky candy
     [570, 330], [620, 390], [670, 330], // up a bounce
     [1570, 330], [1620, 390], [1670, 330],
+    [1875, 150], // up over a spiky candy
     [2350, 150], [2450, 150], // over the gap, at dashing height
     [3070, 330], [3120, 390], [3170, 330],
+    [3825, 150], // up over a spiky candy
     [4170, 330], [4220, 390], [4270, 330],
     [4950, 150], [5050, 150],
-    [5650, 60],
+    [5650, 150], // up over a spiky candy
     [5960, 150], // over the last gap, up a jump
-    [6450, 150],
   ],
   // Lollipop trees in the background, just for looks: [x, height]
   trees: [
@@ -115,15 +118,17 @@ export const CLOUD = {
     { x: 4900, mane: 'blue' },
     { x: 6200, mane: 'yellow' },
   ],
-  // Prickly things to jump over (game over if she runs into one), by x
-  thorns: [850, 3600, 6500],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [3600, 6500],
   bouncers: [],
   trees: [],
   gems: [
-    [300, 60], [850, 150], // up over a thundercloud
+    [300, 60], [400, 60],
     [1760, 240], [1810, 240], [1860, 240], // up on a cloud
     [2650, 150], [2750, 150], [2850, 150], // over the gap
-    [3600, 150], [3800, 60],
+    [3600, 150], // up over a thundercloud
+    [3800, 60],
     [4560, 240], [4610, 240], [4660, 240],
     [5450, 150], [5550, 150], [5650, 150],
     [6700, 60],
@@ -159,21 +164,23 @@ export const CRYSTAL = {
     { from: 4400, to: 4620, top: 170 },
   ],
   // Crystal walls, by where they are along x
-  // Prickly things to jump over (game over if she runs into one), by x
-  thorns: [300, 7200],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [2300, 3900],
   walls: [800, 2150, 3550, 4950, 6450],
   gems: [
-    [300, 150], // up over a bramble
     [400, 60],
     [920, 150], [980, 150], // just past a wall, at dashing height
     [1760, 240], [1810, 240], [1860, 240], // up on a cloud
+    [2300, 150], // up over a bramble
     [2700, 150], [2800, 150], [2900, 150], // over the gap
     [3670, 150], [3730, 150],
+    [3900, 150], // up over a bramble
     [4460, 240], [4510, 240], [4560, 240],
     [5650, 150],
     [6700, 60],
     [6910, 150], // over the last gap, up a jump
-    [7100, 60], [7200, 150],
+    [7100, 60],
   ],
   // Glowing crystals in the background, just for looks: [x, height]
   crystals: [
@@ -208,20 +215,22 @@ export const NIGHT = {
     { x: 1950, y: 260, length: 1100 },
     { x: 6500, y: 260, length: 1300 },
   ],
-  // Prickly things to jump over (game over if she runs into one), by x
-  thorns: [750, 4700, 8450],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [1450, 4800],
   walls: [3450],
   pots: [{ x: 4400, mane: 'blue' }],
   gems: [
-    [400, 60], [750, 150], // up over a bramble
+    [400, 60],
+    [1450, 150], // up over a bramble
     [2200, 310], [2350, 310], [2500, 310], [2650, 310], // along a shooting star
     [3560, 150], [3620, 150], // just past the wall, at dashing height
-    [4200, 60], [4700, 150],
+    [4200, 60], [4800, 150], // up over a bramble
     [5450, 150], [5550, 150], // over the gap
     [6800, 310], [7000, 310], [7200, 310], [7400, 310],
     [8050, 60],
     [8210, 150], // over the last gap, up a jump
-    [8350, 60], [8450, 150],
+    [8400, 60], [8500, 60],
   ],
   trees: [],
   crystals: [],

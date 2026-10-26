@@ -628,6 +628,22 @@ describe('the castle', () => {
 
 describe('prickly things', () => {
   const thorn = (i) => $$('.course .thorns')[i];
+  // Runs her to `to` (or until she stops), with a quick jump at each gap on
+  // the way (they're short ones, before the Meadow's first prickly thing)
+  // and, with `hop`, over prickly things too
+  const runTo = (to, { hop }) => {
+    for (let i = 0; i < 900 && frames.length && x() < to; i++) {
+      holding = !hop;
+      const gapAhead = MEADOW.ground.some(([, end]) => end > x() && end - x() < 40);
+      if (gapAhead && height() === 0) {
+        pointer('pointerdown');
+        tick();
+        pointer('pointerup');
+        holding = !hop;
+      }
+      tick();
+    }
+  };
 
   it.each([
     ['meadow.html', 'Thistles'], ['candy.html', 'Spiky candies'], ['cloud.html', 'Thunderclouds'],
@@ -651,8 +667,7 @@ describe('prickly things', () => {
 
   it('wobble, and it\'s game over, when she runs into one', async () => {
     await open();
-    holding = true; // no jumping it
-    for (let i = 0; i < 300 && frames.length; i++) tick();
+    runTo(MEADOW.thorns[0] + 100, { hop: false });
     expect(thorn(0).classList.contains('ouch')).toBe(true);
     expect(x()).toBeLessThan(MEADOW.thorns[0]);
     expect(height()).toBe(0); // not a fall
@@ -663,15 +678,14 @@ describe('prickly things', () => {
 
   it('are jumped over, and her run goes on', async () => {
     await open();
-    for (let i = 0; i < 120; i++) tick();
-    expect(x()).toBeGreaterThan(MEADOW.thorns[0] + 100);
+    runTo(MEADOW.thorns[0] + 100, { hop: true });
+    expect(x()).toBeGreaterThanOrEqual(MEADOW.thorns[0] + 100);
     expect(thorn(0).classList.contains('ouch')).toBe(false);
   });
 
   it('stop wobbling on a new try', async () => {
     await open();
-    holding = true;
-    for (let i = 0; i < 300 && frames.length; i++) tick();
+    runTo(MEADOW.thorns[0] + 100, { hop: false });
     vi.advanceTimersByTime(500);
     $('.retry-btn').click();
     expect($$('.course .thorns.ouch')).toHaveLength(0);

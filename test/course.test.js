@@ -488,7 +488,7 @@ describe('every level', () => {
       for (const x of level.thorns) {
         const where = `${name} at ${x}`;
         // room to land before it, and after it before the next gap
-        expect(level.ground.some(([from, to]) => x - 150 >= from && x + 150 <= to), where).toBe(true);
+        expect(level.ground.slice(1, -1).some(([from, to]) => x - 150 >= from && x + 150 <= to), where).toBe(true);
         for (const other of [...level.bouncers, ...level.pots.map((p) => p.x), level.castle]) {
           expect(Math.abs(x - other), where).toBeGreaterThanOrEqual(150);
         }
@@ -508,13 +508,12 @@ describe('every level', () => {
     }
   });
 
-  it('can\'t be won by just letting her run: she runs into something prickly first', () => {
+  it('keeps its first stretch, before the first gap, and its last, after the last gap, clear of prickly things', () => {
     for (const [name, level] of Object.entries(LEVELS)) {
-      const state = createRunner(level);
-      const events = [];
-      for (let t = 0; t < 30 && !state.fallen; t += 1 / 60) events.push(...step(state, 1 / 60, { pressed: false, held: false }));
-      expect(events, name).toContain('ouch');
-      expect(state.ouch, name).toBe(0);
+      for (const x of level.thorns) {
+        expect(x, `${name} at ${x}`).toBeGreaterThan(level.ground[0][1]);
+        expect(x, `${name} at ${x}`).toBeLessThan(level.ground.at(-1)[0]);
+      }
     }
   });
 });
