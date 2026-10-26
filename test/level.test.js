@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CANDY, CLOUD, CRYSTAL, MEADOW, NIGHT } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -18,12 +18,18 @@ const html = (name) => {
 let frames;
 let now;
 let meadow;
+let level; // the open level's course
+let holding; // a test's own press is down
+let hopping; // tick's own press, over something prickly, is down
 
 // Opens a level page (the Meadow unless told), and presses Go unless told
 // not to.
 async function open(search = '?mane=blue', { go = true, page = 'meadow.html' } = {}) {
   frames = [];
   now = 0;
+  level = LEVELS[page.replace('.html', '')];
+  holding = false;
+  hopping = false;
   vi.stubGlobal('location', { href: `http://localhost/${page}${search}`, search });
   vi.stubGlobal('requestAnimationFrame', (callback) => frames.push(callback));
   document.body.outerHTML = html(page);
@@ -32,9 +38,18 @@ async function open(search = '?mane=blue', { go = true, page = 'meadow.html' } =
   if (go) document.querySelector('.go-btn').click();
 }
 
-// Runs `count` animation frames, `ms` apart.
+// Runs `count` animation frames, `ms` apart. Like a player would, it jumps
+// anything prickly just ahead of her, unless the test is pressing itself,
+// so tests that just let her run aren't about those.
 function tick(count = 1, ms = 1000 / 60) {
   for (let i = 0; i < count; i++) {
+    if (hopping) {
+      hopping = false;
+      $('.view').dispatchEvent(new Event('pointerup', { bubbles: true }));
+    } else if (!holding && frames.length && height() === 0 && level.thorns.some((t) => t > x() && t - x() < 80)) {
+      hopping = true;
+      $('.view').dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }));
+    }
     now += ms;
     const waiting = frames;
     frames = [];
@@ -49,8 +64,14 @@ const runner = () => $('.runner');
 const moved = () => runner().style.transform.match(/translate3d\((-?[\d.e-]+)px, (-?[\d.e-]+)px/).slice(1).map(Number);
 const x = () => moved()[0] + 70;
 const height = () => -moved()[1] + 0;
-const pointer = (type) => $('.view').dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
-const key = (type, k, repeat = false) => window.dispatchEvent(new KeyboardEvent(type, { key: k, repeat, cancelable: true }));
+const pointer = (type) => {
+  holding = type === 'pointerdown';
+  $('.view').dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
+};
+const key = (type, k, repeat = false) => {
+  holding = type === 'keydown';
+  window.dispatchEvent(new KeyboardEvent(type, { key: k, repeat, cancelable: true }));
+};
 
 beforeEach(() => vi.useFakeTimers({ toFake: ['setTimeout'] }));
 afterEach(() => {
@@ -602,6 +623,59 @@ describe('the castle', () => {
     expect($$('.course .gem.got')).toHaveLength(0);
     tick(10);
     expect(x()).toBeGreaterThan(MEADOW.start); // running again
+  });
+});
+
+describe('prickly things', () => {
+  const thorn = (i) => $$('.course .thorns')[i];
+
+  it.each([
+    ['meadow.html', 'Thistles'], ['candy.html', 'Spiky candies'], ['cloud.html', 'Thunderclouds'],
+    ['crystal.html', 'Brambles'], ['night.html', 'Brambles'],
+  ])('%s draws its own, where its course says, and shows one in its directions', async (page, name) => {
+    await open('?mane=pink', { page, go: false });
+    expect($$('.course .thorns')).toHaveLength(level.thorns.length);
+    expect(thorn(0).style.left).toBe(`${level.thorns[0] - 50}px`);
+    expect($('.thorn-pic svg').innerHTML).toBe(thorn(0).innerHTML);
+    expect($('.thorn-pic').closest('.direction').textContent).toMatch(new RegExp(`${name}.*Jump over them!`));
+  });
+
+  it('look different in every world', async () => {
+    const looks = new Set();
+    for (const page of ['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'night.html']) {
+      await open('?mane=pink', { page });
+      looks.add(thorn(0).innerHTML);
+    }
+    expect(looks.size).toBe(5);
+  });
+
+  it('wobble, and it\'s game over, when she runs into one', async () => {
+    await open();
+    holding = true; // no jumping it
+    for (let i = 0; i < 300 && frames.length; i++) tick();
+    expect(thorn(0).classList.contains('ouch')).toBe(true);
+    expect(x()).toBeLessThan(MEADOW.thorns[0]);
+    expect(height()).toBe(0); // not a fall
+    expect($('.game-over').hidden).toBe(true);
+    vi.advanceTimersByTime(500);
+    expect($('.game-over').hidden).toBe(false);
+  });
+
+  it('are jumped over, and her run goes on', async () => {
+    await open();
+    for (let i = 0; i < 120; i++) tick();
+    expect(x()).toBeGreaterThan(MEADOW.thorns[0] + 100);
+    expect(thorn(0).classList.contains('ouch')).toBe(false);
+  });
+
+  it('stop wobbling on a new try', async () => {
+    await open();
+    holding = true;
+    for (let i = 0; i < 300 && frames.length; i++) tick();
+    vi.advanceTimersByTime(500);
+    $('.retry-btn').click();
+    expect($$('.course .thorns.ouch')).toHaveLength(0);
+    expect(x()).toBe(MEADOW.start);
   });
 });
 

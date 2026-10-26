@@ -197,6 +197,7 @@ describe('the card at the start of each level', () => {
     expect(html).toContain('<div class="how-to" hidden>');
     expect(html).toContain('<button class="how-btn" type="button">How to play</button>');
     expect(html).toContain('<button class="go-btn" type="button">Go!</button>');
+    expect(html).toContain('<span class="direction-pic thorn-pic" aria-hidden="true"></span>');
   });
 });
 

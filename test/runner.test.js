@@ -2,7 +2,7 @@
 // made-up courses.
 import { describe, expect, it } from 'vitest';
 import {
-  AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, WALL_FRONT,
+  AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, THORN_HEIGHT, THORN_REACH, WALL_FRONT,
   createRunner, step,
 } from '../public/game/runner.js';
 
@@ -360,6 +360,60 @@ describe('crystal walls', () => {
     run(state, 2, HOLD);
     state.x = 400;
     expect(run(state, 2)).not.toContain('thud');
+  });
+});
+
+describe('prickly things', () => {
+  const prickly = (more = {}) => course({ thorns: [400], ...more });
+
+  it('are game over when she runs into one', () => {
+    const state = createRunner(prickly());
+    const events = run(state, 3);
+    expect(events).toContain('ouch');
+    expect(events).not.toContain('fall');
+    expect(state).toMatchObject({ fallen: true, ouch: 0 });
+    expect(state.x).toBeGreaterThan(400 - THORN_REACH - 10);
+    expect(state.x).toBeLessThan(400 - THORN_REACH + 10); // she stops right there
+    const { x } = state;
+    expect(run(state, 1, TAP)).toEqual([]);
+    expect(state.x).toBe(x);
+  });
+
+  it('can be jumped over, with time to spare', () => {
+    // a press anywhere from 165 to 60 before it is enough: about two fifths
+    // of a second's run
+    for (const early of [165, 60]) {
+      const state = createRunner(prickly());
+      state.x = 0;
+      run(state, (400 - early) / RUN);
+      step(state, DT, TAP);
+      expect(run(state, 2), `pressed ${early} before`).not.toContain('ouch');
+      expect(state.x).toBeGreaterThan(400);
+    }
+  });
+
+  it('can be dashed over', () => {
+    const state = createRunner(prickly());
+    run(state, 250 / RUN);
+    step(state, DT, TAP);
+    expect(run(state, 1, HOLD)).not.toContain('ouch');
+    expect(state.x).toBeGreaterThan(400);
+  });
+
+  it('only count when she really runs into one: just over the top, or just past it, is fine', () => {
+    const over = createRunner(prickly());
+    over.x = 400 - THORN_REACH + 1;
+    over.y = THORN_HEIGHT + 1;
+    over.grounded = false;
+    expect(step(over, DT, IDLE)).not.toContain('ouch');
+    const past = createRunner(prickly());
+    past.x = 400 + THORN_REACH;
+    expect(step(past, DT, IDLE)).not.toContain('ouch');
+  });
+
+  it('aren\'t in a course without any', () => {
+    const state = createRunner(course({ castle: 600 }));
+    expect(run(state, 3)).toContain('finish');
   });
 });
 

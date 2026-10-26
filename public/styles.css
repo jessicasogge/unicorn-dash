@@ -581,6 +581,22 @@ body {
   40% { transform: scale(1.2, 0.85); }
 }
 
+/* Something prickly to jump over, in every world: a wobble when she runs
+   into it */
+.thorns {
+  width: 100px;
+  height: 74px;
+}
+
+.thorns.ouch {
+  animation: ouch 0.4s ease-in-out;
+}
+
+@keyframes ouch {
+  25%, 75% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
 /* Crystal walls (Crystal Caves): a wobble when bumped, and smashed apart
    by a dash, each shard flying its own way */
 .crystal-wall {
@@ -972,6 +988,41 @@ body {
   flex: none;
   width: 4.5rem;
   height: 4.5rem;
+}
+
+.thorn-pic {
+  display: flex;
+  align-items: center;
+}
+
+.thorn-pic svg {
+  width: 100%;
+}
+
+/* On a short screen, the directions closer together, so they all fit */
+@media (max-height: 700px) {
+  .directions-card {
+    padding: 0.9rem 1.25rem 1.1rem;
+    gap: 0.6rem;
+  }
+
+  .directions-title {
+    font-size: 1.8rem;
+  }
+
+  .how-to {
+    gap: 0.5rem;
+  }
+
+  .direction-pic {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .direction p {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
 }
 
 .direction-keys {
