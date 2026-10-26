@@ -6,6 +6,9 @@ import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/cou
 import { DASH, DASH_TIME, GRAVITY, HOLD_TO_DASH, JUMP, RIDE, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
+
+// Whether a pretend player should jump now, for something prickly just ahead
+const thornAhead = (level, state) => state.grounded && state.y === 0 && level.thorns.some((x) => x > state.x && x - state.x < 80);
 const gaps = MEADOW.ground.slice(1).map(([to], i) => ({ from: MEADOW.ground[i][1], to, width: to - MEADOW.ground[i][1] }));
 const short = gaps.filter((g) => g.width < 200);
 const long = gaps.filter((g) => g.width >= 200);
@@ -14,7 +17,7 @@ const long = gaps.filter((g) => g.width >= 200);
 // x to press, and how long to hold) and says whether she got past `to`
 // without falling.
 function tryGap({ from, to }, press, { hold = 0, double = false } = {}) {
-  const state = createRunner(MEADOW);
+  const state = createRunner({ ...MEADOW, thorns: [] }); // just the gap
   state.x = from - 400;
   let pressedAt = null;
   let doubled = false;
@@ -106,7 +109,9 @@ describe('the course', () => {
     for (; t < 60 && !state.finished; t += DT) {
       let input = { pressed: false, held: t < holdUntil };
       const next = gaps.find((g) => g.from > state.x);
-      if (next && state.grounded && next.from - state.x < 40) {
+      if (thornAhead(MEADOW, state)) {
+        input = { pressed: true, held: false };
+      } else if (next && state.grounded && next.from - state.x < 40) {
         input = { pressed: true, held: next.width >= 200 };
         if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
       }
@@ -132,6 +137,8 @@ describe('the course', () => {
           input = { pressed: true, held: false };
         } else if (double && state.vy <= 0 && !state.grounded) {
           double = false;
+          input = { pressed: true, held: false };
+        } else if (thornAhead(MEADOW, state)) {
           input = { pressed: true, held: false };
         } else if (next && state.grounded && next.from - state.x < 40) {
           input = { pressed: true, held: next.width >= 200 };
@@ -204,7 +211,9 @@ describe('Candy Canyon', () => {
       for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
         let input = { pressed: false, held: t < holdUntil };
         const next = candyGaps.find((g) => g.from > state.x);
-        if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+        if (thornAhead(CANDY, state) && t >= holdUntil) {
+          input = { pressed: true, held: false };
+        } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
           input = { pressed: true, held: next.width >= 200 };
           if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
         }
@@ -263,6 +272,8 @@ describe('Cloud Kingdom', () => {
           input = { pressed: true, held: false };
         } else if (double && state.vy <= 0 && !state.grounded) {
           double = false;
+          input = { pressed: true, held: false };
+        } else if (thornAhead(CLOUD, state) && t >= holdUntil) {
           input = { pressed: true, held: false };
         } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
           input = { pressed: true, held: next.width >= 200 };
@@ -330,6 +341,8 @@ describe('Crystal Caves', () => {
           dashedAt.add(CRYSTAL.walls.indexOf(wall));
           input = { pressed: true, held: true };
           holdUntil = t + 0.6;
+        } else if (thornAhead(CRYSTAL, state) && t >= holdUntil) {
+          input = { pressed: true, held: false };
         } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
           input = { pressed: true, held: next.width >= 200 };
           if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
@@ -373,6 +386,8 @@ describe('the Night Sky', () => {
         dashedAt.add(NIGHT.walls.indexOf(wall));
         input = { pressed: true, held: true };
         holdUntil = t + 0.6;
+      } else if (thornAhead(NIGHT, state) && t >= holdUntil) {
+        input = { pressed: true, held: false };
       } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
         input = { pressed: true, held: next.width >= 200 };
         if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
@@ -458,12 +473,47 @@ describe('every level', () => {
     }
   });
 
+  it('has two or three prickly things to jump, each with a diamond up over it', () => {
+    for (const [name, level] of Object.entries(LEVELS)) {
+      expect(level.thorns.length, name).toBeGreaterThanOrEqual(2);
+      expect(level.thorns.length, name).toBeLessThanOrEqual(3);
+      for (const x of level.thorns) {
+        expect(level.gems.some(([gx, gy]) => gx === x && gy === 150), `${name} at ${x}`).toBe(true);
+      }
+    }
+  });
+
+  it('puts its prickly things on flat ground, clear of gaps, gumdrops, pots, walls, clouds and the castle', () => {
+    for (const [name, level] of Object.entries(LEVELS)) {
+      for (const x of level.thorns) {
+        const where = `${name} at ${x}`;
+        // room to land before it, and after it before the next gap
+        expect(level.ground.slice(1, -1).some(([from, to]) => x - 150 >= from && x + 150 <= to), where).toBe(true);
+        for (const other of [...level.bouncers, ...level.pots.map((p) => p.x), level.castle]) {
+          expect(Math.abs(x - other), where).toBeGreaterThanOrEqual(150);
+        }
+        // not where a wall knocks her back to (400 back), nor where she jumps for a cloud
+        for (const wall of level.walls) expect(x < wall - 450 || x > wall, where).toBe(true);
+        for (const cloud of level.clouds) expect(x < cloud.from - 300 || x > cloud.to + 100, where).toBe(true);
+      }
+    }
+  });
+
   it('can\'t be won by holding the whole way: a dash runs out', () => {
     for (const level of [MEADOW, NIGHT]) {
       const state = createRunner(level);
       step(state, 1 / 60, { pressed: true, held: true });
       for (let t = 0; t < 30 && !state.finished && !state.fallen; t += 1 / 60) step(state, 1 / 60, { pressed: false, held: true });
       expect(state.fallen).toBe(true);
+    }
+  });
+
+  it('keeps its first stretch, before the first gap, and its last, after the last gap, clear of prickly things', () => {
+    for (const [name, level] of Object.entries(LEVELS)) {
+      for (const x of level.thorns) {
+        expect(x, `${name} at ${x}`).toBeGreaterThan(level.ground[0][1]);
+        expect(x, `${name} at ${x}`).toBeLessThan(level.ground.at(-1)[0]);
+      }
     }
   });
 });

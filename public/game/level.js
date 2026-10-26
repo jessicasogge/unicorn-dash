@@ -97,6 +97,29 @@ const WALL = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round">'
   + '<path class="shard" d="M84 330 L86 140 L108 60 L124 150 L120 330 Z" fill="#9B6BFF"/>'
   + '</g><g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.7"><path d="M22 90 L16 150 M66 40 L58 110 M104 110 L98 160"/></g>';
 
+// Something prickly on the ground to jump over, different in each world: a
+// round bush with spikes all round it, in the world's colors, and a little
+// something on top. Cloud Kingdom's is a grumpy thundercloud instead.
+const SPIKES = [[9, 64, 0, 56, 11, 50], [14, 45, 6, 32, 24, 38], [26, 33, 18, 16, 35, 23], [43, 20, 50, 2, 57, 20],
+  [65, 23, 82, 16, 74, 33], [76, 38, 94, 32, 86, 45], [89, 50, 100, 56, 91, 64]];
+const BRAMBLE = (body, spikes, extra = '') => `<g stroke="#2B2350" stroke-linejoin="round">${SPIKES.map(([x1, y1, ax, ay, x2, y2]) => `<path d="M${x1} ${y1} L${ax} ${ay} L${x2} ${y2} Z" fill="${spikes}" stroke-width="4"/>`).join('')}<path d="M10 72 Q6 44 26 38 Q30 18 50 19 Q70 18 74 38 Q94 44 90 72 Z" fill="${body}" stroke-width="5"/></g>${extra}`;
+const THORNS = {
+  // A thistle: a green spiky bush with purple flowers
+  meadow: BRAMBLE('#4FAF55', '#E9F7D0', '<g stroke="#2B2350" stroke-width="4"><circle cx="36" cy="22" r="8" fill="#B06BE0"/><circle cx="64" cy="22" r="8" fill="#B06BE0"/></g>'),
+  // A spiky candy: minty, with white spikes and sprinkles
+  candy: BRAMBLE('#7BE0A0', '#FFFFFF', '<g fill="#FF5FA2"><circle cx="34" cy="42" r="4"/><circle cx="62" cy="36" r="4"/></g><g fill="#FFC21A"><circle cx="48" cy="56" r="4"/><circle cx="72" cy="58" r="4"/><circle cx="24" cy="60" r="4"/></g>'),
+  // A grumpy thundercloud, sitting on the ground, zapping it
+  cloud: '<g transform="translate(4 4) scale(0.92)"><g stroke="#2B2350" stroke-linejoin="round"><path d="M40 52 L30 72 L44 64 L40 72 L58 52 Z" fill="#FFD23F" stroke-width="4"/><path d="M16 56 a14 14 0 0 1 4 -27 a20 20 0 0 1 36 -12 a18 18 0 0 1 32 13 a13 13 0 0 1 2 26 Z" fill="#8A8FB5" stroke-width="5"/></g><g stroke="#2B2350" stroke-width="4" stroke-linecap="round"><path d="M36 32 L46 36 M66 32 L56 36"/></g><g fill="#2B2350"><circle cx="43" cy="42" r="3.5"/><circle cx="59" cy="42" r="3.5"/></g></g>',
+  // A purple bramble, its thorns pale like crystal
+  crystal: BRAMBLE('#7B4FD6', '#E2D4FF'),
+  // A blue bramble, with little stars in it
+  night: BRAMBLE('#2E5FA8', '#BFE6FF', '<g fill="#FFE58A"><path d="M36 44 l3 6 l6 1 l-5 4 l1 6 l-5 -3 l-5 3 l1 -6 l-5 -4 l6 -1 Z"/><path d="M64 36 l2 4 l4 1 l-3 3 l1 4 l-4 -2 l-4 2 l1 -4 l-3 -3 l4 -1 Z"/></g>'),
+};
+const THORN = THORNS[main.dataset.level];
+
+// The directions show it too
+document.querySelector('.thorn-pic').append(svg('0 0 100 74', THORN));
+
 // A shooting star: a big glowing star with a sparkly tail behind it.
 const SHOOTING_STAR = '<g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
 
@@ -129,11 +152,12 @@ function build(course) {
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
+  const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, walls, stars };
+  return { gems, fireworks, gumdrops, pots, walls, stars, thorns };
 }
 
-const { gems, fireworks, gumdrops, pots, walls, stars } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, walls, stars, thorns } = build(LEVEL);
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -226,7 +250,8 @@ function frame(time) {
     setTimeout(() => { finish.hidden = false; }, FINISH_DELAY_MS);
     return;
   }
-  if (events.includes('fall')) {
+  if (events.includes('ouch')) replay(thorns[state.ouch], 'ouch');
+  if (events.includes('fall') || events.includes('ouch')) {
     setTimeout(() => { gameOver.hidden = false; }, GAME_OVER_DELAY_MS);
     return;
   }
@@ -275,6 +300,7 @@ function restart() {
   state = createRunner(LEVEL, mane.name);
   setMane(unicorn, mane); // back to the color she came with
   for (const wall of walls) wall.classList.remove('smashed', 'wobble');
+  for (const thorn of thorns) thorn.classList.remove('ouch');
   for (const star of stars) {
     star.classList.remove('riding', 'gone');
     star.style.transform = '';

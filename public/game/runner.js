@@ -2,7 +2,9 @@
 // Running onto a gumdrop bounces her up high. Running through a paint pot
 // changes her mane color, just for fun. Crystal walls only break
 // for a rainbow dash, and knock her back otherwise. Touching a shooting
-// star, she rides it through the sky, then drops off at its end.
+// star, she rides it through the sky, then drops off at its end. Every
+// world has prickly things on the ground (thistles, spiky candy...) to jump
+// over: running into one is game over, like falling in a gap.
 // Dash is faster, level flight, for a while: then, still held, she glides
 // gently down, and it takes letting go and pressing again to dash again
 // (once each time she's up in the air). Gems are counted.
@@ -27,6 +29,8 @@ export const KNOCK_TIME = 0.6; // seconds she's knocked back by a crystal wall
 export const KNOCK_SPEED = 600; // going backwards, world units a second
 export const KNOCK_HOP = 520; // with a little hop
 export const WALL_FRONT = 40; // a crystal wall's front edge, this far before its middle
+export const THORN_REACH = 30; // how near a prickly thing she can run, along x (less than it's drawn, to be fair)
+export const THORN_HEIGHT = 50; // and under this, she runs into it
 export const RIDE = 640; // a shooting star's speed, carrying her
 export const STAR_REACH = 70; // how near a shooting star she has to get, along x
 export const STAR_REACH_Y = 90; // and up or down
@@ -55,7 +59,8 @@ export function createRunner(course, mane = null) {
     airDashed: false, // she's dashed since last on the ground
     collected: new Set(),
     finished: false, // at the castle
-    fallen: false, // in a gap: game over
+    fallen: false, // in a gap, or into something prickly: game over
+    ouch: null, // the prickly thing she ran into, if she did
     bounced: null, // the last gumdrop she bounced on
   };
 }
@@ -70,7 +75,7 @@ function surfacesAt(course, x) {
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
 // and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'paint',
-// 'smash', 'thud', 'ride', 'hop-off', 'fall', 'finish'.
+// 'smash', 'thud', 'ride', 'hop-off', 'ouch', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -207,6 +212,16 @@ export function step(state, dt, input) {
   });
 
   catchGems(state, events);
+
+  // Into something prickly: ouch, game over
+  const thorn = (state.course.thorns ?? []).findIndex((x) => Math.abs(state.x - x) < THORN_REACH && state.y < THORN_HEIGHT);
+  if (thorn >= 0) {
+    state.fallen = true;
+    state.dashing = false;
+    state.ouch = thorn;
+    events.push('ouch');
+    return events;
+  }
 
   if (state.y < FALL_LIMIT) {
     state.fallen = true;
