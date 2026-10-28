@@ -169,7 +169,7 @@ describe('the course', () => {
     expect($('.gem-count .count').textContent).toBe('untouched');
   });
 
-  it('zooms out on a narrow screen, like an upright phone, to show the course ahead', async () => {
+  it('zooms out on a narrow screen, like an upright phone, and keeps her nearer the left, to show the course ahead', async () => {
     await open();
     const view = $('.view');
     Object.defineProperty(view, 'clientHeight', { value: 844 });
@@ -177,7 +177,10 @@ describe('the course', () => {
     window.dispatchEvent(new Event('resize'));
     meadow.render();
     const scale = 390 / meadow.VIEW_WIDTH;
-    expect($('.course').style.transform).toMatch(new RegExp(`^scale\\(${scale}\\)`));
+    const camera = Math.round((MEADOW.start - meadow.VIEW_WIDTH * meadow.NARROW_LEAD) * scale) / scale;
+    expect($('.course').style.transform).toBe(`scale(${scale}) translate3d(${-camera}px, 0, 0)`);
+    // with as much of the course ahead of her as before, at least 440 across
+    expect(meadow.VIEW_WIDTH * (1 - meadow.NARROW_LEAD)).toBeGreaterThanOrEqual(440);
   });
 
   it('slides along under her as she runs', async () => {

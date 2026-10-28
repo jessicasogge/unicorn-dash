@@ -7,9 +7,10 @@ import { createRunner, step } from './runner.js';
 import { MANES, drawUnicorn, maneFromAddress, pressOnReturn, setMane } from './unicorn.js';
 
 export const VIEW_HEIGHT = 600; // world units from the bottom of the screen to the top
-export const VIEW_WIDTH = 700; // at least this much course across, so she sees gaps coming
+export const VIEW_WIDTH = 560; // at least this much course across, so she sees gaps coming
 export const BASE = 140; // the ground's top, up from the bottom of the screen
 export const LEAD = 0.3; // she runs this far across the screen
+export const NARROW_LEAD = 0.2; // or on a narrow screen, nearer the left, to see as far ahead
 export const FINISH_DELAY_MS = 700; // a moment at the castle before the buttons
 export const HILL_WIDTH = 640; // the far hills' repeat, in screen pixels (styles.css)
 export const HILLS_SPEED = 0.3; // they drift by this much slower than the ground
@@ -182,7 +183,7 @@ function measure() {
   // (jsdom, in the tests, lays nothing out: then a square screen)
   const height = view.clientHeight || VIEW_HEIGHT;
   const width = view.clientWidth || VIEW_HEIGHT;
-  size = { width, scale: Math.min(height / VIEW_HEIGHT, width / VIEW_WIDTH) };
+  size = { width, scale: Math.min(height / VIEW_HEIGHT, width / VIEW_WIDTH), lead: width < height ? NARROW_LEAD : LEAD };
 }
 window.addEventListener('resize', () => { size = null; });
 
@@ -193,9 +194,9 @@ let shownCount = null;
 // page out again, so it stays smooth on phones and tablets.
 export function render() {
   if (!size) measure();
-  const { width, scale } = size;
+  const { width, scale, lead } = size;
   // The camera stops on whole screen pixels, so edges don't shimmer
-  const camera = Math.round((state.x - (width / scale) * LEAD) * scale) / scale;
+  const camera = Math.round((state.x - (width / scale) * lead) * scale) / scale;
   course.style.transform = `scale(${scale}) translate3d(${-camera}px, 0, 0)`;
   // (wrapped to 0 up to a hill, even while the camera's still left of the start)
   const drift = (((camera * scale * HILLS_SPEED) % HILL_WIDTH) + HILL_WIDTH) % HILL_WIDTH;
