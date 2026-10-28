@@ -366,6 +366,27 @@ describe('jumping', () => {
     }
   });
 
+  it('doesn\'t let a phone zoom in on a double tap, or a pinch', async () => {
+    await open();
+    for (const [target, type] of [[$('.view'), 'touchend'], [$('.view'), 'dblclick'], [document, 'gesturestart']]) {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      expect(event.defaultPrevented, type).toBe(true);
+    }
+  });
+
+  it('jumps twice on a quick double tap, like a phone sends it', async () => {
+    await open();
+    tick(5);
+    for (let i = 0; i < 2; i++) {
+      pointer('pointerdown');
+      $('.view').dispatchEvent(new Event('touchend', { bubbles: true, cancelable: true }));
+      pointer('pointerup');
+      tick(8);
+    }
+    expect(height()).toBeGreaterThan(144); // higher than one jump goes
+  });
+
   it('doesn\'t scroll the page on the space bar', async () => {
     await open();
     const event = new KeyboardEvent('keydown', { key: ' ', cancelable: true });

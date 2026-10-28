@@ -464,6 +464,7 @@ body {
   font-family: Fredoka, system-ui, sans-serif;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: manipulation; /* no double-tap zoom, on the buttons and cards too */
 }
 
 /* The play area: tap or hold anywhere. Far hills along the bottom drift

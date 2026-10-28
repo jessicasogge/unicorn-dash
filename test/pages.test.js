@@ -102,6 +102,12 @@ describe('the Meadow', () => {
     expect(rule).not.toContain('infinite');
   });
 
+  it('turns off double-tap zoom everywhere on a level, so a double tap is a double jump', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    expect(css).toMatch(/\.level \{[^}]*touch-action: manipulation;/);
+    expect(css).toMatch(/\.view \{[^}]*touch-action: none;/);
+  });
+
   it('starts with the directions showing', () => {
     expect(level).toContain('<div class="directions">');
     expect(level).toContain('<button class="go-btn" type="button">Go!</button>');
