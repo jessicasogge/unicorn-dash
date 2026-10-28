@@ -275,6 +275,14 @@ view.addEventListener('pointerdown', (event) => {
 });
 for (const type of ['pointerup', 'pointercancel', 'pointerleave']) view.addEventListener(type, release);
 
+// A double tap on the course is a double jump, and a phone mustn't zoom in
+// on it instead: once zoomed, the phone takes taps for moving the page
+// about, and she can't jump or dash. (styles.css says so too, but not every
+// phone listens.) Nor a pinch, on an iPhone.
+view.addEventListener('touchend', (event) => event.preventDefault());
+view.addEventListener('dblclick', (event) => event.preventDefault());
+document.addEventListener('gesturestart', (event) => event.preventDefault());
+
 const KEYS = [' ', 'ArrowUp'];
 window.addEventListener('keydown', (event) => {
   // Space on a focused button presses the button, not jump
