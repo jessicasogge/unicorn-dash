@@ -1150,6 +1150,97 @@ body {
   }
 }
 
+/* A phone held sideways: a wide, short screen. Everything sized by the
+   screen's height, so each screen still fits without scrolling. */
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  .start {
+    gap: 0.25rem;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .logo-unicorn {
+    font-size: 15vh;
+  }
+
+  .logo-dash {
+    font-size: 17vh;
+  }
+
+  .stage {
+    width: min(88vw, 60vh);
+  }
+
+  .play-btn {
+    width: 7rem;
+    height: 4.5rem;
+    border-radius: 1.75rem;
+  }
+
+  .play-btn svg {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .worlds {
+    --island: clamp(3.5rem, 18vh, 5rem);
+    margin-top: 0;
+  }
+
+  /* The directions in two columns, side by side */
+  .directions-card {
+    max-width: min(52rem, 100%);
+  }
+
+  .how-to {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .direction-keys {
+    grid-column: 1 / -1;
+  }
+
+  .go-btn {
+    height: 3.75rem;
+    font-size: 1.9rem;
+  }
+
+  .game-over {
+    gap: 0.6rem;
+  }
+
+  .game-over-title {
+    font-size: 13vh;
+  }
+
+  .oops {
+    width: 34vh;
+  }
+
+  .finish {
+    gap: 0.75rem;
+    padding-top: 4.5rem; /* under the diamond counter */
+  }
+
+  .finish-title {
+    font-size: 12vh;
+  }
+
+  .finish .icon-btn,
+  .game-over .icon-btn {
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 1.4rem;
+  }
+
+  .finish .icon-btn svg,
+  .game-over .icon-btn svg {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+}
+
 /* For players whose devices ask for less motion: she stays put. */
 @media (prefers-reduced-motion: reduce) {
   .unicorn-btn,
