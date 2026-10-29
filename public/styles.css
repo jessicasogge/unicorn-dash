@@ -35,6 +35,14 @@
   box-sizing: border-box;
 }
 
+/* Each page fills the whole screen, round a phone's notch too
+   (viewport-fit=cover), with what's along its edges kept clear of the
+   notch by the safe-area insets. No bounce past the edges either, which
+   would show the page behind. */
+html {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   background: var(--grass); /* under the start screen, the hill carries on */
@@ -56,7 +64,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: clamp(0.5rem, 3vh, 1.75rem);
-  padding: 2rem 1rem 3rem;
+  padding: 2rem max(1rem, env(safe-area-inset-right)) 3rem max(1rem, env(safe-area-inset-left));
 }
 
 /* Fills the screen and is cropped at the sides on a narrow one, so the
@@ -289,7 +297,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  padding: 1.25rem 1rem 2rem;
+  padding: max(1.25rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 2rem max(1rem, env(safe-area-inset-left));
   font-family: Fredoka, system-ui, sans-serif;
 }
 
@@ -802,13 +810,14 @@ body {
 
 .level-bar {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
+  top: max(1rem, env(safe-area-inset-top));
+  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 1; /* above the directions, castle and game over screens, so the map button always works */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  pointer-events: none; /* taps between the buttons still reach the course */
+  pointer-events: none; /* taps between the buttons still reach the course, or the screen showing */
 }
 
 .level-bar > * {
@@ -853,7 +862,7 @@ body {
   justify-content: center;
   gap: 1.5rem;
   /* in the open sky to the right of the castle and its fireworks */
-  padding: 0 4vw 12vh 50vw;
+  padding: 0 max(4vw, env(safe-area-inset-right)) 12vh 50vw;
 }
 
 .finish-title,
@@ -886,7 +895,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left));
 }
 
 .directions[hidden] {
@@ -1130,8 +1139,8 @@ body {
 
 .level .signature {
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.4rem;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(0.4rem, env(safe-area-inset-bottom));
   margin: 0;
   padding: 0;
   font-size: 0.75rem;

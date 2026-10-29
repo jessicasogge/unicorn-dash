@@ -20,6 +20,20 @@ describe('tab icon', () => {
   });
 });
 
+describe('on a phone with a notch', () => {
+  it.each(PAGES)('%s fills the whole screen, round the notch too', (page) => {
+    expect(readFileSync(file(page), 'utf8')).toContain('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />');
+  });
+
+  it('keeps the buttons along the edges clear of the notch, and doesn\'t bounce past the edges', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    expect(css).toMatch(/\.level-bar \{[^}]*left: max\(1rem, env\(safe-area-inset-left\)\);[^}]*right: max\(1rem, env\(safe-area-inset-right\)\);/);
+    expect(css).toMatch(/\.map \{[^}]*padding: [^;]*env\(safe-area-inset-left\)\);/);
+    expect(css).toMatch(/\.start \{[^}]*padding: [^;]*env\(safe-area-inset-left\)\);/);
+    expect(css).toMatch(/html \{\s*overscroll-behavior: none;/);
+  });
+});
+
 describe('signature', () => {
   it.each(PAGES)('%s is signed at the foot', (page) => {
     const html = readFileSync(file(page), 'utf8');
@@ -100,6 +114,15 @@ describe('the Meadow', () => {
     const rule = css.match(/\.firework span \{([^}]*)\}/)[1];
     expect(rule).toMatch(/animation: burst [\d.]+s ease-out both;/);
     expect(rule).not.toContain('infinite');
+  });
+
+  it('keeps the map button on top of every screen, so it always works', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    expect(css).toMatch(/\.level-bar \{[^}]*z-index: 1;/);
+    // and nothing over it
+    for (const screen of ['directions', 'finish', 'game-over']) {
+      expect(css.match(new RegExp(`\\.${screen} \\{[^}]*\\}`))[0], screen).not.toContain('z-index');
+    }
   });
 
   it('turns off double-tap zoom everywhere on a level, so a double tap is a double jump', () => {
