@@ -813,10 +813,11 @@ body {
   top: max(1rem, env(safe-area-inset-top));
   left: max(1rem, env(safe-area-inset-left));
   right: max(1rem, env(safe-area-inset-right));
+  z-index: 1; /* above the directions, castle and game over screens, so the map button always works */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  pointer-events: none; /* taps between the buttons still reach the course */
+  pointer-events: none; /* taps between the buttons still reach the course, or the screen showing */
 }
 
 .level-bar > * {

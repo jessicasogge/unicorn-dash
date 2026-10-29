@@ -116,6 +116,15 @@ describe('the Meadow', () => {
     expect(rule).not.toContain('infinite');
   });
 
+  it('keeps the map button on top of every screen, so it always works', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    expect(css).toMatch(/\.level-bar \{[^}]*z-index: 1;/);
+    // and nothing over it
+    for (const screen of ['directions', 'finish', 'game-over']) {
+      expect(css.match(new RegExp(`\\.${screen} \\{[^}]*\\}`))[0], screen).not.toContain('z-index');
+    }
+  });
+
   it('turns off double-tap zoom everywhere on a level, so a double tap is a double jump', () => {
     const css = readFileSync(file('styles.css'), 'utf8');
     expect(css).toMatch(/\.level \{[^}]*touch-action: manipulation;/);
