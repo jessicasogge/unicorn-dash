@@ -646,21 +646,22 @@ body {
   opacity: 0.55;
 }
 
-/* Crystal Caves: a dark cave, purple hills, crystal-topped ground */
+/* Crystal Caves: a glowing aqua cave, like its island on the map (and
+   unlike the dark blue Night Sky), teal hills, lavender crystal ground */
 .level.crystal {
-  background: #2e2650;
+  background: #8ddbd5;
 }
 
 .crystal .hills {
-  background-image: radial-gradient(circle at 50% 100%, #463b7a 0 45%, transparent 45.5%);
+  background-image: radial-gradient(circle at 50% 100%, #6cc6bf 0 45%, transparent 45.5%);
 }
 
 .crystal .ground {
-  background: linear-gradient(#7fe3ff 0 28px, var(--ink) 28px 33px, #4b3f7a 33px);
+  background: linear-gradient(#c9b6ff 0 28px, var(--ink) 28px 33px, #3f8a8a 33px);
 }
 
 .crystal .signature {
-  color: #ffffff; /* on the dark cave floor */
+  color: #ffffff; /* on the teal rock */
 }
 
 /* Shooting stars (the Night Sky): glowing as she rides one, then zooming
