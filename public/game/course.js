@@ -1,12 +1,12 @@
 // The levels' courses, in world units (x right, y up): short gaps take a
-// jump, long gaps a rainbow dash.
+// jump, long gaps a rainbow dash. Each world has one more gap than the one
+// before, so they get harder as you go.
 
 export const MEADOW = {
   // Ground, as [from, to] along x. The spaces between are gaps.
   ground: [
     [-400, 900],
-    [1020, 1800], // short gap before: a jump
-    [1920, 2700], // short gap
+    [1020, 2700], // short gap before: a jump
     [3220, 3880], // long gap before: a dash
     [4000, 4700], // short gap, with a run-up to the cloud
     [5240, 5700], // long gap
@@ -58,7 +58,8 @@ export const CANDY = {
     [2650, 3500], // long gap
     [3620, 4700], // short gap
     [5250, 5900], // long gap
-    [6020, 9800], // short gap; on past the castle
+    [6020, 6320], // short gap
+    [6440, 10320], // short gap; on past the castle
   ],
   clouds: [],
   // Prickly things to jump over (game over if she runs into one), by x:
@@ -77,23 +78,23 @@ export const CANDY = {
     [4170, 330], [4220, 390], [4270, 330],
     [4950, 150], [5050, 150],
     [5650, 150], // up over a spiky candy
-    [5960, 150], // over the last gap, up a jump
+    [6380, 150], // over the last gap, up a jump
   ],
   // Lollipop trees in the background, just for looks: [x, height]
   trees: [
-    [150, 230], [1300, 250], [2800, 240], [3800, 260], [5450, 240], [6500, 250],
+    [150, 230], [1300, 250], [2800, 240], [3800, 260], [5450, 240], [7020, 250],
   ],
   sky: [
     [150, 320, 1], [900, 270, 0.8], [1700, 360, 1.1], [2500, 290, 0.9],
     [3300, 360, 1.2], [4100, 280, 0.8], [4900, 350, 1], [5700, 300, 1.1],
-    [6500, 360, 0.9], [7200, 280, 1],
+    [7020, 360, 0.9], [7720, 280, 1],
   ],
   pots: [],
   walls: [],
   crystals: [],
   stars: [],
   start: 0,
-  castle: 6900,
+  castle: 7420,
 };
 
 // Cloud Kingdom: paint pots along the way change her mane's color, one
@@ -105,7 +106,9 @@ export const CLOUD = {
     [3000, 3950], // long gap
     [4070, 5250], // short gap
     [5800, 6800], // long gap
-    [6920, 10300], // short gap; on past the castle
+    [6920, 7220], // short gap
+    [7340, 7740], // short gap
+    [7860, 11340], // short gap; on past the castle
   ],
   clouds: [
     { from: 1700, to: 1920, top: 170 },
@@ -132,7 +135,7 @@ export const CLOUD = {
     [4560, 240], [4610, 240], [4660, 240],
     [5450, 150], [5550, 150], [5650, 150],
     [6700, 60],
-    [6860, 150], // over the last gap, up a jump
+    [7800, 150], // over the last gap, up a jump
     [6500, 150], [7050, 60],
   ],
   sky: [
@@ -144,7 +147,7 @@ export const CLOUD = {
   crystals: [],
   stars: [],
   start: 0,
-  castle: 7300,
+  castle: 8340,
 };
 
 // Crystal Caves: crystal walls only break for a rainbow dash, and knock
@@ -157,7 +160,10 @@ export const CRYSTAL = {
     [3050, 4100], // long gap
     [4220, 5400], // short gap
     [5950, 6850], // long gap
-    [6970, 10500], // short gap; on past the castle
+    [6970, 7270], // short gap
+    [7390, 7790], // short gap
+    [7910, 8310], // short gap
+    [8430, 12060], // short gap; on past the castle
   ],
   clouds: [
     { from: 1700, to: 1920, top: 170 },
@@ -179,12 +185,12 @@ export const CRYSTAL = {
     [4460, 240], [4510, 240], [4560, 240],
     [5650, 150],
     [6700, 60],
-    [6910, 150], // over the last gap, up a jump
+    [8370, 150], // over the last gap, up a jump
     [7100, 60],
   ],
   // Glowing crystals in the background, just for looks: [x, height]
   crystals: [
-    [250, 180], [1500, 220], [3300, 200], [4700, 240], [6100, 210], [7200, 230],
+    [250, 180], [1500, 220], [3300, 200], [4700, 240], [6100, 210], [7100, 230],
   ],
   sky: [],
   bouncers: [],
@@ -192,7 +198,7 @@ export const CRYSTAL = {
   pots: [],
   stars: [],
   start: 0,
-  castle: 7500,
+  castle: 9060,
 };
 
 // The Night Sky, the last world: a bit of everything (a gumdrop, a paint
@@ -207,7 +213,10 @@ export const NIGHT = {
     [4020, 5200], // short gap
     [5800, 6900], // long gap
     [7700, 8150], // a very long gap, under a shooting star
-    [8270, 12500], // short gap; on past the castle
+    [8270, 8570], // short gap
+    [8690, 9090], // short gap
+    [9210, 9610], // short gap
+    [9730, 14060], // short gap; on past the castle
   ],
   clouds: [],
   bouncers: [1700, 6250],
@@ -229,14 +238,14 @@ export const NIGHT = {
     [5450, 150], [5550, 150], // over the gap
     [6800, 310], [7000, 310], [7200, 310], [7400, 310],
     [8050, 60],
-    [8210, 150], // over the last gap, up a jump
+    [9670, 150], // over the last gap, up a jump
     [8400, 60], [8500, 60],
   ],
   trees: [],
   crystals: [],
   sky: [],
   start: 0,
-  castle: 8600,
+  castle: 10160,
 };
 
 export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT };

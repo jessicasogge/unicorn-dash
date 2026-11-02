@@ -448,6 +448,11 @@ describe('the Night Sky', () => {
 });
 
 describe('every level', () => {
+  it('has one more gap than the world before, so they get harder as you go', () => {
+    const gaps = Object.values(LEVELS).map((level) => level.ground.length - 1);
+    expect(gaps).toEqual([5, 6, 7, 8, 9]);
+  });
+
   it('has 20 diamonds to catch', () => {
     for (const [name, level] of Object.entries(LEVELS)) expect(level.gems, name).toHaveLength(20);
   });
