@@ -358,7 +358,7 @@ describe('Crystal Caves', () => {
 
   it('has a few glowing crystals in the background, on solid ground', () => {
     expect(CRYSTAL.crystals.length).toBeGreaterThanOrEqual(4);
-    expect(CRYSTAL.crystals.length).toBeLessThanOrEqual(6);
+    expect(CRYSTAL.crystals.length).toBeLessThanOrEqual(CRYSTAL.castle / 1200); // about one a screen or two
     for (const [x] of CRYSTAL.crystals) expect(onGround(x + 70, 70), `crystals at ${x}`).toBe(true);
   });
 
@@ -453,8 +453,10 @@ describe('every level', () => {
     expect(gaps).toEqual([5, 6, 7, 8, 9]);
   });
 
-  it('has 20 diamonds to catch', () => {
-    for (const [name, level] of Object.entries(LEVELS)) expect(level.gems, name).toHaveLength(20);
+  it('has 20 diamonds to catch in the Meadow, and more in each world after', () => {
+    const counts = Object.values(LEVELS).map((level) => level.gems.length);
+    expect(counts[0]).toBe(20);
+    counts.slice(1).forEach((count, i) => expect(count).toBeGreaterThan(counts[i]));
   });
 
   it('ends with a short gap to jump on the way to the castle, with a diamond over it', () => {
