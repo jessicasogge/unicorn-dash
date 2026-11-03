@@ -54,6 +54,8 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | Path | What's there |
 |---|---|
 | `public/index.html` | The start screen |
+| `public/social-preview.png` | The picture shown when a link to the game is shared |
+| `public/app-icon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/site.webmanifest` | Its icon on a phone's home screen (the PNGs are drawn from the SVG), named Unicorn Dash and opening full screen |
 | `public/script.js` | The start screen's taps: a new mane color, and Play |
 | `public/world-map.html` | The world map: the five worlds |
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
