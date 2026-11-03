@@ -34,6 +34,35 @@ describe('on a phone with a notch', () => {
   });
 });
 
+describe('on a phone\'s home screen', () => {
+  // A PNG's width, height and color type (6 has see-through parts), from its header
+  const png = (name) => {
+    const data = readFileSync(file(name));
+    return { width: data.readUInt32BE(16), height: data.readUInt32BE(20), seeThrough: data[25] === 6 || data[25] === 4 };
+  };
+
+  it.each(PAGES)('%s has the icon, the name under it, and opens full screen', (page) => {
+    const html = readFileSync(file(page), 'utf8');
+    expect(html).toContain('<link rel="apple-touch-icon" href="./apple-touch-icon.png" />');
+    expect(html).toContain('<link rel="manifest" href="./site.webmanifest" />');
+    expect(html).toContain('<meta name="apple-mobile-web-app-title" content="Unicorn Dash" />');
+    expect(html).toContain('<meta name="apple-mobile-web-app-capable" content="yes" />');
+  });
+
+  it('has an iPhone icon the size iPhones ask for, with nothing see-through (it would turn black)', () => {
+    expect(png('apple-touch-icon.png')).toEqual({ width: 180, height: 180, seeThrough: false });
+  });
+
+  it('lists icons in the manifest that are there, at the sizes it says', () => {
+    const manifest = JSON.parse(readFileSync(file('site.webmanifest'), 'utf8'));
+    expect(manifest).toMatchObject({ name: 'Unicorn Dash', short_name: 'Unicorn Dash', start_url: './index.html', display: 'standalone' });
+    for (const icon of manifest.icons) {
+      const [width, height] = icon.sizes.split('x').map(Number);
+      expect(png(icon.src.replace('./', '')), icon.src).toEqual({ width, height, seeThrough: false });
+    }
+  });
+});
+
 describe('signature', () => {
   it.each(PAGES)('%s is signed at the foot', (page) => {
     const html = readFileSync(file(page), 'utf8');
@@ -259,6 +288,10 @@ describe('search engines and shared links', () => {
     const address = page === 'index.html' ? SITE : SITE + page;
     expect(html).toContain(`<link rel="canonical" href="${address}" />`);
     expect(meta(html, 'property', 'og:url')).toBe(address);
+  });
+
+  it.each(PAGES)('%s shows the picture to apps that look for it as a twitter:image too', (page) => {
+    expect(readFileSync(file(page), 'utf8')).toContain('<meta name="twitter:image" content="https://jessicasogge.github.io/unicorn-dash/social-preview.png" />');
   });
 
   it.each(PAGES)('%s shows a picture when its link is shared', (page) => {
