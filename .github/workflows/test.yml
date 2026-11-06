@@ -1,0 +1,28 @@
+# Run the tests on every pull request, so a change that breaks the game, or
+# leaves part of it untested (see vitest.config.js), shows a red mark on the
+# pull request before it's merged, not after, when the deploy would fail.
+name: Tests
+
+on:
+  pull_request:
+  workflow_dispatch: # lets you rerun it by hand from the Actions tab
+
+permissions:
+  contents: read
+
+# A newer push to the same pull request replaces a run still going.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage # the tests, plus a check that they cover the game

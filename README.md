@@ -70,7 +70,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 
 ## Deployment
 
-Every push to `main` runs the tests and the coverage check and, if they pass, publishes `public/` to GitHub Pages (see [`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+Every push to `main`and PR runs the tests and the coverage check and, if they pass, publishes `public/` to GitHub Pages (see [`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
 
 ## Contributing
 
