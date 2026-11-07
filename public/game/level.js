@@ -90,6 +90,12 @@ const badge = (mane, x, y, size) => `<g transform="translate(${x} ${y}) scale(${
 // A paint pot, its paint and shape in one mane color.
 const POT = (mane) => `<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 26 H70 L62 88 H18 Z" fill="#fff"/><rect x="4" y="14" width="72" height="16" rx="8" fill="${mane.color}"/></g><path d="M20 30 v14 a5 5 0 0 0 10 0 v-14 M50 30 v8 a4 4 0 0 0 8 0 v-8" fill="${mane.color}"/>${badge(mane, 24, 44, 32)}`;
 
+// A hint over a crystal wall she's bumped into again and again: the long
+// tap picture from the directions, in a bubble, its ring filling up to say
+// "keep holding".
+export const HINT_AFTER = 2; // bumps into the same wall
+const HOLD_HINT = '<circle cx="46" cy="46" r="43" fill="#fff" stroke="#2B2350" stroke-width="5"/><g transform="translate(0 2)"><circle cx="46" cy="22" r="17" fill="none" stroke="#E6E0F5" stroke-width="6"/><circle class="hint-ring" cx="46" cy="22" r="17" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="107" transform="rotate(-90 46 22)"/><rect x="39" y="20" width="14" height="38" rx="7" fill="#fff" stroke="#2B2350" stroke-width="4"/><rect x="30" y="44" width="32" height="32" rx="13" fill="#fff" stroke="#2B2350" stroke-width="4"/></g>';
+
 // A crystal wall: tall glassy shards, in pieces that fly apart when a dash
 // smashes through.
 const WALL = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round">'
@@ -152,13 +158,15 @@ function build(course) {
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
+  const hints = course.walls.map((x) => place(svg('0 0 92 92', HOLD_HINT), 'hold-hint', x - 46, 345));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, walls, stars, thorns };
+  return { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns };
 }
 
-const { gems, fireworks, gumdrops, pots, walls, stars, thorns } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns } = build(LEVEL);
+const bumps = walls.map(() => 0); // times she's bumped into each wall, this try
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 
@@ -242,8 +250,15 @@ function frame(time) {
     const star = [...state.rode].at(-1);
     stars[star].classList.replace('riding', 'gone'); // zooms off and fades
   }
-  if (events.includes('smash')) walls[state.hit].classList.add('smashed');
-  if (events.includes('thud')) replay(walls[state.hit], 'wobble');
+  if (events.includes('smash')) {
+    walls[state.hit].classList.add('smashed');
+    hints[state.hit].classList.remove('show');
+  }
+  if (events.includes('thud')) {
+    replay(walls[state.hit], 'wobble');
+    bumps[state.hit] += 1;
+    if (bumps[state.hit] >= HINT_AFTER) hints[state.hit].classList.add('show');
+  }
   if (events.includes('bounce')) replay(gumdrops[state.bounced], 'squish');
   if (events.includes('gem')) replay(count, 'bump');
   if (events.includes('finish')) {
@@ -309,6 +324,8 @@ function restart() {
   state = createRunner(LEVEL, mane.name);
   setMane(unicorn, mane); // back to the color she came with
   for (const wall of walls) wall.classList.remove('smashed', 'wobble');
+  for (const hint of hints) hint.classList.remove('show');
+  bumps.fill(0);
   for (const thorn of thorns) thorn.classList.remove('ouch');
   for (const star of stars) {
     star.classList.remove('riding', 'gone');

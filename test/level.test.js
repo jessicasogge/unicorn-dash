@@ -890,6 +890,44 @@ describe('Crystal Caves', () => {
     expect(wall(0).classList.contains('smashed')).toBe(true);
   });
 
+  it('shows the hold picture over a wall once she\'s bumped into it twice, not before', async () => {
+    await cave();
+    const hint = () => $$('.course .hold-hint')[0];
+    expect($$('.course .hold-hint')).toHaveLength(CRYSTAL.walls.length);
+    expect(hint().style.left).toBe(`${CRYSTAL.walls[0] - 46}px`);
+    const bump = () => {
+      wall(0).classList.remove('wobble'); // so the next bump shows
+      for (let i = 0; i < 300 && !wall(0).classList.contains('wobble'); i++) tick();
+    };
+    expect(meadow.HINT_AFTER).toBe(2);
+    bump();
+    expect(wall(0).classList.contains('wobble')).toBe(true);
+    expect(hint().classList.contains('show')).toBe(false); // not after one bump
+    bump();
+    expect(hint().classList.contains('show')).toBe(true);
+    expect($$('.course .hold-hint.show')).toHaveLength(1); // only over that wall
+  });
+
+  it('puts the hold picture away once she dashes through, and on a new try', async () => {
+    await cave();
+    const hint = () => $$('.course .hold-hint')[0];
+    for (let i = 0; i < 900 && !hint().classList.contains('show'); i++) tick();
+    runTo(CRYSTAL.walls[0] - 300); // after the last knock back, running at it again
+    pointer('pointerdown');
+    runTo(CRYSTAL.walls[0] + 100);
+    pointer('pointerup');
+    expect(wall(0).classList.contains('smashed')).toBe(true);
+    expect(hint().classList.contains('show')).toBe(false);
+  });
+
+  it('puts the hold picture away on a new try', async () => {
+    await cave();
+    for (let i = 0; i < 900 && !$('.course .hold-hint.show'); i++) tick();
+    expect($('.course .hold-hint.show')).not.toBeNull();
+    $('.retry-btn').click();
+    expect($$('.course .hold-hint.show')).toHaveLength(0);
+  });
+
   it('puts the walls back up on a new try', async () => {
     await cave();
     runTo(CRYSTAL.walls[0] - 200);

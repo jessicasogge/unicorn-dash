@@ -606,6 +606,37 @@ body {
   50% { transform: rotate(6deg); }
 }
 
+/* Over a crystal wall she keeps bumping into: hold to dash. Pops up, bobs,
+   and its ring fills again and again, like a long tap. */
+.hold-hint {
+  width: 92px;
+  height: 92px;
+  opacity: 0;
+  transform: scale(0.4);
+  transform-origin: 50% 100%;
+  transition: opacity 0.3s, transform 0.3s ease-out;
+  pointer-events: none;
+}
+
+.hold-hint.show {
+  opacity: 1;
+  transform: scale(1);
+  animation: hint-bob 1.2s ease-in-out 0.3s infinite;
+}
+
+.hold-hint.show .hint-ring {
+  animation: hint-fill 1.2s ease-in infinite;
+}
+
+@keyframes hint-bob {
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes hint-fill {
+  from { stroke-dashoffset: 107; }
+  80%, to { stroke-dashoffset: 0; }
+}
+
 /* Crystal walls (Crystal Caves): a wobble when bumped, and smashed apart
    by a dash, each shard flying its own way */
 .crystal-wall {
@@ -1256,7 +1287,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .unicorn-btn,
   .trail,
-  .perch {
+  .perch,
+  .hold-hint.show {
     animation: none !important;
   }
 }
