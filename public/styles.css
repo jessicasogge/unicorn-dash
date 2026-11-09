@@ -606,11 +606,21 @@ body {
   50% { transform: rotate(6deg); }
 }
 
-/* Over a crystal wall she keeps bumping into: hold to dash. Pops up, bobs,
-   and its ring fills again and again, like a long tap. */
+/* Over a crystal wall she keeps bumping into: "Long tap", in a bubble that
+   pops up and bobs. (Its width is HINT_WIDTH in game/level.js.) */
 .hold-hint {
-  width: 92px;
-  height: 92px;
+  box-sizing: border-box;
+  padding: 10px 0;
+  border: 5px solid var(--ink);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
   opacity: 0;
   transform: scale(0.4);
   transform-origin: 50% 100%;
@@ -624,17 +634,8 @@ body {
   animation: hint-bob 1.2s ease-in-out 0.3s infinite;
 }
 
-.hold-hint.show .hint-ring {
-  animation: hint-fill 1.2s ease-in infinite;
-}
-
 @keyframes hint-bob {
   50% { transform: translateY(-8px); }
-}
-
-@keyframes hint-fill {
-  from { stroke-dashoffset: 107; }
-  80%, to { stroke-dashoffset: 0; }
 }
 
 /* Crystal walls (Crystal Caves): a wobble when bumped, and smashed apart

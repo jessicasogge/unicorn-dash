@@ -90,11 +90,15 @@ const badge = (mane, x, y, size) => `<g transform="translate(${x} ${y}) scale(${
 // A paint pot, its paint and shape in one mane color.
 const POT = (mane) => `<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 26 H70 L62 88 H18 Z" fill="#fff"/><rect x="4" y="14" width="72" height="16" rx="8" fill="${mane.color}"/></g><path d="M20 30 v14 a5 5 0 0 0 10 0 v-14 M50 30 v8 a4 4 0 0 0 8 0 v-8" fill="${mane.color}"/>${badge(mane, 24, 44, 32)}`;
 
-// A hint over a crystal wall she's bumped into again and again: the long
-// tap picture from the directions, in a bubble, its ring filling up to say
-// "keep holding".
+// A hint over a crystal wall she's bumped into again and again: "Long tap",
+// the words from the directions, in a bubble.
 export const HINT_AFTER = 2; // bumps into the same wall
-const HOLD_HINT = '<circle cx="46" cy="46" r="43" fill="#fff" stroke="#2B2350" stroke-width="5"/><g transform="translate(0 2)"><circle cx="46" cy="22" r="17" fill="none" stroke="#E6E0F5" stroke-width="6"/><circle class="hint-ring" cx="46" cy="22" r="17" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="107" transform="rotate(-90 46 22)"/><rect x="39" y="20" width="14" height="38" rx="7" fill="#fff" stroke="#2B2350" stroke-width="4"/><rect x="30" y="44" width="32" height="32" rx="13" fill="#fff" stroke="#2B2350" stroke-width="4"/></g>';
+const HINT_WIDTH = 170;
+function holdHint() {
+  const hint = document.createElement('div');
+  hint.textContent = 'Long tap';
+  return hint;
+}
 
 // A crystal wall: tall glassy shards, in pieces that fly apart when a dash
 // smashes through.
@@ -158,7 +162,7 @@ function build(course) {
   place(svg('0 0 340 300', CASTLE), 'castle', course.castle - 170, 0); // door where she stops
   const pots = course.pots.map((pot) => place(svg('0 0 80 92', POT(maneNamed(pot.mane))), 'paint-pot', pot.x - 40, -4));
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
-  const hints = course.walls.map((x) => place(svg('0 0 92 92', HOLD_HINT), 'hold-hint', x - 46, 345));
+  const hints = course.walls.map((x) => place(holdHint(), 'hold-hint', x - HINT_WIDTH / 2, 345, HINT_WIDTH));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));

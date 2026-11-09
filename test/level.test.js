@@ -890,11 +890,13 @@ describe('Crystal Caves', () => {
     expect(wall(0).classList.contains('smashed')).toBe(true);
   });
 
-  it('shows the hold picture over a wall once she\'s bumped into it twice, not before', async () => {
+  it('shows "Long tap" over a wall once she\'s bumped into it twice, not before', async () => {
     await cave();
     const hint = () => $$('.course .hold-hint')[0];
     expect($$('.course .hold-hint')).toHaveLength(CRYSTAL.walls.length);
-    expect(hint().style.left).toBe(`${CRYSTAL.walls[0] - 46}px`);
+    expect(hint().textContent).toBe('Long tap'); // the words from the directions
+    expect(hint().style.left).toBe(`${CRYSTAL.walls[0] - 85}px`); // centered over the wall
+    expect(hint().style.width).toBe('170px');
     const bump = () => {
       wall(0).classList.remove('wobble'); // so the next bump shows
       for (let i = 0; i < 300 && !wall(0).classList.contains('wobble'); i++) tick();
@@ -908,7 +910,7 @@ describe('Crystal Caves', () => {
     expect($$('.course .hold-hint.show')).toHaveLength(1); // only over that wall
   });
 
-  it('puts the hold picture away once she dashes through, and on a new try', async () => {
+  it('puts the hint away once she dashes through', async () => {
     await cave();
     const hint = () => $$('.course .hold-hint')[0];
     for (let i = 0; i < 900 && !hint().classList.contains('show'); i++) tick();
@@ -920,7 +922,7 @@ describe('Crystal Caves', () => {
     expect(hint().classList.contains('show')).toBe(false);
   });
 
-  it('puts the hold picture away on a new try', async () => {
+  it('puts the hint away on a new try', async () => {
     await cave();
     for (let i = 0; i < 900 && !$('.course .hold-hint.show'); i++) tick();
     expect($('.course .hold-hint.show')).not.toBeNull();
