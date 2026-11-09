@@ -91,7 +91,7 @@ describe('the start screen', () => {
   });
 
   it('keeps her still for players whose devices ask for less motion', () => {
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail,\s*\.perch \{\s*animation: none !important;/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail,\s*\.perch,\s*\.hold-hint\.show \{\s*animation: none !important;/);
   });
 
   it('has every font file the stylesheet uses, each with its license', () => {
