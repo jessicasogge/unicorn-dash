@@ -20,7 +20,7 @@ The **start screen**, the **world map**, and all five worlds, the **Meadow**, **
 
 On a keyboard, **Return** presses each screen's main button: Play on the start screen, the world she's on on the map, Go on a level's card, the next level at the castle (or play again, after the last one), and try again after a fall.
 
-There are no stars or scores, and nothing is saved. Visits, and a few things that happen in the game (beating a level, catching every diamond, what ended a run), are counted on [GoatCounter](https://petripals.goatcounter.com), the same as PetriPals, under `unicorn-dash/`: no cookies, nothing personal, and nothing saved on the device. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
+There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
 ## The plan
 
