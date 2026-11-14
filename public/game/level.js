@@ -4,6 +4,7 @@
 // dash.
 import { LEVELS } from './course.js';
 import { createRunner, step } from './runner.js';
+import { track } from './track.js';
 import { MANES, drawUnicorn, maneFromAddress, pressOnReturn, setMane } from './unicorn.js';
 
 export const VIEW_HEIGHT = 600; // world units from the bottom of the screen to the top
@@ -232,6 +233,12 @@ export function render() {
 // Every diamond caught?
 const allGems = () => state.collected.size === LEVEL.gems.length;
 
+// Counted on GoatCounter (see track.js): beating a level, with or without
+// every diamond, beating the last, and what ended a run.
+const level = main.dataset.level;
+const worldName = document.querySelector('.directions-title').textContent;
+const tally = (name, title) => track(`unicorn-dash/${name}`, title);
+
 // Plays a one-off animation again, even if it played a moment ago.
 function replay(element, className) {
   element.classList.remove(className);
@@ -267,11 +274,16 @@ function frame(time) {
   if (events.includes('gem')) replay(count, 'bump');
   if (events.includes('finish')) {
     for (const burst of fireworks) burst.classList.toggle('going', allGems());
+    tally(`level-complete/${level}`, `Beat ${worldName}`);
+    if (allGems()) tally(`all-diamonds/${level}`, `Every diamond in ${worldName}`);
+    if (!main.dataset.next) tally('won-all-worlds', 'Beat every world');
     setTimeout(() => { finish.hidden = false; }, FINISH_DELAY_MS);
     return;
   }
   if (events.includes('ouch')) replay(thorns[state.ouch], 'ouch');
   if (events.includes('fall') || events.includes('ouch')) {
+    const [what, how] = events.includes('ouch') ? ['prickly', 'ran into something prickly'] : ['gap', 'fell in a gap'];
+    tally(`game-over/${level}/${what}`, `Game over in ${worldName}: ${how}`);
     setTimeout(() => { gameOver.hidden = false; }, GAME_OVER_DELAY_MS);
     return;
   }

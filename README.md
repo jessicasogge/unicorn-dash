@@ -20,7 +20,7 @@ The **start screen**, the **world map**, and all five worlds, the **Meadow**, **
 
 On a keyboard, **Return** presses each screen's main button: Play on the start screen, the world she's on on the map, Go on a level's card, the next level at the castle (or play again, after the last one), and try again after a fall.
 
-There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
+There are no stars or scores, and nothing is saved. Visits, and a few things that happen in the game (beating a level, catching every diamond, what ended a run), are counted on [GoatCounter](https://petripals.goatcounter.com), the same as PetriPals, under `unicorn-dash/`: no cookies, nothing personal, and nothing saved on the device. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
 ## The plan
 
@@ -61,6 +61,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
 | `public/meadow.html`, `public/candy.html`, `public/cloud.html`, `public/crystal.html`, `public/night.html` | The Meadow, Candy Canyon, Cloud Kingdom, the Crystal Caves and the Night Sky, the five worlds |
 | `public/game/level.js` | Draws a level and runs her through it: the controls, the camera, the castle. Each level page names its course (`data-level`) and the level after it (`data-next`) |
+| `public/game/track.js` | Counts game events on GoatCounter (the same as PetriPals), and quietly does nothing if it isn't there |
 | `public/game/runner.js` | Her running, jumping, dashing and bouncing, paint pots, crystal walls, shooting stars and prickly things, with no drawing: speeds, gravity, diamonds |
 | `public/game/course.js` | Each level's course: where the ground, gaps, clouds, gumdrops, paint pots, crystal walls, prickly things, shooting stars and gems are |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |

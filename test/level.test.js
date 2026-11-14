@@ -73,7 +73,12 @@ const key = (type, k, repeat = false) => {
   window.dispatchEvent(new KeyboardEvent(type, { key: k, repeat, cancelable: true }));
 };
 
-beforeEach(() => vi.useFakeTimers({ toFake: ['setTimeout'] }));
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['setTimeout'] });
+  window.goatcounter = { count: vi.fn() }; // a stand-in, to see what's counted
+});
+// What's been counted on GoatCounter, as [name, title]
+const counted = () => window.goatcounter.count.mock.calls.map(([event]) => [event.path, event.title]);
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
@@ -508,6 +513,7 @@ describe('falling', () => {
     expect($('.game-over').hidden).toBe(true);
     vi.advanceTimersByTime(1);
     expect($('.game-over').hidden).toBe(false);
+    expect(counted()).toEqual([['unicorn-dash/game-over/meadow/gap', 'Game over in Meadow: fell in a gap']]);
   });
 
   it('shows her dizzy, with the mane she came with', async () => {
@@ -608,12 +614,17 @@ describe('the castle', () => {
     playToTheEnd();
     expect($$('.course .gem.got').length).toBeLessThan(MEADOW.gems.length);
     expect($$('.course .firework.going')).toHaveLength(0);
+    expect(counted()).toEqual([['unicorn-dash/level-complete/meadow', 'Beat Meadow']]); // not every diamond
   });
 
   it('sets off fireworks behind it for catching every diamond', async () => {
     await open();
     playToTheEnd({ clouds: true });
     expect($('.gem-count .count').textContent).toBe(String(MEADOW.gems.length));
+    expect(counted()).toEqual([
+      ['unicorn-dash/level-complete/meadow', 'Beat Meadow'],
+      ['unicorn-dash/all-diamonds/meadow', 'Every diamond in Meadow'],
+    ]);
     const fireworks = $$('.course .firework');
     expect(fireworks.length).toBeGreaterThan(0);
     expect(fireworks.every((f) => f.classList.contains('going'))).toBe(true);
@@ -698,6 +709,7 @@ describe('prickly things', () => {
     expect($('.game-over').hidden).toBe(true);
     vi.advanceTimersByTime(500);
     expect($('.game-over').hidden).toBe(false);
+    expect(counted()).toEqual([['unicorn-dash/game-over/meadow/prickly', 'Game over in Meadow: ran into something prickly']]);
   });
 
   it('are jumped over, and her run goes on', async () => {
@@ -1038,5 +1050,7 @@ describe('the Night Sky', () => {
     expect($('.finish').hidden).toBe(false);
     expect($('.finish-title').textContent).toBe('You beat every world!');
     expect($('.count').textContent).toBe(String(NIGHT.gems.length));
+    expect(counted()).toContainEqual(['unicorn-dash/won-all-worlds', 'Beat every world']);
+    expect(counted()).toContainEqual(['unicorn-dash/level-complete/night', 'Beat Night Sky']);
   });
 });
