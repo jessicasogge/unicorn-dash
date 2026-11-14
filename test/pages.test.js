@@ -63,6 +63,13 @@ describe('on a phone\'s home screen', () => {
   });
 });
 
+describe('GoatCounter', () => {
+  it.each(PAGES)('%s counts its visits on the PetriPals GoatCounter, last on the page', (page) => {
+    const html = readFileSync(file(page), 'utf8');
+    expect(html).toMatch(/<script data-goatcounter="https:\/\/petripals\.goatcounter\.com\/count"\s+async src="https:\/\/gc\.zgo\.at\/count\.js"><\/script>\s*<\/body>/);
+  });
+});
+
 describe('signature', () => {
   it.each(PAGES)('%s is signed at the foot', (page) => {
     const html = readFileSync(file(page), 'utf8');

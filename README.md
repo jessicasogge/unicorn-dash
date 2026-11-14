@@ -61,6 +61,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
 | `public/meadow.html`, `public/candy.html`, `public/cloud.html`, `public/crystal.html`, `public/night.html` | The Meadow, Candy Canyon, Cloud Kingdom, the Crystal Caves and the Night Sky, the five worlds |
 | `public/game/level.js` | Draws a level and runs her through it: the controls, the camera, the castle. Each level page names its course (`data-level`) and the level after it (`data-next`) |
+| `public/game/track.js` | Counts game events on GoatCounter (the same as PetriPals), and quietly does nothing if it isn't there |
 | `public/game/runner.js` | Her running, jumping, dashing and bouncing, paint pots, crystal walls, shooting stars and prickly things, with no drawing: speeds, gravity, diamonds |
 | `public/game/course.js` | Each level's course: where the ground, gaps, clouds, gumdrops, paint pots, crystal walls, prickly things, shooting stars and gems are |
 | `public/game/unicorn.js` | The unicorn's drawing and her three mane colors, in one place |
