@@ -54,6 +54,19 @@
       <div class="directions">
         <div class="directions-card">
           <h2 class="directions-title">Meadow</h2>
+          <!-- On a phone held upright, where the course is small: turn it
+               sideways for a bigger view (styles.css shows it only then) -->
+          <div class="turn-sideways">
+            <svg class="turn-pic" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M74 22 A38 38 0 0 1 86 60" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" />
+              <path d="M78 54 L86 62 L93 52" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+              <g class="turn-phone">
+                <rect x="20" y="20" width="34" height="60" rx="8" fill="#fff" stroke="#2B2350" stroke-width="5" />
+                <circle cx="37" cy="70" r="3.5" fill="#2B2350" />
+              </g>
+            </svg>
+            <p>Turn sideways for a bigger view</p>
+          </div>
           <!-- Shown by the How to play button -->
           <div class="how-to" hidden>
             <div class="direction">
