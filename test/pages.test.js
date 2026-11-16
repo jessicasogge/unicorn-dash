@@ -98,7 +98,7 @@ describe('the start screen', () => {
   });
 
   it('keeps her still for players whose devices ask for less motion', () => {
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail,\s*\.perch,\s*\.hold-hint\.show \{\s*animation: none !important;/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.unicorn-btn,\s*\.trail,\s*\.perch,\s*\.hold-hint\.show,\s*\.turn-phone \{\s*animation: none !important;/);
   });
 
   it('has every font file the stylesheet uses, each with its license', () => {
@@ -249,6 +249,25 @@ describe('the Night Sky', () => {
 
   it('cheers for beating every world at its castle', () => {
     expect(html).toContain('<h2 class="finish-title">You beat every world!</h2>');
+  });
+});
+
+describe('turning the phone sideways', () => {
+  it.each(['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'night.html'])('%s\'s start card asks for it, under the world\'s name', (page) => {
+    const html = readFileSync(file(page), 'utf8');
+    const card = html.slice(html.indexOf('<div class="directions-card">'), html.indexOf('<div class="how-to" hidden>'));
+    expect(card).toContain('<div class="turn-sideways">');
+    expect(card).toContain('<p>Turn sideways for a bigger view</p>');
+  });
+
+  it('only shows on a phone held upright, where the course is small', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    expect(css).toMatch(/\.turn-sideways \{\s*display: none;/);
+    expect(css).toMatch(/@media \(orientation: portrait\) and \(max-width: 720px\) \{\s*\.turn-sideways \{\s*display: flex;/);
+  });
+
+  it('isn\'t on the start screen or the map', () => {
+    for (const page of ['index.html', 'world-map.html']) expect(readFileSync(file(page), 'utf8')).not.toContain('turn-sideways');
   });
 });
 

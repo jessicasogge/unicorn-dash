@@ -970,6 +970,50 @@ body {
   display: none;
 }
 
+/* Turn the phone sideways: only on a phone held upright, where the course
+   is small. The phone tips over onto its side, again and again. */
+.turn-sideways {
+  display: none;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -0.25rem 0 0.25rem;
+}
+
+.turn-sideways p {
+  margin: 0;
+  max-width: 9rem;
+  font-family: Nunito, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.25;
+  text-align: left;
+  color: #5a4ba0;
+}
+
+.turn-pic {
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+}
+
+.turn-phone {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: turn-sideways 2.4s ease-in-out infinite;
+}
+
+@keyframes turn-sideways {
+  0%, 20% { transform: rotate(0deg); }
+  50%, 80% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@media (orientation: portrait) and (max-width: 720px) {
+  .turn-sideways {
+    display: flex;
+  }
+}
+
 .directions-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -1289,7 +1333,8 @@ body {
   .unicorn-btn,
   .trail,
   .perch,
-  .hold-hint.show {
+  .hold-hint.show,
+  .turn-phone {
     animation: none !important;
   }
 }
