@@ -460,7 +460,7 @@ describe('dashing', () => {
 
   it('come in every color, round the rainbow', async () => {
     await open();
-    const fills = $$('.course .gem').map((g) => g.querySelector('path').getAttribute('fill'));
+    const fills = $$('.course .gem').map((g) => g.querySelector('[fill]').getAttribute('fill'));
     expect(fills.slice(0, meadow.GEM_COLORS.length)).toEqual(meadow.GEM_COLORS);
     expect(new Set(fills).size).toBe(meadow.GEM_COLORS.length);
   });
@@ -474,7 +474,33 @@ describe('dashing', () => {
     const caught = $$('.course .gem.got').length;
     expect(caught).toBeGreaterThan(0);
     expect(count.querySelector('.count').textContent).toBe(String(caught));
-    expect(count.getAttribute('aria-label')).toBe(`${caught} diamonds`);
+    expect(count.getAttribute('aria-label')).toBe(`${caught} flowers`); // the Meadow's
+  });
+
+  it.each([
+    ['meadow.html', 'flower', 'flowers'], ['candy.html', 'candy', 'candies'], ['cloud.html', 'raindrop', 'raindrops'],
+    ['crystal.html', 'diamond', 'diamonds'], ['night.html', 'star', 'stars'],
+  ])('in %s are its own (a %s), on the course, on the counter, and in the directions', async (page, one, many) => {
+    await open('?mane=pink', { page, go: false });
+    const world = page.replace('.html', '');
+    const item = meadow.COLLECT[world];
+    expect(item).toMatchObject({ one, many });
+    // (drawn the same way, so the markup comes out the same)
+    const drawn = (color) => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.innerHTML = item.draw(color);
+      return svg.innerHTML;
+    };
+    expect($('.course .gem').innerHTML).toBe(drawn(meadow.GEM_COLORS[0]));
+    expect($('.gem-count svg').innerHTML).toBe(drawn('#FF5FA2'));
+    expect($('.gem-count').getAttribute('aria-label')).toBe(`0 ${many}`);
+    expect($('.directions').textContent).toContain(`Catch every ${one} for a surprise at the castle!`);
+  });
+
+  it('look different in every world, with diamonds only in the Crystal Caves', async () => {
+    const looks = Object.values(meadow.COLLECT).map((item) => item.draw('#FF5FA2'));
+    expect(new Set(looks).size).toBe(5);
+    expect(Object.entries(meadow.COLLECT).filter(([, item]) => item.one === 'diamond').map(([world]) => world)).toEqual(['crystal']);
   });
 
   it('make the counter bounce', async () => {
@@ -623,7 +649,7 @@ describe('the castle', () => {
     expect($('.gem-count .count').textContent).toBe(String(MEADOW.gems.length));
     expect(counted()).toEqual([
       ['unicorn-dash/level-complete/meadow', 'Beat Meadow'],
-      ['unicorn-dash/all-diamonds/meadow', 'Every diamond in Meadow'],
+      ['unicorn-dash/all-diamonds/meadow', 'Every flower in Meadow'],
     ]);
     const fireworks = $$('.course .firework');
     expect(fireworks.length).toBeGreaterThan(0);
