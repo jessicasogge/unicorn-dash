@@ -57,7 +57,38 @@ function place(node, className, x, y, width) {
 
 // Diamonds come in every color, round the rainbow.
 export const GEM_COLORS = ['#FF5A5F', '#FF9F1C', '#FFD23F', '#5BD06B', '#3A8DFF', '#9B6BFF', '#FF5FA2'];
-const gem = (color) => `<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="${color}" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`;
+// What there is to catch in each world, in rainbow colors, all the same size
+// (32 by 38): flowers in the Meadow, wrapped candies in Candy Canyon,
+// raindrops in Cloud Kingdom, diamonds in the Crystal Caves and little stars
+// (no tail or face, unlike the shooting stars) in the Night Sky.
+export const COLLECT = {
+  meadow: {
+    one: 'flower',
+    many: 'flowers',
+    draw: (color) => `<g stroke="#2B2350" stroke-width="2.5" fill="${color}"><circle cx="16" cy="10.5" r="6.5"/><circle cx="24.6" cy="16.8" r="6.5"/><circle cx="21.3" cy="26.9" r="6.5"/><circle cx="10.7" cy="26.9" r="6.5"/><circle cx="7.4" cy="16.8" r="6.5"/></g><circle cx="16" cy="19.5" r="5" fill="#fff" stroke="#2B2350" stroke-width="2.5"/>`,
+  },
+  candy: {
+    one: 'candy',
+    many: 'candies',
+    draw: (color) => `<g stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round" fill="${color}"><path d="M9 19 L1.5 9 L1.5 29 Z"/><path d="M23 19 L30.5 9 L30.5 29 Z"/><circle cx="16" cy="19" r="10"/></g><path d="M10.5 25 L19 10.5 M15.5 28 L22.5 16" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>`,
+  },
+  cloud: {
+    one: 'raindrop',
+    many: 'raindrops',
+    draw: (color) => `<path d="M16 3 C13 9 5 17 5 25 A11 11 0 0 0 27 25 C27 17 19 9 16 3 Z" fill="${color}" stroke="#2B2350" stroke-width="3" stroke-linejoin="round"/><path d="M10 24 A6 6 0 0 0 13 30" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`,
+  },
+  crystal: {
+    one: 'diamond',
+    many: 'diamonds',
+    draw: (color) => `<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="${color}" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`,
+  },
+  night: {
+    one: 'star',
+    many: 'stars',
+    draw: (color) => `<path d="M16.0 5.0 L20.5 14.9 L31.2 16.1 L23.2 23.3 L25.4 33.9 L16.0 28.6 L6.6 33.9 L8.8 23.3 L0.8 16.1 L11.5 14.9 Z" fill="${color}" stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round"/>`,
+  },
+};
+const ITEM = COLLECT[main.dataset.level];
 
 // Fireworks behind the castle, for catching every diamond: bursts of
 // sparks flying out from a point.
@@ -166,7 +197,7 @@ function build(course) {
   const hints = course.walls.map((x) => place(holdHint(), 'hold-hint', x - HINT_WIDTH / 2, 345, HINT_WIDTH));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
-  const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', gem(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
+  const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', ITEM.draw(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
   return { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns };
 }
 
@@ -174,6 +205,7 @@ const { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns } = build(L
 const bumps = walls.map(() => 0); // times she's bumped into each wall, this try
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
+count.querySelector('svg').innerHTML = ITEM.draw('#FF5FA2'); // the counter shows this world's
 
 const runnerEl = document.createElement('div');
 runnerEl.className = 'runner';
@@ -226,7 +258,7 @@ export function render() {
     shownCount = state.collected.size;
     gems.forEach((gem, i) => gem.classList.toggle('got', state.collected.has(i)));
     countNumber.textContent = shownCount;
-    count.setAttribute('aria-label', `${shownCount} diamonds`);
+    count.setAttribute('aria-label', `${shownCount} ${ITEM.many}`);
   }
 }
 
@@ -275,7 +307,7 @@ function frame(time) {
   if (events.includes('finish')) {
     for (const burst of fireworks) burst.classList.toggle('going', allGems());
     tally(`level-complete/${level}`, `Beat ${worldName}`);
-    if (allGems()) tally(`all-diamonds/${level}`, `Every diamond in ${worldName}`);
+    if (allGems()) tally(`all-diamonds/${level}`, `Every ${ITEM.one} in ${worldName}`);
     if (!main.dataset.next) tally('won-all-worlds', 'Beat every world');
     setTimeout(() => { finish.hidden = false; }, FINISH_DELAY_MS);
     return;

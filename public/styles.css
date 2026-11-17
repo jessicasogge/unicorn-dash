@@ -756,6 +756,11 @@ body {
   color: #ffffff;
 }
 
+/* Its little stars to catch glow, so they show up against the dark sky */
+.night .gem {
+  filter: drop-shadow(0 0 5px rgba(255, 244, 199, 0.75));
+}
+
 /* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */
 .level.cloud {
   background: #dce9ff;
