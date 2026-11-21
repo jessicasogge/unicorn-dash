@@ -545,13 +545,16 @@ body {
 .gem {
   width: 32px;
   height: 38px;
-  transition: transform 0.25s, opacity 0.25s;
+  transition: transform 0.25s, opacity 0.25s, visibility 0s;
 }
 
-/* Caught: it pops up and fades */
+/* Caught: it pops up and fades, then isn't drawn at all (just see-through,
+   Safari can leave a faint box where it was) */
 .gem.got {
   opacity: 0;
   transform: translateY(-30px) scale(1.4);
+  visibility: hidden;
+  transition: transform 0.25s, opacity 0.25s, visibility 0s 0.25s;
 }
 
 .castle {
@@ -757,7 +760,7 @@ body {
 }
 
 /* Its little stars to catch glow, so they show up against the dark sky */
-.night .gem {
+.night .gem:not(.got) {
   filter: drop-shadow(0 0 5px rgba(255, 244, 199, 0.75));
 }
 
