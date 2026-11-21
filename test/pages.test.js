@@ -161,6 +161,15 @@ describe('the Meadow', () => {
     }
   });
 
+  it('stops drawing what she\'s caught once it has faded, so no faint box is left (in Safari)', () => {
+    const css = readFileSync(file('styles.css'), 'utf8');
+    const got = css.match(/\.gem\.got \{[^}]*\}/)[0];
+    expect(got).toContain('opacity: 0;');
+    expect(got).toContain('visibility: hidden;');
+    expect(got).toContain('visibility 0s 0.25s'); // after the 0.25 second fade
+    expect(css).toMatch(/\.night \.gem:not\(\.got\) \{\s*filter: drop-shadow/); // no glow left behind either
+  });
+
   it('turns off double-tap zoom everywhere on a level, so a double tap is a double jump', () => {
     const css = readFileSync(file('styles.css'), 'utf8');
     expect(css).toMatch(/\.level \{[^}]*touch-action: manipulation;/);
