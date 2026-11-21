@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AIR_JUMPS, BOUNCE, COYOTE, DASH, DASH_TIME, GLIDE_FALL, GRAVITY, HOLD_TO_DASH, JUMP, KNOCK_TIME, RIDE, RUN, STAR_REACH, THORN_HEIGHT, THORN_REACH, WALL_FRONT,
   createRunner, step,
+  BUBBLE_HEIGHT, BUBBLE_REACH, FLOAT, FLOAT_TOP,
 } from '../public/game/runner.js';
 
 const DT = 1 / 120;
@@ -414,6 +415,75 @@ describe('prickly things', () => {
   it('aren\'t in a course without any', () => {
     const state = createRunner(course({ castle: 600 }));
     expect(run(state, 3)).toContain('finish');
+  });
+});
+
+describe('bubbles', () => {
+  const sea = (more = {}) => course({ bubbles: [500], ...more });
+
+  it('float her up when she runs into one, as she runs on', () => {
+    const state = createRunner(sea());
+    expect(runUntil(state, 'float')).toBe(true);
+    expect(state.floating).toBe(0);
+    expect(state.x).toBeGreaterThan(500 - BUBBLE_REACH - 10);
+    const { x, y } = state;
+    run(state, 0.5);
+    expect(state.y - y).toBeCloseTo(FLOAT * 0.5, -1);
+    expect(state.x - x).toBeCloseTo(RUN * 0.5, -1);
+  });
+
+  it('carry her whatever she presses', () => {
+    const state = createRunner(sea());
+    runUntil(state, 'float');
+    const events = run(state, 0.3, TAP);
+    expect(events).not.toContain('jump');
+    expect(events).not.toContain('dash');
+    expect(state.floating).toBe(0);
+  });
+
+  it('pop up high, and she falls from there, free to jump again', () => {
+    const state = createRunner(sea());
+    runUntil(state, 'float');
+    expect(runUntil(state, 'pop')).toBe(true);
+    expect(state.y).toBe(FLOAT_TOP);
+    expect(state.floating).toBeNull();
+    expect(state.floated.has(0)).toBe(true);
+    expect(run(state, 0.1, TAP)).toContain('jump'); // a jump in the air
+  });
+
+  it('carry her over a gap just after them', () => {
+    const state = createRunner(sea({ ground: [[-1000, 650], [880, 100000]] }));
+    expect(runUntil(state, 'land')).toBe(true);
+    expect(state.fallen).toBe(false);
+    expect(state.x).toBeGreaterThan(880);
+  });
+
+  it('are missed if she jumps over one', () => {
+    const state = createRunner(sea());
+    run(state, (500 - 150) / RUN);
+    step(state, DT, TAP);
+    expect(run(state, 0.4)).not.toContain('float');
+    expect(state.y).toBeGreaterThan(BUBBLE_HEIGHT - 60);
+  });
+
+  it('float her once each', () => {
+    const state = createRunner(sea());
+    runUntil(state, 'pop');
+    runUntil(state, 'land');
+    state.x = 450; // back by it, somehow
+    expect(run(state, 0.5)).not.toContain('float');
+  });
+
+  it('catch diamonds on the way up, and can take her to the castle', () => {
+    const state = createRunner(sea({ gems: [[600, 150]], castle: 700 }));
+    const events = run(state, 3);
+    expect(events).toContain('gem');
+    expect(events).toContain('finish');
+    expect(state.floating).toBe(0); // still up in it
+  });
+
+  it('aren\'t in a course without any', () => {
+    expect(run(createRunner(course()), 3)).not.toContain('float');
   });
 });
 

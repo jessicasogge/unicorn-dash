@@ -59,8 +59,9 @@ function place(node, className, x, y, width) {
 export const GEM_COLORS = ['#FF5A5F', '#FF9F1C', '#FFD23F', '#5BD06B', '#3A8DFF', '#9B6BFF', '#FF5FA2'];
 // What there is to catch in each world, in rainbow colors, all the same size
 // (32 by 38): flowers in the Meadow, wrapped candies in Candy Canyon,
-// raindrops in Cloud Kingdom, diamonds in the Crystal Caves and little stars
-// (no tail or face, unlike the shooting stars) in the Night Sky.
+// raindrops in Cloud Kingdom, diamonds in the Crystal Caves, pearls under the
+// sea, and little stars (no tail or face, unlike the shooting stars) in the
+// Night Sky.
 export const COLLECT = {
   meadow: {
     one: 'flower',
@@ -81,6 +82,11 @@ export const COLLECT = {
     one: 'diamond',
     many: 'diamonds',
     draw: (color) => `<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="${color}" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`,
+  },
+  sea: {
+    one: 'pearl',
+    many: 'pearls',
+    draw: (color) => `<circle cx="16" cy="21" r="12" fill="${color}" stroke="#2B2350" stroke-width="3"/><circle cx="11.5" cy="16.5" r="3.5" fill="#fff" opacity="0.9"/><circle cx="20" cy="27" r="1.8" fill="#fff" opacity="0.6"/>`,
   },
   night: {
     one: 'star',
@@ -157,6 +163,8 @@ const THORNS = {
   cloud: '<g transform="translate(4 4) scale(0.92)"><g stroke="#2B2350" stroke-linejoin="round"><path d="M40 52 L30 72 L44 64 L40 72 L58 52 Z" fill="#FFD23F" stroke-width="4"/><path d="M16 56 a14 14 0 0 1 4 -27 a20 20 0 0 1 36 -12 a18 18 0 0 1 32 13 a13 13 0 0 1 2 26 Z" fill="#8A8FB5" stroke-width="5"/></g><g stroke="#2B2350" stroke-width="4" stroke-linecap="round"><path d="M36 32 L46 36 M66 32 L56 36"/></g><g fill="#2B2350"><circle cx="43" cy="42" r="3.5"/><circle cx="59" cy="42" r="3.5"/></g></g>',
   // A purple bramble, its thorns pale like crystal
   crystal: BRAMBLE('#7B4FD6', '#E2D4FF'),
+  // A sea urchin: a dark round body, pink spines all over
+  sea: BRAMBLE('#3A2F6B', '#FF9BC8', '<g fill="#FF9BC8"><circle cx="36" cy="48" r="3"/><circle cx="52" cy="40" r="3"/><circle cx="64" cy="54" r="3"/><circle cx="46" cy="60" r="3"/></g>'),
   // A blue bramble, with little stars in it
   night: BRAMBLE('#2E5FA8', '#BFE6FF', '<g fill="#FFE58A"><path d="M36 44 l3 6 l6 1 l-5 4 l1 6 l-5 -3 l-5 3 l1 -6 l-5 -4 l6 -1 Z"/><path d="M64 36 l2 4 l4 1 l-3 3 l1 4 l-4 -2 l-4 2 l1 -4 l-3 -3 l4 -1 Z"/></g>'),
 };
@@ -164,6 +172,10 @@ const THORN = THORNS[main.dataset.level];
 
 // The directions show it too
 document.querySelector('.thorn-pic').append(svg('0 0 100 74', THORN));
+
+// A bubble on the sea floor: big enough for her inside, see-through, with a
+// shine. She floats up in it; it pops at the top.
+const BUBBLE = '<circle cx="75" cy="75" r="70" fill="#D8F6FF" fill-opacity="0.35" stroke="#2B2350" stroke-width="4" stroke-opacity="0.55"/><circle cx="75" cy="75" r="64" fill="none" stroke="#fff" stroke-width="3" opacity="0.6"/><path d="M38 50 A44 44 0 0 1 64 26" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="34" cy="64" r="5" fill="#fff"/>';
 
 // A shooting star: a big glowing star with a sparkly tail behind it.
 const SHOOTING_STAR = '<g class="star-glow" fill="#FFE58A"><circle cx="100" cy="48" r="40" opacity="0.16"/><circle cx="100" cy="48" r="30" opacity="0.22"/></g><g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
@@ -198,12 +210,13 @@ function build(course) {
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
   const hints = course.walls.map((x) => place(holdHint(), 'hold-hint', x - HINT_WIDTH / 2, 345, HINT_WIDTH));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
+  const bubbles = course.bubbles.map((x) => place(svg('0 0 150 150', BUBBLE), 'bubble', x - 75, 0));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', (ITEM.glow ?? '') + ITEM.draw(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
-  return { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns };
+  return { gems, fireworks, gumdrops, pots, walls, hints, stars, bubbles, thorns };
 }
 
-const { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns } = build(LEVEL);
+const { gems, fireworks, gumdrops, pots, walls, hints, stars, bubbles, thorns } = build(LEVEL);
 const bumps = walls.map(() => 0); // times she's bumped into each wall, this try
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
@@ -250,6 +263,10 @@ export function render() {
   hills.style.transform = `translate3d(${-drift}px, 0, 0)`;
   runnerEl.style.transform = `translate3d(${state.x - 70}px, ${-state.y}px, 0)`;
   runnerEl.classList.toggle('dashing', state.dashing);
+  // A bubble she's floating in goes up with her
+  if (state.floating !== null) {
+    bubbles[state.floating].style.transform = `translate3d(${state.x - LEVEL.bubbles[state.floating]}px, ${-state.y}px, 0)`;
+  }
   // A shooting star she's riding goes along with her
   if (state.riding !== null) {
     const star = LEVEL.stars[state.riding];
@@ -291,6 +308,8 @@ function frame(time) {
     replay(pots[state.painted], 'splash');
   }
   if (events.includes('ride')) stars[state.riding].classList.add('riding');
+  if (events.includes('float')) bubbles[state.floating].classList.add('floating');
+  if (events.includes('pop')) bubbles[[...state.floated].at(-1)].classList.replace('floating', 'popped');
   if (events.includes('hop-off')) {
     const star = [...state.rode].at(-1);
     stars[star].classList.replace('riding', 'gone'); // zooms off and fades
@@ -380,6 +399,10 @@ function restart() {
   for (const star of stars) {
     star.classList.remove('riding', 'gone');
     star.style.transform = '';
+  }
+  for (const bubble of bubbles) {
+    bubble.classList.remove('floating', 'popped');
+    bubble.style.transform = '';
   }
   pressed = false;
   held = false;

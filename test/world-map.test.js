@@ -34,10 +34,10 @@ afterEach(() => {
 });
 
 describe('the worlds', () => {
-  it('are all five, in order', async () => {
+  it('are all six, in order', async () => {
     await open();
     const worlds = [...document.querySelectorAll('.world')].map((w) => w.dataset.world);
-    expect(worlds).toEqual(['meadow', 'candy', 'cloud', 'crystal', 'night']);
+    expect(worlds).toEqual(['meadow', 'candy', 'cloud', 'crystal', 'sea', 'night']);
   });
 
   it('are all open: nothing locked', async () => {
@@ -49,7 +49,7 @@ describe('the worlds', () => {
   it('have their names written under them', async () => {
     await open();
     const names = [...document.querySelectorAll('.world')].map((w) => w.querySelector('.island + .world-name').textContent);
-    expect(names).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Night Sky']);
+    expect(names).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Under the Sea', 'Night Sky']);
     // (said once to screen readers, by the circle's label)
     for (const name of document.querySelectorAll('.world-name')) expect(name.getAttribute('aria-hidden')).toBe('true');
   });
@@ -65,7 +65,7 @@ describe('the worlds', () => {
   it('have names for screen readers', async () => {
     await open();
     const labels = [...document.querySelectorAll('.island')].map((i) => i.getAttribute('aria-label'));
-    expect(labels).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Night Sky']);
+    expect(labels).toEqual(['Meadow', 'Candy Canyon', 'Cloud Kingdom', 'Crystal Caves', 'Under the Sea', 'Night Sky']);
   });
 });
 
@@ -164,7 +164,7 @@ describe('tapping the flower world', () => {
   it('opens every world', async () => {
     const { WORLD_PAGES } = await import('../public/game/world-map.js');
     expect(WORLD_PAGES).toEqual({
-      meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html', crystal: './crystal.html', night: './night.html',
+      meadow: './meadow.html', candy: './candy.html', cloud: './cloud.html', crystal: './crystal.html', sea: './sea.html', night: './night.html',
     });
   });
 

@@ -2,7 +2,9 @@
 // Running onto a gumdrop bounces her up high. Running through a paint pot
 // changes her mane color, just for fun. Crystal walls only break
 // for a rainbow dash, and knock her back otherwise. Touching a shooting
-// star, she rides it through the sky, then drops off at its end. Every
+// star, she rides it through the sky, then drops off at its end. Running
+// into a bubble (under the sea), she floats up inside it, still going
+// forward, until it pops up high and she falls on from there. Every
 // world has prickly things on the ground (thistles, spiky candy...) to jump
 // over: running into one is game over, like falling in a gap.
 // Dash is faster, level flight, for a while: then, still held, she glides
@@ -34,6 +36,10 @@ export const THORN_HEIGHT = 50; // and under this, she runs into it
 export const RIDE = 640; // a shooting star's speed, carrying her
 export const STAR_REACH = 70; // how near a shooting star she has to get, along x
 export const STAR_REACH_Y = 90; // and up or down
+export const BUBBLE_REACH = 60; // how near a bubble she has to get, along x
+export const BUBBLE_HEIGHT = 120; // and under this, to run into it (jumped over, it's missed)
+export const FLOAT = 240; // how fast a bubble floats her up, world units a second
+export const FLOAT_TOP = 300; // how high it takes her before it pops
 
 // `mane` is her mane color's name (like 'pink'), for the paint pots.
 export function createRunner(course, mane = null) {
@@ -46,6 +52,8 @@ export function createRunner(course, mane = null) {
     hit: null, // the last wall she smashed or bumped into
     riding: null, // the shooting star she's riding, if any
     rode: new Set(), // the shooting stars she's ridden
+    floating: null, // the bubble she's floating up in, if any
+    floated: new Set(), // the bubbles she's floated up in
     x: course.start,
     y: 0,
     vy: 0,
@@ -75,7 +83,7 @@ function surfacesAt(course, x) {
 // Moves her on by `dt` seconds. `input.pressed` is a new press this step,
 // `input.held` whether it's still held. Returns what happened, for sounds
 // and effects: 'jump', 'dash', 'gem', 'land', 'bounce', 'paint',
-// 'smash', 'thud', 'ride', 'hop-off', 'ouch', 'fall', 'finish'.
+// 'smash', 'thud', 'ride', 'hop-off', 'float', 'pop', 'ouch', 'fall', 'finish'.
 export function step(state, dt, input) {
   const events = [];
   if (state.finished || state.fallen) return events;
@@ -94,6 +102,26 @@ export function step(state, dt, input) {
       state.spent = false;
       state.airDashed = false;
       events.push('hop-off');
+    }
+    catchGems(state, events);
+    finishAt(state, events);
+    return events;
+  }
+
+  // In a bubble: it floats her up as she runs on, whatever she presses, and
+  // pops up high; then she falls, free to jump or dash again
+  if (state.floating !== null) {
+    state.x += RUN * dt;
+    state.y = Math.min(FLOAT_TOP, state.y + FLOAT * dt);
+    if (state.y >= FLOAT_TOP) {
+      state.floated.add(state.floating);
+      state.floating = null;
+      state.vy = 0;
+      state.airJumps = 0;
+      state.held = 0;
+      state.spent = false;
+      state.airDashed = false;
+      events.push('pop');
     }
     catchGems(state, events);
     finishAt(state, events);
@@ -208,6 +236,18 @@ export function step(state, dt, input) {
       state.dashing = false;
       state.airJumps = 0;
       events.push('ride');
+    }
+  });
+
+  // Into a bubble: up she floats
+  (state.course.bubbles ?? []).forEach((bubble, i) => {
+    if (state.floating !== null || state.riding !== null || state.floated.has(i)) return;
+    if (Math.abs(state.x - bubble) < BUBBLE_REACH && state.y < BUBBLE_HEIGHT) {
+      state.floating = i;
+      state.vy = 0;
+      state.grounded = false;
+      state.dashing = false;
+      events.push('float');
     }
   });
 

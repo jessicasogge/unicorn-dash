@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT, SEA } from '../public/game/course.js';
 import { DASH, HOLD_TO_DASH } from '../public/game/runner.js';
 
 // (jsdom changes import.meta.url to a web address, so find the file from the project folder.)
@@ -479,7 +479,7 @@ describe('dashing', () => {
 
   it.each([
     ['meadow.html', 'flower', 'flowers'], ['candy.html', 'candy', 'candies'], ['cloud.html', 'raindrop', 'raindrops'],
-    ['crystal.html', 'diamond', 'diamonds'], ['night.html', 'star', 'stars'],
+    ['crystal.html', 'diamond', 'diamonds'], ['sea.html', 'pearl', 'pearls'], ['night.html', 'star', 'stars'],
   ])('in %s are its own (a %s), on the course, on the counter, and in the directions', async (page, one, many) => {
     await open('?mane=pink', { page, go: false });
     const world = page.replace('.html', '');
@@ -499,7 +499,7 @@ describe('dashing', () => {
 
   it('look different in every world, with diamonds only in the Crystal Caves', async () => {
     const looks = Object.values(meadow.COLLECT).map((item) => item.draw('#FF5FA2'));
-    expect(new Set(looks).size).toBe(5);
+    expect(new Set(looks).size).toBe(6);
     expect(Object.entries(meadow.COLLECT).filter(([, item]) => item.one === 'diamond').map(([world]) => world)).toEqual(['crystal']);
   });
 
@@ -708,7 +708,7 @@ describe('prickly things', () => {
 
   it.each([
     ['meadow.html', 'Thistles'], ['candy.html', 'Spiky candies'], ['cloud.html', 'Thunderclouds'],
-    ['crystal.html', 'Brambles'], ['night.html', 'Brambles'],
+    ['crystal.html', 'Brambles'], ['sea.html', 'Sea urchins'], ['night.html', 'Brambles'],
   ])('%s draws its own, where its course says, and shows one in its directions', async (page, name) => {
     await open('?mane=pink', { page, go: false });
     expect($$('.course .thorns')).toHaveLength(level.thorns.length);
@@ -719,11 +719,11 @@ describe('prickly things', () => {
 
   it('look different in every world', async () => {
     const looks = new Set();
-    for (const page of ['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'night.html']) {
+    for (const page of ['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'sea.html', 'night.html']) {
       await open('?mane=pink', { page });
       looks.add(thorn(0).innerHTML);
     }
-    expect(looks.size).toBe(5);
+    expect(looks.size).toBe(6);
   });
 
   it('wobble, and it\'s game over, when she runs into one', async () => {
@@ -982,8 +982,64 @@ describe('Crystal Caves', () => {
     expect($$('.course .crystal-wall.smashed')).toHaveLength(0);
   });
 
-  it('has a next level button on to the Night Sky', async () => {
+  it('has a next level button on to Under the Sea', async () => {
     await cave('?mane=yellow');
+    expect($('.next-btn').getAttribute('href')).toBe('./sea.html?mane=yellow');
+  });
+});
+
+describe('Under the Sea', () => {
+  const sea = (search = '?mane=pink', options = {}) => open(search, { page: 'sea.html', ...options });
+  const bubble = (i) => $$('.course .bubble')[i];
+  // Runs her on until `done`, with a quick jump at each short gap on the way
+  const runUntil = (done) => {
+    for (let i = 0; i < 1200 && frames.length && !done(); i++) {
+      const gapAhead = SEA.ground.some(([, end]) => end > x() && end - x() < 40);
+      if (gapAhead && height() === 0) {
+        pointer('pointerdown');
+        tick();
+        pointer('pointerup');
+      }
+      tick();
+    }
+  };
+
+  it('draws its bubbles, sitting on the sea floor', async () => {
+    await sea();
+    expect($$('.course .bubble')).toHaveLength(SEA.bubbles.length);
+    expect(bubble(0).style.left).toBe(`${SEA.bubbles[0] - 75}px`);
+    expect(bubble(0).style.bottom).toBe('140px'); // on the ground's top
+  });
+
+  it('has no bubbles in the other levels but the Night Sky', async () => {
+    await open();
+    expect($$('.course .bubble')).toHaveLength(0);
+    await open('?mane=pink', { page: 'night.html' });
+    expect($$('.course .bubble')).toHaveLength(NIGHT.bubbles.length);
+  });
+
+  it('floats her up in a bubble, which rises with her, then pops', async () => {
+    await sea();
+    runUntil(() => bubble(0).classList.contains('floating'));
+    tick(20);
+    expect(bubble(0).classList.contains('floating')).toBe(true);
+    expect(height()).toBeGreaterThan(50);
+    expect(bubble(0).style.transform).toBe(`translate3d(${x() - SEA.bubbles[0]}px, ${-height()}px, 0)`);
+    runUntil(() => bubble(0).classList.contains('popped'));
+    expect(bubble(0).classList.contains('floating')).toBe(false);
+    expect(bubble(0).classList.contains('popped')).toBe(true);
+  });
+
+  it('puts the bubbles back on a new try', async () => {
+    await sea();
+    runUntil(() => bubble(0).classList.contains('popped'));
+    $('.retry-btn').click();
+    expect($$('.course .bubble.floating, .course .bubble.popped')).toHaveLength(0);
+    expect(bubble(0).style.transform).toBe('');
+  });
+
+  it('has a next level button on to the Night Sky', async () => {
+    await sea('?mane=yellow');
     expect($('.next-btn').getAttribute('href')).toBe('./night.html?mane=yellow');
   });
 });

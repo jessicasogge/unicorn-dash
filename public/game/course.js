@@ -45,6 +45,7 @@ export const MEADOW = {
   walls: [],
   crystals: [],
   stars: [],
+  bubbles: [],
   start: 0,
   castle: 6300,
 };
@@ -94,6 +95,7 @@ export const CANDY = {
   walls: [],
   crystals: [],
   stars: [],
+  bubbles: [],
   start: 0,
   castle: 7420,
 };
@@ -150,6 +152,7 @@ export const CLOUD = {
   walls: [],
   crystals: [],
   stars: [],
+  bubbles: [],
   start: 0,
   castle: 8900,
 };
@@ -205,12 +208,63 @@ export const CRYSTAL = {
   trees: [],
   pots: [],
   stars: [],
+  bubbles: [],
   start: 0,
   castle: 9750,
 };
 
+// Under the Sea: bubbles on the sea floor. Running into one, she floats up
+// inside it, along a trail of pearls, high over a gap, and it pops: she
+// falls the rest of the way, landing on the far side. Each bubble is just
+// before its gap, so she floats over it without a tap.
+export const SEA = {
+  ground: [
+    [-400, 1100],
+    [1220, 1650], // short gap; a bubble floats her over the next
+    [1880, 3000],
+    [3550, 4050], // long gap; a bubble floats her over the next
+    [4280, 5300],
+    [5420, 5950], // short gap; a bubble floats her over the next
+    [6180, 7400],
+    [7950, 8300], // long gap
+    [8420, 8800], // short gap
+    [8920, 11000], // short gap; on past the castle
+  ],
+  clouds: [],
+  // Bubbles, by where they are along x
+  bubbles: [1500, 3900, 5800],
+  gems: [
+    [400, 60],
+    [1500, 100], [1600, 190], [1700, 275], [1800, 345], // up in a bubble
+    [2200, 60],
+    [2450, 150], // up over a sea urchin
+    [3200, 150], [3350, 150], // over the long gap
+    [3900, 100], [4000, 190], [4100, 275], [4200, 345],
+    [4800, 150],
+    [5360, 150], // over the gap, up a jump
+    [5800, 100], [5900, 190], [6000, 275], [6100, 345],
+    [6500, 60], [6600, 60],
+    [6950, 150],
+    [7600, 150], [7750, 150],
+    [8310, 160], [8370, 200], [8430, 160], // an arc over a gap
+    [8810, 160], [8870, 200], [8930, 160], // an arc over the last gap
+  ],
+  // Prickly things to jump over (game over if she runs into one), by x:
+  // only between the first gap and the last
+  thorns: [2450, 4800, 6950],
+  bouncers: [],
+  pots: [],
+  walls: [],
+  stars: [],
+  trees: [],
+  crystals: [],
+  sky: [],
+  start: 0,
+  castle: 9400,
+};
+
 // The Night Sky, the last world: a bit of everything (a gumdrop, a paint
-// pot, a crystal wall, gaps to jump and dash), plus shooting stars
+// pot, a crystal wall, a bubble, gaps to jump and dash), plus shooting stars
 // to ride across the sky. A gumdrop launches her up to each star, and each
 // one drops her off on solid ground.
 export const NIGHT = {
@@ -223,8 +277,9 @@ export const NIGHT = {
     [7700, 8150], // a very long gap, under a shooting star
     [8270, 8570], // short gap
     [8690, 9290], // short gap, with a gumdrop up to a shooting star
-    [9890, 10890], // long gap, under the shooting star; then a bramble
-    [11010, 13600], // short gap; on past the castle
+    [9890, 11450], // long gap, under the shooting star; then a bramble, and a bubble
+    [11680, 12100], // a gap the bubble floats her over
+    [12220, 14300], // short gap; on past the castle
   ],
   clouds: [],
   bouncers: [1700, 6250, 8840],
@@ -233,6 +288,7 @@ export const NIGHT = {
     { x: 6500, y: 260, length: 1300 },
     { x: 9090, y: 260, length: 1000 },
   ],
+  bubbles: [11300],
   // Prickly things to jump over (game over if she runs into one), by x:
   // only between the first gap and the last
   thorns: [1450, 4800, 10500],
@@ -252,13 +308,14 @@ export const NIGHT = {
     [8580, 160], [8640, 200], [8700, 160], // an arc over a gap
     [9300, 310], [9500, 310], [9700, 310], [9900, 310], // along the shooting star
     [10500, 150], // up over a bramble
-    [10900, 160], [10960, 200], [11020, 160], // an arc over the last gap
+    [11300, 100], [11400, 190], [11500, 275], [11600, 345], // up in a bubble
+    [12110, 160], [12170, 200], [12230, 160], // an arc over the last gap
   ],
   trees: [],
   crystals: [],
   sky: [],
   start: 0,
-  castle: 11550,
+  castle: 12750,
 };
 
-export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT };
+export const LEVELS = { meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, sea: SEA, night: NIGHT };
