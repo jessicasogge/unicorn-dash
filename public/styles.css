@@ -699,16 +699,21 @@ body {
   color: #ffffff; /* on the teal rock */
 }
 
-/* Shooting stars (the Night Sky): glowing as she rides one, then zooming
-   off and fading when she hops off */
+/* Shooting stars (the Night Sky): glowing, more as she rides one, then
+   zooming off and fading when she hops off. (No filters in the Night Sky:
+   on an iPhone they can leave faint boxes behind; its glows are drawn.) */
 .shooting-star {
   width: 140px;
   height: 96px;
-  filter: drop-shadow(0 0 10px #ffe58a);
 }
 
-.shooting-star.riding {
-  filter: drop-shadow(0 0 18px #fff3b0);
+.shooting-star .star-glow {
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.shooting-star.riding .star-glow {
+  opacity: 1;
 }
 
 .shooting-star.gone {
@@ -744,7 +749,6 @@ body {
   height: 90px;
   border-radius: 50%;
   box-shadow: 24px 10px 0 0 #fff4c7; /* the shadow is the crescent */
-  filter: drop-shadow(0 0 12px rgba(255, 244, 199, 0.6));
 }
 
 .night .hills {
@@ -757,11 +761,6 @@ body {
 
 .night .signature {
   color: #ffffff;
-}
-
-/* Its little stars to catch glow, so they show up against the dark sky */
-.night .gem:not(.got) {
-  filter: drop-shadow(0 0 5px rgba(255, 244, 199, 0.75));
 }
 
 /* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */
