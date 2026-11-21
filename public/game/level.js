@@ -85,6 +85,8 @@ export const COLLECT = {
   night: {
     one: 'star',
     many: 'stars',
+    // Pale circles behind each, so they glow against the dark sky
+    glow: '<circle cx="16" cy="21" r="16" fill="#FFF4C7" opacity="0.18"/><circle cx="16" cy="21" r="11.5" fill="#FFF4C7" opacity="0.24"/>',
     draw: (color) => `<path d="M16.0 5.0 L20.5 14.9 L31.2 16.1 L23.2 23.3 L25.4 33.9 L16.0 28.6 L6.6 33.9 L8.8 23.3 L0.8 16.1 L11.5 14.9 Z" fill="${color}" stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round"/>`,
   },
 };
@@ -164,7 +166,7 @@ const THORN = THORNS[main.dataset.level];
 document.querySelector('.thorn-pic').append(svg('0 0 100 74', THORN));
 
 // A shooting star: a big glowing star with a sparkly tail behind it.
-const SHOOTING_STAR = '<g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
+const SHOOTING_STAR = '<g class="star-glow" fill="#FFE58A"><circle cx="100" cy="48" r="40" opacity="0.16"/><circle cx="100" cy="48" r="30" opacity="0.22"/></g><g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
 
 // A cluster of glowing crystals for the cave's background.
 const CRYSTALS = '<g stroke="#2B2350" stroke-width="5" stroke-linejoin="round"><path d="M10 240 L20 120 L40 80 L56 130 L50 240 Z" fill="#9B6BFF"/><path d="M46 240 L52 60 L78 0 L102 70 L96 240 Z" fill="#7FE3FF"/><path d="M92 240 L98 140 L118 100 L132 150 L128 240 Z" fill="#FF8FC0"/></g>';
@@ -197,7 +199,7 @@ function build(course) {
   const hints = course.walls.map((x) => place(holdHint(), 'hold-hint', x - HINT_WIDTH / 2, 345, HINT_WIDTH));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
-  const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', ITEM.draw(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
+  const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', (ITEM.glow ?? '') + ITEM.draw(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
   return { gems, fireworks, gumdrops, pots, walls, hints, stars, thorns };
 }
 

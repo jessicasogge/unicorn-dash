@@ -486,12 +486,12 @@ describe('dashing', () => {
     const item = meadow.COLLECT[world];
     expect(item).toMatchObject({ one, many });
     // (drawn the same way, so the markup comes out the same)
-    const drawn = (color) => {
+    const drawn = (color, glow = '') => {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.innerHTML = item.draw(color);
+      svg.innerHTML = glow + item.draw(color);
       return svg.innerHTML;
     };
-    expect($('.course .gem').innerHTML).toBe(drawn(meadow.GEM_COLORS[0]));
+    expect($('.course .gem').innerHTML).toBe(drawn(meadow.GEM_COLORS[0], item.glow));
     expect($('.gem-count svg').innerHTML).toBe(drawn('#FF5FA2'));
     expect($('.gem-count').getAttribute('aria-label')).toBe(`0 ${many}`);
     expect($('.directions').textContent).toContain(`Catch every ${one} for a surprise at the castle!`);
