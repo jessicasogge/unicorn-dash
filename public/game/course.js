@@ -214,7 +214,7 @@ export const CRYSTAL = {
 };
 
 // Under the Sea: bubbles on the sea floor. Running into one, she floats up
-// inside it, along a trail of pearls, high over a gap, and it pops: she
+// inside it, along a trail of little fish, high over a gap, and it pops: she
 // falls the rest of the way, landing on the far side. Each bubble is just
 // before its gap, so she floats over it without a tap.
 export const SEA = {

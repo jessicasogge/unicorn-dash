@@ -479,7 +479,7 @@ describe('dashing', () => {
 
   it.each([
     ['meadow.html', 'flower', 'flowers'], ['candy.html', 'candy', 'candies'], ['cloud.html', 'raindrop', 'raindrops'],
-    ['crystal.html', 'diamond', 'diamonds'], ['sea.html', 'pearl', 'pearls'], ['night.html', 'star', 'stars'],
+    ['crystal.html', 'diamond', 'diamonds'], ['sea.html', 'fish', 'fish'], ['night.html', 'star', 'stars'],
   ])('in %s are its own (a %s), on the course, on the counter, and in the directions', async (page, one, many) => {
     await open('?mane=pink', { page, go: false });
     const world = page.replace('.html', '');

@@ -59,8 +59,8 @@ function place(node, className, x, y, width) {
 export const GEM_COLORS = ['#FF5A5F', '#FF9F1C', '#FFD23F', '#5BD06B', '#3A8DFF', '#9B6BFF', '#FF5FA2'];
 // What there is to catch in each world, in rainbow colors, all the same size
 // (32 by 38): flowers in the Meadow, wrapped candies in Candy Canyon,
-// raindrops in Cloud Kingdom, diamonds in the Crystal Caves, pearls under the
-// sea, and little stars (no tail or face, unlike the shooting stars) in the
+// raindrops in Cloud Kingdom, diamonds in the Crystal Caves, little fish under
+// the sea, and little stars (no tail or face, unlike the shooting stars) in the
 // Night Sky.
 export const COLLECT = {
   meadow: {
@@ -84,9 +84,9 @@ export const COLLECT = {
     draw: (color) => `<path d="M16 3 L29 14 L16 35 L3 14 Z" fill="${color}" stroke="#2B2350" stroke-width="3.5" stroke-linejoin="round"/><path d="M8 13 L14 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`,
   },
   sea: {
-    one: 'pearl',
-    many: 'pearls',
-    draw: (color) => `<circle cx="16" cy="21" r="12" fill="${color}" stroke="#2B2350" stroke-width="3"/><circle cx="11.5" cy="16.5" r="3.5" fill="#fff" opacity="0.9"/><circle cx="20" cy="27" r="1.8" fill="#fff" opacity="0.6"/>`,
+    one: 'fish',
+    many: 'fish',
+    draw: (color) => `<g stroke="#2B2350" stroke-width="2.5" stroke-linejoin="round"><path d="M22 21 L31 13 L31 29 Z" fill="${color}"/><ellipse cx="14" cy="21" rx="12" ry="9" fill="${color}"/></g><circle cx="8" cy="19" r="2.2" fill="#2B2350"/><path d="M14 15 Q17 21 14 27" fill="none" stroke="#2B2350" stroke-width="1.8" opacity="0.6"/>`,
   },
   night: {
     one: 'star',

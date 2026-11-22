@@ -406,7 +406,7 @@ describe('Under the Sea', () => {
     }
   });
 
-  it('can be won with every pearl, floating in every bubble, at 60 or 30 frames a second', () => {
+  it('can be won with every fish, floating in every bubble, at 60 or 30 frames a second', () => {
     for (const dt of [1 / 60, 1 / 30]) {
       const { state, events } = play(dt);
       expect(state.finished, `at ${dt}`).toBe(true);
