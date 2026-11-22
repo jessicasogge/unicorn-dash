@@ -703,13 +703,21 @@ body {
 /* Bubbles (under the sea): over her as she floats up in one, then popping:
    bigger and gone */
 .bubble {
-  width: 150px;
-  height: 150px;
+  width: 192px; /* BUBBLE_SIZE in game/level.js */
+  height: 192px;
   transition: scale 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
 }
 
+/* Run into: it slides over to center on her (by --snap-x and --snap-y, set
+   by game/level.js), in front of her, so she's inside it */
+.bubble.floating,
+.bubble.popped {
+  translate: var(--snap-x, 0) var(--snap-y, 0);
+}
+
 .bubble.floating {
-  z-index: 1; /* in front of her: she's inside it */
+  z-index: 1;
+  transition: translate 0.15s ease-out, scale 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
 }
 
 .bubble.popped {

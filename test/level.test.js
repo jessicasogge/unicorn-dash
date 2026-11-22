@@ -1007,7 +1007,7 @@ describe('Under the Sea', () => {
   it('draws its bubbles, sitting on the sea floor', async () => {
     await sea();
     expect($$('.course .bubble')).toHaveLength(SEA.bubbles.length);
-    expect(bubble(0).style.left).toBe(`${SEA.bubbles[0] - 75}px`);
+    expect(bubble(0).style.left).toBe(`${SEA.bubbles[0] - meadow.BUBBLE_SIZE / 2}px`);
     expect(bubble(0).style.bottom).toBe('140px'); // on the ground's top
   });
 
@@ -1024,7 +1024,11 @@ describe('Under the Sea', () => {
     tick(20);
     expect(bubble(0).classList.contains('floating')).toBe(true);
     expect(height()).toBeGreaterThan(50);
-    expect(bubble(0).style.transform).toBe(`translate3d(${x() - SEA.bubbles[0]}px, ${-height()}px, 0)`);
+    // centered on her: slid over from where it sat, then rising with her
+    const caughtAt = SEA.bubbles[0] + Number.parseFloat(bubble(0).style.getPropertyValue('--snap-x'));
+    expect(caughtAt).toBeLessThan(SEA.bubbles[0]); // she ran into it from the left
+    expect(bubble(0).style.getPropertyValue('--snap-y')).toBe(`${meadow.BUBBLE_SIZE / 2 - 56}px`);
+    expect(bubble(0).style.transform).toMatch(new RegExp(`^translate3d\\(${Math.round(x() - caughtAt)}(\\.\\d+)?px, ${-height()}px, 0\\)$`));
     runUntil(() => bubble(0).classList.contains('popped'));
     expect(bubble(0).classList.contains('floating')).toBe(false);
     expect(bubble(0).classList.contains('popped')).toBe(true);
@@ -1036,6 +1040,7 @@ describe('Under the Sea', () => {
     $('.retry-btn').click();
     expect($$('.course .bubble.floating, .course .bubble.popped')).toHaveLength(0);
     expect(bubble(0).style.transform).toBe('');
+    expect(bubble(0).style.getPropertyValue('--snap-x')).toBe('');
   });
 
   it('has a next level button on to the Night Sky', async () => {

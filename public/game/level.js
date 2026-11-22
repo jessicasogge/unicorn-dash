@@ -175,7 +175,9 @@ document.querySelector('.thorn-pic').append(svg('0 0 100 74', THORN));
 
 // A bubble on the sea floor: big enough for her inside, see-through, with a
 // shine. She floats up in it; it pops at the top.
-const BUBBLE = '<circle cx="75" cy="75" r="70" fill="#D8F6FF" fill-opacity="0.35" stroke="#2B2350" stroke-width="4" stroke-opacity="0.55"/><circle cx="75" cy="75" r="64" fill="none" stroke="#fff" stroke-width="3" opacity="0.6"/><path d="M38 50 A44 44 0 0 1 64 26" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="34" cy="64" r="5" fill="#fff"/>';
+const BUBBLE = '<circle cx="96" cy="96" r="92" fill="#D8F6FF" fill-opacity="0.35" stroke="#2B2350" stroke-width="4" stroke-opacity="0.55"/><circle cx="96" cy="96" r="84" fill="none" stroke="#fff" stroke-width="3" opacity="0.6"/><path d="M47 63 A58 58 0 0 1 82 32" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/><circle cx="42" cy="82" r="6" fill="#fff"/>';
+export const BUBBLE_SIZE = 192; // across: big enough for all of her, hooves and horn
+const HER_MIDDLE = 56; // her middle, up from her hooves, where the bubble centers on her
 
 // A shooting star: a big glowing star with a sparkly tail behind it.
 const SHOOTING_STAR = '<g class="star-glow" fill="#FFE58A"><circle cx="100" cy="48" r="40" opacity="0.16"/><circle cx="100" cy="48" r="30" opacity="0.22"/></g><g stroke-linecap="round"><path d="M10 52 H70" stroke="#FFD23F" stroke-width="10" opacity="0.5"/><path d="M24 40 H72" stroke="#FFF3B0" stroke-width="6" opacity="0.7"/><path d="M30 64 H70" stroke="#FFF3B0" stroke-width="5" opacity="0.6"/></g><path d="M100 14 L111 39 L138 41 L117 58 L124 84 L100 70 L76 84 L83 58 L62 41 L89 39 Z" fill="#FFD23F" stroke="#2B2350" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="48" r="4" fill="#2B2350"/><circle cx="108" cy="48" r="4" fill="#2B2350"/>';
@@ -210,7 +212,7 @@ function build(course) {
   const walls = course.walls.map((x) => place(svg('0 0 128 334', WALL), 'crystal-wall', x - 64, -4));
   const hints = course.walls.map((x) => place(holdHint(), 'hold-hint', x - HINT_WIDTH / 2, 345, HINT_WIDTH));
   const stars = course.stars.map((star) => place(svg('0 0 140 96', SHOOTING_STAR), 'shooting-star', star.x - 100, star.y - 40));
-  const bubbles = course.bubbles.map((x) => place(svg('0 0 150 150', BUBBLE), 'bubble', x - 75, 0));
+  const bubbles = course.bubbles.map((x) => place(svg(`0 0 ${BUBBLE_SIZE} ${BUBBLE_SIZE}`, BUBBLE), 'bubble', x - BUBBLE_SIZE / 2, 0));
   const thorns = course.thorns.map((x) => place(svg('0 0 100 74', THORN), 'thorns', x - 50, -4));
   const gems = course.gems.map(([x, y], i) => place(svg('0 0 32 38', (ITEM.glow ?? '') + ITEM.draw(GEM_COLORS[i % GEM_COLORS.length])), 'gem', x - 16, y - 19));
   return { gems, fireworks, gumdrops, pots, walls, hints, stars, bubbles, thorns };
@@ -218,6 +220,7 @@ function build(course) {
 
 const { gems, fireworks, gumdrops, pots, walls, hints, stars, bubbles, thorns } = build(LEVEL);
 const bumps = walls.map(() => 0); // times she's bumped into each wall, this try
+let floatedFrom = 0; // where she was when she ran into the bubble she's in
 const count = document.querySelector('.gem-count');
 const countNumber = count.querySelector('.count');
 count.querySelector('svg').innerHTML = ITEM.draw('#FF5FA2'); // the counter shows this world's
@@ -265,7 +268,7 @@ export function render() {
   runnerEl.classList.toggle('dashing', state.dashing);
   // A bubble she's floating in goes up with her
   if (state.floating !== null) {
-    bubbles[state.floating].style.transform = `translate3d(${state.x - LEVEL.bubbles[state.floating]}px, ${-state.y}px, 0)`;
+    bubbles[state.floating].style.transform = `translate3d(${state.x - floatedFrom}px, ${-state.y}px, 0)`;
   }
   // A shooting star she's riding goes along with her
   if (state.riding !== null) {
@@ -308,7 +311,14 @@ function frame(time) {
     replay(pots[state.painted], 'splash');
   }
   if (events.includes('ride')) stars[state.riding].classList.add('riding');
-  if (events.includes('float')) bubbles[state.floating].classList.add('floating');
+  if (events.includes('float')) {
+    // It slides over to center on her (styles.css eases it there), then rises with her
+    const bubble = bubbles[state.floating];
+    floatedFrom = state.x;
+    bubble.style.setProperty('--snap-x', `${state.x - LEVEL.bubbles[state.floating]}px`);
+    bubble.style.setProperty('--snap-y', `${BUBBLE_SIZE / 2 - HER_MIDDLE}px`);
+    bubble.classList.add('floating');
+  }
   if (events.includes('pop')) bubbles[[...state.floated].at(-1)].classList.replace('floating', 'popped');
   if (events.includes('hop-off')) {
     const star = [...state.rode].at(-1);
@@ -403,6 +413,8 @@ function restart() {
   for (const bubble of bubbles) {
     bubble.classList.remove('floating', 'popped');
     bubble.style.transform = '';
+    bubble.style.removeProperty('--snap-x');
+    bubble.style.removeProperty('--snap-y');
   }
   pressed = false;
   held = false;
