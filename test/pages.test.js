@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const file = (name) => new URL(`../public/${name}`, import.meta.url);
-const PAGES = ['index.html', 'world-map.html', 'meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'night.html'];
+const PAGES = ['index.html', 'world-map.html', 'meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'sea.html', 'night.html'];
 
 describe('tab icon', () => {
   it.each(PAGES)('%s links the icon, with a PNG for browsers without SVG icons', (page) => {
@@ -235,7 +235,7 @@ describe('Crystal Caves', () => {
   const html = readFileSync(file('crystal.html'), 'utf8');
 
   it('is a level page for the crystal course, using the shared level script', () => {
-    expect(html).toContain('<main class="level crystal" data-level="crystal" data-next="./night.html">');
+    expect(html).toContain('<main class="level crystal" data-level="crystal" data-next="./sea.html">');
     expect(html).toContain('<script type="module" src="./game/level.js"></script>');
   });
 
@@ -243,6 +243,25 @@ describe('Crystal Caves', () => {
     for (const part of ['<div class="directions">', '<div class="finish" hidden>', '<div class="game-over" hidden>', '<div class="gem-count"']) {
       expect(html).toContain(part);
     }
+  });
+});
+
+describe('Under the Sea', () => {
+  const html = readFileSync(file('sea.html'), 'utf8');
+
+  it('is a level page for the sea course, before the Night Sky, using the shared level script', () => {
+    expect(html).toContain('<main class="level sea" data-level="sea" data-next="./night.html">');
+    expect(html).toContain('<a class="icon-btn next-btn" href="./night.html" aria-label="Next level">');
+    expect(html).toContain('<script type="module" src="./game/level.js"></script>');
+  });
+
+  it('explains the bubbles and sea urchins in its directions', () => {
+    expect(html).toContain('<p><strong>Bubbles</strong> float you up high.<br />Run into one and up you go!</p>');
+    expect(html).toContain('<p><strong>Sea urchins</strong> are prickly.<br />Jump over them!</p>');
+  });
+
+  it('is listed for search engines', () => {
+    expect(readFileSync(file('sitemap.xml'), 'utf8')).toContain('<loc>https://jessicasogge.github.io/unicorn-dash/sea.html</loc>');
   });
 });
 
@@ -266,7 +285,7 @@ describe('the Night Sky', () => {
 });
 
 describe('turning the phone sideways', () => {
-  it.each(['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'night.html'])('%s\'s start card asks for it, under the world\'s name', (page) => {
+  it.each(['meadow.html', 'candy.html', 'cloud.html', 'crystal.html', 'sea.html', 'night.html'])('%s\'s start card asks for it, under the world\'s name', (page) => {
     const html = readFileSync(file(page), 'utf8');
     const card = html.slice(html.indexOf('<div class="directions-card">'), html.indexOf('<div class="how-to" hidden>'));
     expect(card).toContain('<div class="turn-sideways">');
@@ -287,7 +306,7 @@ describe('turning the phone sideways', () => {
 describe('the card at the start of each level', () => {
   it.each([
     ['meadow.html', 'Meadow'], ['candy.html', 'Candy Canyon'], ['cloud.html', 'Cloud Kingdom'],
-    ['crystal.html', 'Crystal Caves'], ['night.html', 'Night Sky'],
+    ['crystal.html', 'Crystal Caves'], ['sea.html', 'Under the Sea'], ['night.html', 'Night Sky'],
   ])('%s shows its name, with How to play and Go, and the directions tucked away', (page, name) => {
     const html = readFileSync(file(page), 'utf8');
     expect(html).toContain(`<h2 class="directions-title">${name}</h2>`);

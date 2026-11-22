@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Under the Sea: Unicorn Dash</title>
+    <meta name="description" content="Float up in bubbles under the sea: tap to jump, hold to dash, and reach the castle. No reading needed." />
+    <link rel="canonical" href="https://jessicasogge.github.io/unicorn-dash/sea.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unicorn Dash" />
+    <meta property="og:title" content="Under the Sea: Unicorn Dash" />
+    <meta property="og:description" content="Float up in bubbles under the sea: tap to jump, hold to dash, and reach the castle. No reading needed." />
+    <meta property="og:url" content="https://jessicasogge.github.io/unicorn-dash/sea.html" />
+    <meta property="og:image" content="https://jessicasogge.github.io/unicorn-dash/social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Unicorn Dash start screen: a white unicorn with a pink mane leaping on a rainbow trail under the words Unicorn Dash" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://jessicasogge.github.io/unicorn-dash/social-preview.png" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32" />
+    <!-- On a phone's home screen: its icon and name, opening full screen -->
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content="Unicorn Dash" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#a8e0ff" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="level sea" data-level="sea" data-next="./night.html">
+      <!-- The course, drawn by game/level.js. Tap or hold anywhere here. -->
+      <div class="view" role="application" aria-label="Under the Sea. Tap to jump, hold to dash.">
+        <div class="hills" aria-hidden="true"></div>
+        <div class="course"></div>
+      </div>
+
+      <nav class="level-bar">
+        <a class="icon-btn map-btn" href="./world-map.html" aria-label="Back to the map">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+        </a>
+        <!-- Diamonds caught so far, counting up -->
+        <div class="gem-count" role="img" aria-label="0 fish">
+          <svg viewBox="0 0 32 38" aria-hidden="true"></svg><!-- drawn by game/level.js -->
+          <span class="count">0</span>
+        </div>
+      </nav>
+
+      <!-- Before she starts running: Go, or how to play first -->
+      <div class="directions">
+        <div class="directions-card">
+          <h2 class="directions-title">Under the Sea</h2>
+          <!-- On a phone held upright, where the course is small: turn it
+               sideways for a bigger view (styles.css shows it only then) -->
+          <div class="turn-sideways">
+            <svg class="turn-pic" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M74 22 A38 38 0 0 1 86 60" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" />
+              <path d="M78 54 L86 62 L93 52" fill="none" stroke="#9B6BFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+              <g class="turn-phone">
+                <rect x="20" y="20" width="34" height="60" rx="8" fill="#fff" stroke="#2B2350" stroke-width="5" />
+                <circle cx="37" cy="70" r="3.5" fill="#2B2350" />
+              </g>
+            </svg>
+            <p>Turn sideways for a bigger view</p>
+          </div>
+          <!-- Shown by the How to play button -->
+          <div class="how-to" hidden>
+            <div class="direction">
+              <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+                <circle cx="46" cy="22" r="14" fill="none" stroke="#FF5FA2" stroke-width="5" />
+                <circle cx="46" cy="22" r="24" fill="none" stroke="#FF5FA2" stroke-width="4" opacity="0.5" />
+                <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+                <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              </svg>
+              <p><strong>Quick tap</strong> to jump.<br />Tap again in the air to jump higher!</p>
+            </div>
+            <div class="direction">
+              <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+                <circle cx="46" cy="22" r="20" fill="none" stroke="#E6E0F5" stroke-width="7" />
+                <circle cx="46" cy="22" r="20" fill="none" stroke="#9B6BFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="84 126" transform="rotate(-90 46 22)" />
+                <rect x="38" y="20" width="16" height="44" rx="8" fill="#fff" stroke="#2B2350" stroke-width="4" />
+                <rect x="28" y="48" width="44" height="38" rx="16" fill="#fff" stroke="#2B2350" stroke-width="4" />
+              </svg>
+              <p><strong>Long tap</strong> (hold) to rainbow dash over big gaps.<br />Catch every fish for a surprise at the castle!</p>
+            </div>
+            <div class="direction">
+              <svg class="direction-pic" viewBox="0 0 92 92" aria-hidden="true">
+                <circle cx="46" cy="50" r="38" fill="#D8F6FF" stroke="#2B2350" stroke-width="4" />
+                <path d="M24 38 A26 26 0 0 1 40 22" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" />
+                <path d="M46 70 V30 M32 44 L46 30 L60 44" fill="none" stroke="#3A8DFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <p><strong>Bubbles</strong> float you up high.<br />Run into one and up you go!</p>
+            </div>
+            <div class="direction">
+              <span class="direction-pic thorn-pic" aria-hidden="true"></span><!-- drawn by game/level.js -->
+              <p><strong>Sea urchins</strong> are prickly.<br />Jump over them!</p>
+            </div>
+            <p class="direction-keys">On a keyboard, use the space bar or the up arrow.</p>
+          </div>
+          <div class="directions-buttons">
+            <button class="how-btn" type="button">How to play</button>
+            <button class="go-btn" type="button">Go!</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- At the castle: play again, or back to the map -->
+      <div class="finish" hidden>
+        <h2 class="finish-title">You beat the level!</h2>
+        <div class="finish-buttons">
+          <button class="icon-btn replay-btn" type="button" aria-label="Play Under the Sea again">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12 a7 7 0 1 1 -2.1 -5" fill="none" stroke-width="3" stroke-linecap="round" /><path d="M18.5 2.5 V7.5 H13.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <a class="icon-btn finish-map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+          <a class="icon-btn next-btn" href="./night.html" aria-label="Next level">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L20 12 L7 20 Z" fill="#fff" stroke="#2B2350" stroke-width="2.2" stroke-linejoin="round" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Fell in a gap: try again, or back to the map -->
+      <div class="game-over" hidden>
+        <h2 class="game-over-title">Game Over</h2>
+        <div class="oops" aria-hidden="true"></div>
+        <div class="finish-buttons">
+          <button class="icon-btn retry-btn" type="button" aria-label="Try Under the Sea again">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12 a7 7 0 1 1 -2.1 -5" fill="none" stroke-width="3" stroke-linecap="round" /><path d="M18.5 2.5 V7.5 H13.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <a class="icon-btn over-map-btn" href="./world-map.html" aria-label="Back to the map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <footer class="signature">jsogge 2026</footer>
+    </main>
+    <script type="module" src="./game/level.js"></script>
+    <script data-goatcounter="https://petripals.goatcounter.com/count"
+            async src="https://gc.zgo.at/count.js"></script>
+  </body>
+</html>

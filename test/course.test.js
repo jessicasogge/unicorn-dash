@@ -2,7 +2,7 @@
 // the real physics, to check every gap is fair: short ones take a jump
 // with plenty of time to press, long ones need a dash, and it can be won.
 import { describe, expect, it } from 'vitest';
-import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT } from '../public/game/course.js';
+import { CANDY, CLOUD, CRYSTAL, LEVELS, MEADOW, NIGHT, SEA } from '../public/game/course.js';
 import { DASH, DASH_TIME, GRAVITY, HOLD_TO_DASH, JUMP, RIDE, RUN, createRunner, step } from '../public/game/runner.js';
 
 const DT = 1 / 120;
@@ -367,6 +367,60 @@ describe('Crystal Caves', () => {
   });
 });
 
+describe('Under the Sea', () => {
+  const seaGaps = SEA.ground.slice(1).map(([to], i) => ({ from: SEA.ground[i][1], to, width: to - SEA.ground[i][1] }));
+
+  // Jumps short gaps and sea urchins, dashes long gaps; bubbles do the rest
+  function play(dt) {
+    const state = createRunner(SEA, 'pink');
+    const events = [];
+    let holdUntil = 0;
+    for (let t = 0; t < 60 && !state.finished && !state.fallen; t += dt) {
+      let input = { pressed: false, held: t < holdUntil };
+      const next = seaGaps.find((g) => g.from > state.x);
+      if (thornAhead(SEA, state) && t >= holdUntil) {
+        input = { pressed: true, held: false };
+      } else if (next && state.grounded && state.y === 0 && next.from - state.x < 40 && t >= holdUntil) {
+        input = { pressed: true, held: next.width >= 200 };
+        if (next.width >= 200) holdUntil = t + HOLD_TO_DASH + next.width / DASH + 0.3;
+      }
+      events.push(...step(state, dt, input));
+    }
+    return { state, events };
+  }
+
+  it('has a few bubbles, each just before a gap it floats her over, so no tap is needed', () => {
+    expect(SEA.bubbles.length).toBeGreaterThanOrEqual(3);
+    for (const x of SEA.bubbles) {
+      const gap = seaGaps.find((g) => g.from > x);
+      expect(gap.from - x, `bubble at ${x}`).toBeGreaterThanOrEqual(100);
+      expect(gap.from - x, `bubble at ${x}`).toBeLessThanOrEqual(200);
+      // Just letting her run: up she floats, over the gap, and lands
+      const state = createRunner(SEA);
+      state.x = x - 200;
+      const events = [];
+      for (let t = 0; t < 3 && !state.fallen; t += 1 / 60) events.push(...step(state, 1 / 60, { pressed: false, held: false }));
+      expect(events, `bubble at ${x}`).toEqual(expect.arrayContaining(['float', 'pop', 'land']));
+      expect(state.fallen, `bubble at ${x}`).toBe(false);
+      expect(state.x, `bubble at ${x}`).toBeGreaterThan(gap.to);
+    }
+  });
+
+  it('can be won with every fish, floating in every bubble, at 60 or 30 frames a second', () => {
+    for (const dt of [1 / 60, 1 / 30]) {
+      const { state, events } = play(dt);
+      expect(state.finished, `at ${dt}`).toBe(true);
+      expect(state.floated.size, `at ${dt}`).toBe(SEA.bubbles.length);
+      expect(events.filter((e) => e === 'pop'), `at ${dt}`).toHaveLength(SEA.bubbles.length);
+      expect(state.collected.size, `at ${dt}`).toBe(SEA.gems.length);
+    }
+  });
+
+  it('keeps the ground going well past the castle', () => {
+    expect(SEA.ground.at(-1)[1] - SEA.castle).toBeGreaterThanOrEqual(600 * 2.5);
+  });
+});
+
 describe('the Night Sky', () => {
   const nightGaps = NIGHT.ground.slice(1).map(([to], i) => ({ from: NIGHT.ground[i][1], to, width: to - NIGHT.ground[i][1] }));
   const onGround = (x, margin) => NIGHT.ground.some(([from, to]) => x - margin >= from && x + margin <= to);
@@ -398,7 +452,7 @@ describe('the Night Sky', () => {
   }
 
   it('is listed with the other levels', () => {
-    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, night: NIGHT });
+    expect(LEVELS).toEqual({ meadow: MEADOW, candy: CANDY, cloud: CLOUD, crystal: CRYSTAL, sea: SEA, night: NIGHT });
   });
 
   it('has a bit of everything: a gumdrop, a paint pot, a crystal wall', () => {
@@ -450,7 +504,7 @@ describe('the Night Sky', () => {
 describe('every level', () => {
   it('has one more gap than the world before, so they get harder as you go', () => {
     const gaps = Object.values(LEVELS).map((level) => level.ground.length - 1);
-    expect(gaps).toEqual([5, 6, 7, 8, 9]);
+    expect(gaps).toEqual([5, 6, 7, 8, 9, 10]);
   });
 
   it('has 20 diamonds to catch in the Meadow, and more in each world after', () => {
@@ -496,7 +550,7 @@ describe('every level', () => {
         const where = `${name} at ${x}`;
         // room to land before it, and after it before the next gap
         expect(level.ground.slice(1, -1).some(([from, to]) => x - 150 >= from && x + 150 <= to), where).toBe(true);
-        for (const other of [...level.bouncers, ...level.pots.map((p) => p.x), level.castle]) {
+        for (const other of [...level.bouncers, ...level.bubbles, ...level.pots.map((p) => p.x), level.castle]) {
           expect(Math.abs(x - other), where).toBeGreaterThanOrEqual(150);
         }
         // not where a wall knocks her back to (400 back), nor where she jumps for a cloud

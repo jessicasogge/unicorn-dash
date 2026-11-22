@@ -338,17 +338,17 @@ body {
 
 .worlds {
   /* The circles' size, to fit the screen's width and height: small enough
-     that all five, with their names, fit in one row on a computer */
-  --island: clamp(5rem, min(12vw, 19vh), 10rem);
+     that all six, with their names, fit in one row on a computer */
+  --island: clamp(4.5rem, min(10vw, 19vh), 9rem);
   list-style: none;
   margin: clamp(1rem, 14vh, 9rem) 0 auto; /* a bit above the middle of the sky */
   padding: 0;
-  max-width: 70rem;
+  max-width: 76rem;
   display: flex;
   flex-wrap: wrap; /* on a phone, three worlds and then two */
   justify-content: center;
   align-items: flex-end;
-  gap: 1.5rem 2rem;
+  gap: 1.5rem 1.75rem;
 }
 
 .world {
@@ -400,6 +400,7 @@ body {
 .world[data-world='candy'] .island { background: #ffb3d6; }
 .world[data-world='cloud'] .island { background: #e8f4ff; }
 .world[data-world='crystal'] .island { background: #9ee6e0; }
+.world[data-world='sea'] .island { background: #3fa9d6; }
 .world[data-world='night'] .island { background: #12306a; }
 
 /* Each world's name, under its circle (the circle's label already says it
@@ -699,6 +700,33 @@ body {
   color: #ffffff; /* on the teal rock */
 }
 
+/* Bubbles (under the sea): over her as she floats up in one, then popping:
+   bigger and gone */
+.bubble {
+  width: 192px; /* BUBBLE_SIZE in game/level.js */
+  height: 192px;
+  transition: scale 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+}
+
+/* Run into: it slides over to center on her (by --snap-x and --snap-y, set
+   by game/level.js), in front of her, so she's inside it */
+.bubble.floating,
+.bubble.popped {
+  translate: var(--snap-x, 0) var(--snap-y, 0);
+}
+
+.bubble.floating {
+  z-index: 1;
+  transition: translate 0.15s ease-out, scale 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+}
+
+.bubble.popped {
+  scale: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transition: scale 0.2s ease-out, opacity 0.2s ease-out, visibility 0s 0.2s;
+}
+
 /* Shooting stars (the Night Sky): glowing, more as she rides one, then
    zooming off and fading when she hops off. (No filters in the Night Sky:
    on an iPhone they can leave faint boxes behind; its glows are drawn.) */
@@ -761,6 +789,29 @@ body {
 
 .night .signature {
   color: #ffffff;
+}
+
+/* Under the Sea: sea blue, deeper further down, with little bubbles that
+   stay put (like the Night Sky's stars), coral hills and sandy ground */
+.level.sea {
+  background-color: #3fa9d6;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.55) 0 4px, transparent 5px),
+    radial-gradient(circle at 24% 38%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
+    radial-gradient(circle at 41% 14%, rgba(255, 255, 255, 0.5) 0 5px, transparent 6px),
+    radial-gradient(circle at 57% 32%, rgba(255, 255, 255, 0.4) 0 3px, transparent 4px),
+    radial-gradient(circle at 72% 10%, rgba(255, 255, 255, 0.5) 0 4px, transparent 5px),
+    radial-gradient(circle at 88% 28%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
+    linear-gradient(#7fd3f2 0%, #3fa9d6 55%, #237fb2 100%);
+}
+
+.sea .hills {
+  background-image: radial-gradient(circle at 50% 100%, #ff8f7a 0 45%, transparent 45.5%);
+  opacity: 0.55;
+}
+
+.sea .ground {
+  background: linear-gradient(#f6dc9a 0 28px, var(--ink) 28px 33px, #d9b26e 33px);
 }
 
 /* Cloud Kingdom: a pale blue sky, white cloud hills and fluffy ground */

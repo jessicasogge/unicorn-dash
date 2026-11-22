@@ -1,4 +1,4 @@
-// The world map: the five worlds, with the unicorn standing on the one
+// The world map: the six worlds, with the unicorn standing on the one
 // she's in. Every world is open: tap one and she goes there, and it opens.
 import { HOP_MS, drawUnicorn, maneFromAddress, pressOnReturn } from './unicorn.js';
 
@@ -29,6 +29,7 @@ export const WORLD_PAGES = {
   candy: './candy.html',
   cloud: './cloud.html',
   crystal: './crystal.html',
+  sea: './sea.html',
   night: './night.html',
 };
 
