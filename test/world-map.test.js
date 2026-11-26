@@ -120,6 +120,16 @@ describe('nothing saved', () => {
   });
 });
 
+describe('sound turned off in a level', () => {
+  it('stays off, on to the next level and home', async () => {
+    await open('?mane=blue&sound=off');
+    expect(document.querySelector('.home-btn').getAttribute('href')).toBe('./index.html?mane=blue&sound=off');
+    island('candy').click();
+    vi.advanceTimersByTime(HOP_MS);
+    expect(location.href).toBe('./candy.html?mane=blue&sound=off');
+  });
+});
+
 describe('the Home button', () => {
   it('goes back to the start screen, with her mane', async () => {
     await open('?mane=blue');

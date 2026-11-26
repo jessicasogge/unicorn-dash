@@ -350,6 +350,94 @@ describe('the buttons', () => {
   });
 });
 
+describe('sounds', () => {
+  // A pretend browser sound maker, counting the tones played
+  let tones;
+  beforeEach(() => {
+    tones = 0;
+    class Context {
+      constructor() {
+        this.state = 'running';
+        this.currentTime = 0;
+        this.destination = {};
+      }
+
+      createOscillator() {
+        tones += 1;
+        const param = { setValueAtTime() {}, exponentialRampToValueAtTime() {} };
+        return { frequency: param, connect: (to) => to, start() {}, stop() {} };
+      }
+
+      createGain() {
+        return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect: (to) => to };
+      }
+    }
+    vi.stubGlobal('AudioContext', Context);
+  });
+  const button = () => $('.sound-btn');
+
+  it('play as she jumps', async () => {
+    await open();
+    tick(5);
+    const before = tones;
+    pointer('pointerdown');
+    tick();
+    pointer('pointerup');
+    expect(tones).toBeGreaterThan(before);
+  });
+
+  it('play a little fanfare at the castle', async () => {
+    await open();
+    const sounds = await import('../public/game/sound.js');
+    const each = (name) => sounds.SOUNDS[name].length;
+    // on to the castle
+    const level = LEVELS.meadow;
+    for (let i = 0; i < 5000 && frames.length && $('.finish').hidden; i++) {
+      const gapAhead = level.ground.some(([, end]) => end > x() && end - x() < 40);
+      if (gapAhead && height() === 0) { pointer('pointerdown'); tick(); pointer('pointerup'); }
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    expect(tones).toBeGreaterThan(each('finish'));
+  });
+
+  it('can be turned off and on with the button next to the map button, saying so', async () => {
+    await open('?mane=blue');
+    expect(button().previousElementSibling.classList.contains('map-btn')).toBe(true);
+    expect(button().getAttribute('aria-label')).toBe('Sound off');
+    expect(button().getAttribute('aria-pressed')).toBe('false');
+    button().click();
+    expect(button().getAttribute('aria-pressed')).toBe('true');
+    expect(button().classList.contains('off')).toBe(true);
+    tick(5);
+    const before = tones;
+    pointer('pointerdown');
+    tick();
+    pointer('pointerup');
+    expect(tones).toBe(before); // a jump, but no sound
+    button().click();
+    expect(button().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('stay off on the next level and the map once turned off, by its address', async () => {
+    await open('?mane=blue');
+    button().click();
+    expect($('.next-btn').getAttribute('href')).toBe('./candy.html?mane=blue&sound=off');
+    expect($('.map-btn').getAttribute('href')).toBe('./world-map.html?mane=blue&sound=off');
+    button().click();
+    expect($('.next-btn').getAttribute('href')).toBe('./candy.html?mane=blue');
+  });
+
+  it('start off when the address says so', async () => {
+    await open('?mane=blue&sound=off');
+    expect(button().getAttribute('aria-pressed')).toBe('true');
+    tick(5);
+    pointer('pointerdown');
+    tick();
+    expect(tones).toBe(0);
+  });
+});
+
 describe('jumping', () => {
   it('happens on a tap anywhere on the course', async () => {
     await open();
@@ -468,7 +556,7 @@ describe('dashing', () => {
   it('are counted up at the top right as she catches them', async () => {
     await open();
     const count = $('.level-bar > .gem-count');
-    expect(count.previousElementSibling.classList.contains('map-btn')).toBe(true); // map left, count right
+    expect(count.parentElement.firstElementChild.classList.contains('map-btn')).toBe(true); // map left, count right
     expect(count.querySelector('.count').textContent).toBe('0');
     tick(120);
     const caught = $$('.course .gem.got').length;

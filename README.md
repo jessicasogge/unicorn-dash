@@ -21,7 +21,7 @@ The **start screen**, the **world map**, and all six worlds, the **Meadow**, **C
 
 On a keyboard, **Return** presses each screen's main button: Play on the start screen, the world she's on on the map, Go on a level's card, the next level at the castle (or play again, after the last one), and try again after a fall.
 
-There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
+Everything that happens has a soft sound (a blip for a jump, a chime for a catch, a boing off a gumdrop, a pop for a bubble, a little fanfare at the castle), made by the browser as it plays, with no sound files; the speaker button next to the map button turns them off, and off carries on to the next level and the map in the page's address. There are no stars or scores, and nothing is saved. There are a few words, like "Game Over", but reading isn't the point: everything you need to play is shown with pictures, and each button has a name for screen readers.
 
 ## The plan
 
@@ -62,6 +62,7 @@ The tests use [Vitest](https://vitest.dev/). The game logic runs in [jsdom](http
 | `public/game/world-map.js` | Puts her on the map, with the mane she came with, and moves her to the world you tap |
 | `public/meadow.html`, `public/candy.html`, `public/cloud.html`, `public/crystal.html`, `public/sea.html`, `public/night.html` | The Meadow, Candy Canyon, Cloud Kingdom, the Crystal Caves, Under the Sea and the Night Sky, the six worlds |
 | `public/game/level.js` | Draws a level and runs her through it: the controls, the camera, the castle. Each level page names its course (`data-level`) and the level after it (`data-next`) |
+| `public/game/sound.js` | The game's sounds, each a few soft tones, and turning them off |
 | `public/game/track.js` | Counts game events on GoatCounter (the same as PetriPals), and quietly does nothing if it isn't there |
 | `public/game/runner.js` | Her running, jumping, dashing and bouncing, paint pots, crystal walls, shooting stars, bubbles and prickly things, with no drawing: speeds, gravity, what she catches |
 | `public/game/course.js` | Each level's course: where the ground, gaps, clouds, gumdrops, paint pots, crystal walls, prickly things, shooting stars, bubbles and gems are |
