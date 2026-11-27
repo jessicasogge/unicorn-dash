@@ -4,6 +4,7 @@
 // dash.
 import { LEVELS } from './course.js';
 import { createRunner, step } from './runner.js';
+import { SOUNDS, createSound } from './sound.js';
 import { track } from './track.js';
 import { MANES, drawUnicorn, maneFromAddress, pressOnReturn, setMane } from './unicorn.js';
 
@@ -29,14 +30,40 @@ const course = document.querySelector('.course');
 const finish = document.querySelector('.finish');
 const gameOver = document.querySelector('.game-over');
 
-for (const link of document.querySelectorAll('.map-btn, .finish-map-btn, .over-map-btn')) {
-  link.href = `./world-map.html?mane=${mane.name}`;
-}
+// Sounds, on unless the address says they were turned off on the last page
+const sound = createSound({ on: new URLSearchParams(location.search).get('sound') !== 'off' });
 
 // At the castle, a button on to the next level, if there is one.
 const next = document.querySelector('.next-btn');
-if (main.dataset.next) next.href = `${main.dataset.next}?mane=${mane.name}`;
-else next.remove();
+if (!main.dataset.next) next.remove();
+
+// The map and next level buttons keep her mane, and sound off if it's off
+function setLinks() {
+  const keep = `?mane=${mane.name}${sound.on ? '' : '&sound=off'}`;
+  for (const link of document.querySelectorAll('.map-btn, .finish-map-btn, .over-map-btn')) {
+    link.href = `./world-map.html${keep}`;
+  }
+  if (main.dataset.next) next.href = `${main.dataset.next}${keep}`;
+}
+setLinks();
+
+// The sound button: on and off
+const soundButton = document.querySelector('.sound-btn');
+function showSound() {
+  soundButton.setAttribute('aria-pressed', String(!sound.on));
+  soundButton.classList.toggle('off', !sound.on);
+}
+showSound();
+soundButton.addEventListener('click', (event) => {
+  sound.on = !sound.on;
+  sound.wake();
+  showSound();
+  setLinks();
+  // Clicked or tapped: give the keys back to the game, or the space bar and
+  // Return would keep pressing this button instead of jumping, Go and the
+  // rest. (From the keyboard, with Tab, it keeps them, to press again.)
+  if (event.detail > 0) soundButton.blur();
+});
 
 function svg(viewBox, inner) {
   const node = document.createElementNS(SVG, 'svg');
@@ -306,6 +333,7 @@ function frame(time) {
   const events = step(state, dt, { pressed, held });
   pressed = false;
   render();
+  for (const name of new Set(events)) if (name in SOUNDS) sound.play(name);
   if (events.includes('paint')) {
     setMane(unicorn, maneNamed(state.mane));
     replay(pots[state.painted], 'splash');
@@ -337,6 +365,7 @@ function frame(time) {
   if (events.includes('gem')) replay(count, 'bump');
   if (events.includes('finish')) {
     for (const burst of fireworks) burst.classList.toggle('going', allGems());
+    if (allGems()) sound.play('fireworks');
     tally(`level-complete/${level}`, `Beat ${worldName}`);
     if (allGems()) tally(`all-diamonds/${level}`, `Every ${ITEM.one} in ${worldName}`);
     if (!main.dataset.next) tally('won-all-worlds', 'Beat every world');
@@ -365,6 +394,7 @@ function release() {
 
 view.addEventListener('pointerdown', (event) => {
   event.preventDefault();
+  sound.wake();
   press();
 });
 for (const type of ['pointerup', 'pointercancel', 'pointerleave']) view.addEventListener(type, release);
@@ -383,6 +413,7 @@ window.addEventListener('keydown', (event) => {
   if (!KEYS.includes(event.key) || event.target.closest?.('button, a')) return;
   event.preventDefault(); // no page scroll on space
   if (event.repeat) return;
+  sound.wake();
   if (started) press();
   else go(); // space or up also starts, from the directions
 });
@@ -441,6 +472,7 @@ howButton.addEventListener('click', () => {
 });
 
 function go() {
+  sound.wake();
   started = true;
   directions.hidden = true;
   requestAnimationFrame(frame);

@@ -3,6 +3,8 @@
 import { HOP_MS, drawUnicorn, maneFromAddress, pressOnReturn } from './unicorn.js';
 
 const mane = maneFromAddress(location.search);
+// Sound turned off in a level stays off, on to the next one
+const quiet = new URLSearchParams(location.search).get('sound') === 'off' ? '&sound=off' : '';
 const worlds = [...document.querySelectorAll('.world')];
 
 // She starts on the Meadow, every time: nothing is saved.
@@ -44,7 +46,7 @@ for (const world of worlds) {
     goTo(world);
     world.classList.add('hopping');
     opening = setTimeout(() => {
-      location.href = `${WORLD_PAGES[world.dataset.world]}?mane=${mane.name}`;
+      location.href = `${WORLD_PAGES[world.dataset.world]}?mane=${mane.name}${quiet}`;
     }, HOP_MS);
   };
   world.querySelector('.island').addEventListener('click', open);
@@ -56,4 +58,4 @@ if (here) pressOnReturn(() => here.querySelector('.island'));
 
 // Home keeps her mane, too.
 const home = document.querySelector('.home-btn');
-if (home) home.href = `./index.html?mane=${mane.name}`;
+if (home) home.href = `./index.html?mane=${mane.name}${quiet}`;

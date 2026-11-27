@@ -906,9 +906,33 @@ body {
   right: max(1rem, env(safe-area-inset-right));
   z-index: 1; /* above the directions, castle and game over screens, so the map button always works */
   display: flex;
-  justify-content: space-between;
+  gap: 0.75rem;
   align-items: center;
   pointer-events: none; /* taps between the buttons still reach the course, or the screen showing */
+}
+
+/* The diamond counter over on the right */
+.level-bar .gem-count {
+  margin-left: auto;
+}
+
+/* Sound on and off: a speaker with sound waves, crossed out when off */
+.sound-btn {
+  padding: 0;
+  cursor: pointer;
+}
+
+.sound-btn svg path:not(:first-child) {
+  stroke: var(--ink);
+}
+
+.sound-btn .cross,
+.sound-btn.off .waves {
+  display: none;
+}
+
+.sound-btn.off .cross {
+  display: inline;
 }
 
 .level-bar > * {

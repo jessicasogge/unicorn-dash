@@ -132,7 +132,7 @@ describe('the Meadow', () => {
 
   it('names every button for screen readers, in words or a label', () => {
     const controls = [...level.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)];
-    expect(controls.length).toBe(8); // How to play and Go; map; at the castle, play again, map and next; after a fall, try again and map
+    expect(controls.length).toBe(9); // How to play and Go; map and sound; at the castle, play again, map and next; after a fall, try again and map
     for (const [, , attrs, inside] of controls) {
       const words = inside.replace(/<[^>]*>/g, '').trim();
       expect(words || attrs.match(/aria-label="([^"]+)"/)?.[1]).toBeTruthy();
