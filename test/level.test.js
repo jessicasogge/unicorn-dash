@@ -436,6 +436,47 @@ describe('sounds', () => {
     tick();
     expect(tones).toBe(0);
   });
+
+  // A key goes to whatever has the focus, as in a browser
+  const press = (k) => document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+  // A click with the mouse or a tap (a keyboard's has no clicks counted)
+  const tapButton = () => {
+    button().focus();
+    button().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+  };
+
+  it('give the space bar back to the game once the button is clicked or tapped', async () => {
+    await open('?mane=blue', { go: false });
+    tapButton();
+    tapButton();
+    expect(document.activeElement).not.toBe(button());
+    press(' ');
+    expect($('.directions').hidden).toBe(true); // it started, not pressed the sound button again
+    expect(button().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('give Return back to the game too, for the screen\'s main button', async () => {
+    await open('?mane=blue');
+    for (let i = 0; i < 600 && frames.length; i++) {
+      tick();
+      vi.advanceTimersByTime(1000 / 60);
+    }
+    vi.advanceTimersByTime(1000);
+    expect($('.game-over').hidden).toBe(false);
+    tapButton();
+    tapButton();
+    press('Enter');
+    expect($('.game-over').hidden).toBe(true); // tried again
+    expect(button().getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('keep the focus when pressed from the keyboard, to press again', async () => {
+    await open('?mane=blue');
+    button().focus();
+    button().click(); // as Return or space on it does: no clicks counted
+    expect(document.activeElement).toBe(button());
+    expect(button().getAttribute('aria-pressed')).toBe('true');
+  });
 });
 
 describe('jumping', () => {

@@ -54,11 +54,15 @@ function showSound() {
   soundButton.classList.toggle('off', !sound.on);
 }
 showSound();
-soundButton.addEventListener('click', () => {
+soundButton.addEventListener('click', (event) => {
   sound.on = !sound.on;
   sound.wake();
   showSound();
   setLinks();
+  // Clicked or tapped: give the keys back to the game, or the space bar and
+  // Return would keep pressing this button instead of jumping, Go and the
+  // rest. (From the keyboard, with Tab, it keeps them, to press again.)
+  if (event.detail > 0) soundButton.blur();
 });
 
 function svg(viewBox, inner) {
